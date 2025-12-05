@@ -26,7 +26,7 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           onLoginSuccess(res.token);
-          setTimeout(() => { window.location.href = '/'; }, 100);
+          window.location.reload();
         } else {
           setError(res?.error || 'Login failed');
         }
