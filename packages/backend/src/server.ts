@@ -15,7 +15,7 @@ console.log('Starting DreamCraft backend...');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Security & Logging Middleware
 app.use(cors({
