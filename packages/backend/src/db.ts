@@ -8,9 +8,8 @@ export const connectDB = async (uri?: string) => {
     } as any);
     console.log('MongoDB connected');
   } catch (err) {
-    console.warn('MongoDB connection warning:', err);
-    console.warn('Proceeding without database - some features may not work');
-    // Don't throw - allow server to start without database
+    console.error('CRITICAL: MongoDB connection failed:', err);
+    throw new Error('Failed to connect to MongoDB - cannot start server without database');
   }
 };
 
