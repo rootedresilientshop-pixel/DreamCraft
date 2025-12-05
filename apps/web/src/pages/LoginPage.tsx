@@ -26,6 +26,7 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         if (res.token) {
           localStorage.setItem('userToken', res.token);
           onLoginSuccess(res.token);
+          window.location.href = '/';
         } else {
           setError(res.error || 'Login failed');
         }
