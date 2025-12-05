@@ -95,3 +95,4 @@ npm run backend
 **Year 1**: 10K ideas, 5K creators, 500 collaborators, 500 transactions, $50K MRR
 
 **Year 2**: 50K ideas, 25K creators, 2K collaborators, $200K MRR
+# Deployment trigger
