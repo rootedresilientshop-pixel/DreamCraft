@@ -5,6 +5,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
 const instance = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
+  transformRequest: [(data) => JSON.stringify(data)],
 });
 
 instance.interceptors.request.use((config) => {
