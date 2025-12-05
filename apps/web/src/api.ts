@@ -5,7 +5,6 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
 const instance = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
-  transformRequest: [(data) => JSON.stringify(data)],
 });
 
 instance.interceptors.request.use((config) => {
@@ -20,8 +19,14 @@ export default {
     return res.data;
   },
   async login(email: string, password: string) {
-    const res = await instance.post('/auth/login', { email, password });
-    return res.data;
+    try {
+      const res = await instance.post('/auth/login', { email, password });
+      console.log('Login response:', res.data);
+      return res.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   },
   async createIdea(payload: any) {
     const res = await instance.post('/ideas', payload);
