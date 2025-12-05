@@ -10,7 +10,18 @@
       "Bash(docker:*)",
       "Bash(docker-compose:*)",
       "Bash(where:*)",
-      "Bash(Start-Process \"C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe\")"
+      "Bash(Start-Process \"C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe\")",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm run build:*)",
+      "Bash(git diff-tree:*)",
+      "Bash(npm ci:*)",
+      "Bash(for:*)",
+      "Bash(done)",
+      "Bash(jq:*)",
+      "Bash(timeout 5 curl:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,9 @@
+{
+  "name": "dreamcraft",
+  "gitRepository": {
+    "type": "github",
+    "repo": "rootedresilientshop-pixel/DreamCraft"
+  },
+  "rootDirectory": "apps/web",
+  "framework": "vite"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "dreamcraft-web",
+  "gitRepository": {
+    "type": "github",
+    "repo": "rootedresilientshop-pixel/DreamCraft"
+  },
+  "rootDirectory": "apps/web",
+  "framework": "vite",
+  "buildCommand": "npm ci && npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
+  "commandForIgnoringBuildStep": ""
+}
