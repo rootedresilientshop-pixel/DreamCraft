@@ -11,6 +11,10 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.19.4
+      - key: PORT
+        value: 3002
+      - key: NODE_ENV
+        value: production
       # Set the below via Render Dashboard with real values
       - key: MONGODB_URI
         sync: false
