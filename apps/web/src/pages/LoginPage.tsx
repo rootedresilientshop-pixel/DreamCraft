@@ -23,6 +23,7 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         }
       } else {
         const res = await api.login(email, password);
+        console.log('LoginPage received res:', res);
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           onLoginSuccess(res.token);
