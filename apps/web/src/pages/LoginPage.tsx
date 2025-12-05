@@ -23,12 +23,12 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         }
       } else {
         const res = await api.login(email, password);
-        if (res && res.token) {
+        if (res?.token) {
           localStorage.setItem('userToken', res.token);
           onLoginSuccess(res.token);
           setTimeout(() => { window.location.href = '/'; }, 100);
         } else {
-          setError((res && res.error) || 'Login failed');
+          setError(res?.error || 'Login failed');
         }
       }
     } catch (err: any) {
