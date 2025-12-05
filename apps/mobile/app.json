@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "DreamCraft",
+    "slug": "dreamcraft",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
+    "newArchEnabled": true,
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "bundleIdentifier": "com.dreamcraft.app"
+    },
+    "android": {
+      "package": "com.dreamcraft.app",
+      "backgroundColor": "#000000"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [],
+    "extra": {
+      "apiUrl": "http://192.168.0.230:3001/api"
+    }
+  }
+}

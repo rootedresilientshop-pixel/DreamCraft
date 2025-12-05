@@ -1,0 +1,14 @@
+{
+  "name": "dreamcraft",
+  "version": "1.0.0",
+  "description": "DreamCraft - Idea to MVP Ecosystem",
+  "private": true,
+  "scripts": {
+    "mobile": "cd apps/mobile && npm start",
+    "web": "cd apps/web && npm start",
+    "backend": "cd packages/backend && npm run dev",
+    "start:web": "cd apps/mobile && npm run start:web",
+    "start:mobile:clear": "cd apps/mobile && npm run start:clear",
+    "start:mobile": "cd apps/mobile && npm start"
+  }
+}

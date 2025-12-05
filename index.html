@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamCraft - Where Ideas Venture Into Reality</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-blue-600">🚀 DreamCraft</h1>
+                <div id="authButtons">
+                    <button onclick="showLogin()" class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">Login</button>
+                    <button onclick="showRegister()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</button>
+                </div>
+                <div id="userMenu" class="hidden">
+                    <span id="userName" class="mr-4 text-gray-700"></span>
+                    <button onclick="logout()" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Login Form -->
+            <div id="loginForm" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md hidden">
+                <h2 class="text-2xl font-bold mb-6">Login</h2>
+                <input type="email" id="loginEmail" placeholder="Email" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Login</button>
+                <p class="mt-4 text-center text-gray-600">Don't have an account? <a href="#" onclick="showRegister()" class="text-blue-600">Sign up</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md hidden">
+                <h2 class="text-2xl font-bold mb-6">Create Account</h2>
+                <input type="text" id="regFirstName" placeholder="First Name" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <input type="text" id="regLastName" placeholder="Last Name" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <input type="email" id="regEmail" placeholder="Email" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <input type="password" id="regPassword" placeholder="Password" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <select id="regRole" class="w-full px-4 py-2 border rounded-lg mb-4">
+                    <option value="creator">I have ideas (Creator)</option>
+                    <option value="builder">I build things (Builder)</option>
+                </select>
+                <button onclick="handleRegister()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Sign Up</button>
+                <p class="mt-4 text-center text-gray-600">Already have an account? <a href="#" onclick="showLogin()" class="text-blue-600">Login</a></p>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Ideas Marketplace</h2>
+                    <button onclick="showCreateIdea()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ Submit Idea</button>
+                </div>
+
+                <!-- Ideas List -->
+                <div id="ideasList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Ideas will load here -->
+                </div>
+            </div>
+
+            <!-- Create Idea Form -->
+            <div id="createIdeaForm" class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md hidden">
+                <h2 class="text-2xl font-bold mb-6">Submit Your Idea</h2>
+                <input type="text" id="ideaTitle" placeholder="Idea Title" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <select id="ideaCategory" class="w-full px-4 py-2 border rounded-lg mb-4">
+                    <option value="fintech">Fintech</option>
+                    <option value="health">Health Tech</option>
+                    <option value="b2b_saas">B2B SaaS</option>
+                    <option value="ecommerce">E-commerce</option>
+                    <option value="edtech">EdTech</option>
+                    <option value="consumer">Consumer</option>
+                </select>
+                <textarea id="ideaProblem" placeholder="What problem does this solve?" class="w-full px-4 py-2 border rounded-lg mb-4 h-24"></textarea>
+                <textarea id="ideaSolution" placeholder="Your solution" class="w-full px-4 py-2 border rounded-lg mb-4 h-24"></textarea>
+                <input type="text" id="ideaTarget" placeholder="Target audience" class="w-full px-4 py-2 border rounded-lg mb-4">
+                <textarea id="ideaMonetization" placeholder="How will it make money?" class="w-full px-4 py-2 border rounded-lg mb-4 h-20"></textarea>
+                <button onclick="handleCreateIdea()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Submit Idea</button>
+                <button onclick="showDashboard()" class="w-full mt-2 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // Check if user is logged in on load
+        window.onload = function() {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                showDashboard();
+                loadIdeas();
+            } else {
+                showLogin();
+            }
+        };
+
+        // API Helper
+        async function fetchAPI(endpoint, options = {}) {
+            const token = localStorage.getItem('accessToken');
+            
+            const config = {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` }),
+                    ...options.headers,
+                },
+            };
+            
+            const response = await fetch(`${API_URL}${endpoint}`, config);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'API request failed');
+            }
+            
+            return data;
+        }
+
+        // Authentication
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const data = await fetchAPI('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                alert('Login successful!');
+                showDashboard();
+                loadIdeas();
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function handleRegister() {
+            const firstName = document.getElementById('regFirstName').value;
+            const lastName = document.getElementById('regLastName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            
+            try {
+                const data = await fetchAPI('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password, firstName, lastName, role })
+                });
+                
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                alert('Registration successful!');
+                showDashboard();
+                loadIdeas();
+            } catch (error) {
+                alert('Registration failed: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // Ideas
+        async function loadIdeas() {
+            try {
+                const data = await fetchAPI('/ideas?isSeekingCollaborators=true');
+                const list = document.getElementById('ideasList');
+                
+                if (data.ideas.length === 0) {
+                    list.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">No ideas yet. Be the first to submit one!</p>';
+                    return;
+                }
+                
+                list.innerHTML = data.ideas.map(idea => `
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                        <div class="flex items-start justify-between mb-3">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">${idea.category}</span>
+                            <span class="text-gray-500 text-sm">${new Date(idea.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">${idea.title}</h3>
+                        <p class="text-gray-600 mb-4">${idea.problem.substring(0, 100)}...</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span>👤 ${idea.first_name} ${idea.last_name}</span>
+                            <span>👁️ ${idea.views_count} views</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load ideas:', error);
+            }
+        }
+
+        async function handleCreateIdea() {
+            const title = document.getElementById('ideaTitle').value;
+            const category = document.getElementById('ideaCategory').value;
+            const problem = document.getElementById('ideaProblem').value;
+            const solution = document.getElementById('ideaSolution').value;
+            const targetAudience = document.getElementById('ideaTarget').value;
+            const monetization = document.getElementById('ideaMonetization').value;
+            
+            try {
+                await fetchAPI('/ideas', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        title, category, problem, solution,
+                        targetAudience, monetization
+                    })
+                });
+                
+                alert('Idea created successfully!');
+                showDashboard();
+                loadIdeas();
+            } catch (error) {
+                alert('Failed to create idea: ' + error.message);
+            }
+        }
+
+        // UI Navigation
+        function showLogin() {
+            hideAll();
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function showRegister() {
+            hideAll();
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function showDashboard() {
+            hideAll();
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('userMenu').classList.remove('hidden');
+            
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = `${user.firstName} ${user.lastName}`;
+        }
+
+        function showCreateIdea() {
+            hideAll();
+            document.getElementById('createIdeaForm').classList.remove('hidden');
+        }
+
+        function hideAll() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('createIdeaForm').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

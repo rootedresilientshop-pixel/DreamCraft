@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: dreamcraft-backend
+    runtime: node
+    rootDir: packages/backend
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.4
+      # Set the below via Render Dashboard with real values
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: "http://localhost:5173,https://your-vercel-domain.vercel.app"

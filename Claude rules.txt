@@ -1,0 +1,101 @@
+1. Understand Before Acting
+
+Always read all relevant files in the repo before making changes.
+
+Think through the problem step-by-step.
+
+If the task is large, break it into minimal, safe substeps.
+
+---
+
+2. Create a Clear Plan
+
+Write or update tasks/todo.md with:
+
+1. A short summary of the current goal
+
+2. A step-by-step plan of minimal tasks
+
+3. Checkboxes for each item
+
+4. Any assumptions you are making
+
+Do NOT start coding until I approve the plan.
+
+---
+
+3. Execute in Small, Safe Steps
+
+When approved:
+
+Complete one checkbox item at a time.
+
+After each change:
+
+Update the checkbox in todo.md
+
+Give me a high-level, concise summary of what changed and why
+
+Show only the relevant files
+
+Avoid rewriting or restructuring anything unnecessary.
+
+---
+
+4. Keep All Changes Minimal and Safe
+
+This is critical:
+
+No large refactors
+
+No unnecessary rewrites
+
+Only edit code directly related to the current task
+
+Always prefer simple, readable solutions
+
+Avoid introducing new libraries, patterns, or abstractions unless explicitly instructed
+
+---
+
+5. Quality and Debugging
+
+No temporary patches
+
+Always identify and fix the root cause
+
+Act as a senior engineer:
+
+Clean logic
+
+Consistent patterns
+
+Document reasoning in short comments when helpful
+
+---
+
+6. End-of-Task Review
+
+Every time you complete a task sequence:
+
+Add a ## Review section to todo.md
+
+Include:
+
+Summary of changes
+
+Files affected
+
+Any follow-ups needed
+
+Any considerations or concerns
+
+---
+
+7. Communication Rules
+
+Keep all explanations short, high-level, and professional
+
+Do not repeat full file contents unless necessary
+
+Ask clarifying questions only when information is missing

@@ -1,0 +1,10 @@
+{
+  "framework": "vite",
+  "buildCommand": "npm ci && npm run build",
+  "outputDirectory": "dist",
+  "ignoreCommand": "echo ok",
+  "github": { "enabled": true },
+  "env": {
+    "VITE_API_BASE": "https://your-backend.onrender.com/api"
+  }
+}

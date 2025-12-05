@@ -1,0 +1,44 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "DreamCraft"
+    },
+    {
+      "path": "apps/mobile",
+      "name": "Mobile App"
+    },
+    {
+      "path": "apps/web",
+      "name": "Web App"
+    },
+    {
+      "path": "packages/backend",
+      "name": "Backend API"
+    },
+    {
+      "path": "packages/shared",
+      "name": "Shared Types"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ThunderClient.thunder-client",
+      "MongoDB.mongodb-vscode"
+    ]
+  }
+}
