@@ -1,10 +1,9 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import Constants from "expo-constants";
+import { API_URL } from "./environment";
 
-// Use environment variable from app.json extra config, fallback to localhost for development
-const API_BASE =
-  Constants.expoConfig?.extra?.apiUrl || "http://localhost:3001/api";
+// API URL determined by environment.ts based on __DEV__ and env vars
+const API_BASE = API_URL;
 
 const instance = axios.create({
   baseURL: API_BASE,

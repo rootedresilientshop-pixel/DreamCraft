@@ -23,7 +23,7 @@
     },
     "plugins": [],
     "extra": {
-      "apiUrl": "http://192.168.0.230:3001/api"
+      "apiUrl": "https://dreamcraft-backend.onrender.com/api"
     }
   }
 }
