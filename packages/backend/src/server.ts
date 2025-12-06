@@ -18,13 +18,26 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 // Security & Logging Middleware
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://dreamcraft-khaki.vercel.app',
-  'https://www.dreamcraft-khaki.vercel.app',
-  'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app'
-];
+const getDefaultOrigins = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return [
+      'https://dreamcraft-khaki.vercel.app',
+      'https://www.dreamcraft-khaki.vercel.app'
+    ];
+  }
+  // Development defaults
+  return [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://dreamcraft-khaki.vercel.app',
+    'https://www.dreamcraft-khaki.vercel.app',
+    'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app'
+  ];
+};
+
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
+  : getDefaultOrigins();
 
 const corsOptions = {
   origin: allowedOrigins,
