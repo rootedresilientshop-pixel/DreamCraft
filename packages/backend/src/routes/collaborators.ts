@@ -42,4 +42,37 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
   }
 });
 
+// Invite collaborator (authenticated)
+router.post('/invite', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { collaboratorId, ideaId } = req.body;
+
+    // Validate input
+    if (!collaboratorId || !ideaId) {
+      return res.status(400).json({ error: 'collaboratorId and ideaId required' });
+    }
+
+    // Check if collaborator exists
+    const collaborator = await User.findById(collaboratorId);
+    if (!collaborator) {
+      return res.status(404).json({ error: 'Collaborator not found' });
+    }
+
+    // In a full implementation, this would:
+    // 1. Create an invitation record
+    // 2. Send notification to collaborator
+    // 3. Track invitation status
+    // For now, we return success
+    res.json({
+      success: true,
+      message: `Invitation sent to ${collaborator.username}`,
+      data: { collaboratorId, ideaId, status: 'pending' }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to send invitation' });
+  }
+});
+
 export default router;

@@ -12,6 +12,10 @@ import IdeaDocumentationScreen from './screens/IdeaDocumentationScreen';
 import CollaboratorBrowseScreen from './screens/CollaboratorBrowseScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SplashScreen from './screens/SplashScreen';
+import CreateIdeaScreen from './screens/CreateIdeaScreen';
+import IdeaDetailScreen from './screens/IdeaDetailScreen';
+import CheckoutScreen from './screens/CheckoutScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,6 +28,7 @@ const HomeTabNavigator = () => {
           const icons: any = {
             Home: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>🏠</Text>,
             Ideas: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>💡</Text>,
+            Notifications: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>🔔</Text>,
             Collaborators: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>👥</Text>,
             Profile: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>👤</Text>,
           };
@@ -34,6 +39,7 @@ const HomeTabNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Ideas" component={IdeaDocumentationScreen} />
+      <Tab.Screen name="Notifications" component={NotificationsScreen} />
       <Tab.Screen name="Collaborators" component={CollaboratorBrowseScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
@@ -97,7 +103,12 @@ export default function App() {
         {state.userToken == null ? (
           <Stack.Screen name="Login" component={LoginScreen} />
         ) : (
-          <Stack.Screen name="Home" component={HomeTabNavigator} />
+          <>
+            <Stack.Screen name="Home" component={HomeTabNavigator} />
+            <Stack.Screen name="CreateIdea" component={CreateIdeaScreen} options={{ presentation: 'modal' }} />
+            <Stack.Screen name="IdeaDetail" component={IdeaDetailScreen} options={{ presentation: 'card' }} />
+            <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ presentation: 'card' }} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

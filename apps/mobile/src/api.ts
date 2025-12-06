@@ -39,4 +39,24 @@ export default {
     const res = await instance.post(`/ideas/${id}/valuate`);
     return res.data;
   },
+  async getIdeaDetail(id: string) {
+    const res = await instance.get(`/ideas/${id}`);
+    return res.data;
+  },
+  async searchCollaborators(q?: string, skill?: string) {
+    const res = await instance.get('/collaborators', { params: { q, skill } });
+    return res.data;
+  },
+  async getProfile() {
+    const res = await instance.get('/collaborators/me');
+    return res.data;
+  },
+  async createPaymentIntent(ideaId: string, amount: number) {
+    const res = await instance.post('/payments/intent', { ideaId, amount });
+    return res.data;
+  },
+  async confirmPayment(paymentIntentId: string, paymentMethodId: string) {
+    const res = await instance.post('/payments/confirm', { paymentIntentId, paymentMethodId });
+    return res.data;
+  },
 };

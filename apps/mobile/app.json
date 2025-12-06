@@ -10,9 +10,14 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "bundleIdentifier": "com.dreamcraft.app"
+      "bundleIdentifier": "com.dreamcraft.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.dreamcraft.app",
@@ -23,7 +28,10 @@
     },
     "plugins": [],
     "extra": {
-      "apiUrl": "https://dreamcraft-backend.onrender.com/api"
+      "apiUrl": "https://dreamcraft-f8w8.onrender.com/api",
+      "eas": {
+        "projectId": "1e5195d7-d635-4c15-a5f8-21c96d4e9188"
+      }
     }
   }
 }

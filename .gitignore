@@ -20,3 +20,4 @@ local.properties
 *.orig.*
 web-build/
 .env
+CREDENTIALS_PRODUCTION.md

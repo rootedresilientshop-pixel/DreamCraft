@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }: any) {
   const ideas = [
     { id: '1', title: 'AI-Powered Fitness App', value: '$5,000', status: 'Published' },
     { id: '2', title: 'Blockchain Supply Chain', value: '$8,500', status: 'In Collaboration' },
@@ -9,7 +9,15 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Dashboard</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Dashboard</Text>
+        <TouchableOpacity
+          style={styles.newIdeaButton}
+          onPress={() => navigation.navigate('CreateIdea')}
+        >
+          <Text style={styles.newIdeaButtonText}>+ New Idea</Text>
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.statsContainer}>
         <View style={styles.stat}>
@@ -53,11 +61,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     padding: 20,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 20,
+  },
+  newIdeaButton: {
+    backgroundColor: '#00cc66',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  newIdeaButtonText: {
+    color: '#000',
+    fontWeight: '600',
+    fontSize: 14,
   },
   statsContainer: {
     flexDirection: 'row',
