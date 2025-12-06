@@ -22,7 +22,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'https://dreamcraft-khaki.vercel.app',
-  'https://www.dreamcraft-khaki.vercel.app'
+  'https://www.dreamcraft-khaki.vercel.app',
+  'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app'
 ];
 
 app.use(
