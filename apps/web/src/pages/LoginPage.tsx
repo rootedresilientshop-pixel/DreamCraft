@@ -47,10 +47,13 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
       <p style={{ color: '#999' }}>Where dreams become reality</p>
 
       <input
+        id="email"
+        name="email"
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
         style={{
           width: '100%',
           padding: '10px',
@@ -64,10 +67,13 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
       />
 
       <input
+        id="password"
+        name="password"
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        autoComplete={isRegister ? 'new-password' : 'current-password'}
         style={{
           width: '100%',
           padding: '10px',
