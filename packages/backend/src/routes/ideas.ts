@@ -102,7 +102,7 @@ router.get('/:id/nda', authenticateToken, async (req: Request, res: Response) =>
     const idea = await Idea.findById(req.params.id).populate('creatorId');
     if (!idea) return res.status(404).json({ error: 'Idea not found' });
     const creatorName = (idea as any).creatorId?.profile?.firstName || 'Creator';
-    const nda = generateNDAText(creatorName, idea.title);
+    const nda = generateNDAText(creatorName, (idea as any).title || 'Untitled');
     res.setHeader('Content-Type', 'text/plain');
     res.send(nda);
   } catch (err) {
