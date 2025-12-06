@@ -199,6 +199,7 @@ export default function ProfilePage() {
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>First Name</label>
               <input
+                id="firstName"
                 type="text"
                 name="firstName"
                 value={formData.firstName}
@@ -212,6 +213,7 @@ export default function ProfilePage() {
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>Last Name</label>
               <input
+                id="lastName"
                 type="text"
                 name="lastName"
                 value={formData.lastName}
@@ -225,6 +227,7 @@ export default function ProfilePage() {
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>Bio</label>
               <textarea
+                id="bio"
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
@@ -239,6 +242,7 @@ export default function ProfilePage() {
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>Skills (comma-separated)</label>
               <input
+                id="skills"
                 type="text"
                 name="skills"
                 value={formData.skills}

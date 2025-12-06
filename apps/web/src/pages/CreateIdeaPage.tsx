@@ -73,6 +73,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
           <div style={styles.formGroup}>
             <label style={styles.label}>Title *</label>
             <input
+              id="title"
               type="text"
               name="title"
               placeholder="Enter idea title"
@@ -89,6 +90,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
           <div style={styles.formGroup}>
             <label style={styles.label}>Description *</label>
             <textarea
+              id="description"
               name="description"
               placeholder="Describe your idea in detail"
               value={formData.description}
@@ -105,6 +107,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
           <div style={styles.formGroup}>
             <label style={styles.label}>Category</label>
             <select
+              id="category"
               name="category"
               value={formData.category}
               onChange={handleChange}
@@ -124,6 +127,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
           <div style={styles.formGroup}>
             <label style={styles.label}>Visibility</label>
             <select
+              id="visibility"
               name="visibility"
               value={formData.visibility}
               onChange={handleChange}

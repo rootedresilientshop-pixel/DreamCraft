@@ -56,6 +56,8 @@ export default function CollaboratorsPage() {
           <div style={styles.formGroup}>
             <label style={styles.label}>Search by name</label>
             <input
+              id="searchQuery"
+              name="searchQuery"
               type="text"
               placeholder="Name or username..."
               value={searchQuery}
@@ -68,6 +70,8 @@ export default function CollaboratorsPage() {
           <div style={styles.formGroup}>
             <label style={styles.label}>Filter by skill</label>
             <select
+              id="searchSkill"
+              name="searchSkill"
               value={searchSkill}
               onChange={(e) => setSearchSkill(e.target.value)}
               style={styles.input}

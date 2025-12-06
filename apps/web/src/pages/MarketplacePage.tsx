@@ -111,6 +111,8 @@ export default function MarketplacePage() {
 
       <div style={{ marginBottom: '20px' }}>
         <input
+          id="searchQ"
+          name="searchQ"
           type="text"
           placeholder="Search ideas..."
           value={searchQ}
