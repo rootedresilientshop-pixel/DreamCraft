@@ -29,10 +29,14 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
+          console.log('Calling onLoginSuccess...');
           // Trigger App re-render via onLoginSuccess
           onLoginSuccess(res.token);
+          console.log('isLoggedIn should now be true, attempting navigation...');
           // Force navigation to dashboard
-          navigate('/', { replace: true });
+          setTimeout(() => {
+            navigate('/', { replace: true });
+          }, 100);
         } else {
           setError(res?.error || 'Login failed');
         }

@@ -16,9 +16,14 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem('userToken');
+    console.log('App: Checking token on mount:', token);
     setIsLoggedIn(!!token);
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    console.log('App: isLoggedIn changed to:', isLoggedIn);
+  }, [isLoggedIn]);
 
   if (loading) {
     return <div style={{ padding: '20px', color: '#999' }}>Loading...</div>;
