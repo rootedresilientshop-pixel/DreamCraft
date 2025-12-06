@@ -26,13 +26,11 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
       } else {
         const res = await api.login(email, password);
         console.log('LoginPage received res:', res);
-        alert('Login response: ' + JSON.stringify(res));
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
-          alert('Token saved! Reloading page...');
-          // Force a full page reload to pick up the new token
-          window.location.reload();
+          // Call the parent callback to update isLoggedIn state
+          onLoginSuccess(res.token);
         } else {
           setError(res?.error || 'Login failed');
         }
