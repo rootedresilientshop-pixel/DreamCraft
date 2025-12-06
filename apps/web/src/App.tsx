@@ -17,6 +17,8 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('userToken');
     console.log('App: Checking token on mount:', token);
+    console.log('BUILD TIME:', new Date().toISOString());
+    alert('App loaded! Token: ' + (token ? 'EXISTS' : 'NULL'));
     setIsLoggedIn(!!token);
     setLoading(false);
   }, []);
