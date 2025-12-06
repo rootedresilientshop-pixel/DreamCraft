@@ -27,9 +27,12 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
-          // Trigger App re-render via onLoginSuccess instead of window.reload()
-          // This avoids race conditions and lets React handle the state transition
+          // Trigger App re-render via onLoginSuccess
           onLoginSuccess(res.token);
+          // Use setTimeout to ensure React state updates before navigation
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 100);
         } else {
           setError(res?.error || 'Login failed');
         }
