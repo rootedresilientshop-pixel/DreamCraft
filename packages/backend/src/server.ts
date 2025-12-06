@@ -26,7 +26,9 @@ const corsOrigins = process.env.CORS_ORIGINS
       'http://localhost:3001',
       'https://dreamcraft-khaki.vercel.app',
       'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app',
-      'https://dreamcraft-bzjwegd74-gardner-seeses-projects.vercel.app'
+      'https://dreamcraft-bzjwegd74-gardner-seeses-projects.vercel.app',
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.live$/
     ];
 
 app.use(cors({
