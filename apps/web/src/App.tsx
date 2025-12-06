@@ -17,8 +17,33 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('userToken');
     console.log('App: Checking token on mount:', token);
-    setIsLoggedIn(!!token);
+    if (token) {
+      setIsLoggedIn(true);
+    }
     setLoading(false);
+
+    // Listen for storage changes (including from LoginPage)
+    const handleStorageChange = () => {
+      const currentToken = localStorage.getItem('userToken');
+      console.log('Storage changed, token:', currentToken);
+      setIsLoggedIn(!!currentToken);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also create custom event for same-window updates
+    const handleTokenChange = (e: Event) => {
+      const currentToken = localStorage.getItem('userToken');
+      console.log('Token change event, token:', currentToken);
+      setIsLoggedIn(!!currentToken);
+    };
+    
+    window.addEventListener('tokenChanged', handleTokenChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('tokenChanged', handleTokenChange);
+    };
   }, []);
 
   useEffect(() => {
