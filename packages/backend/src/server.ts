@@ -18,8 +18,19 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 // Security & Logging Middleware
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
+  : [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:3001',
+      'https://dreamcraft-khaki.vercel.app',
+      'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app',
+      'https://dreamcraft-bzjwegd74-gardner-seeses-projects.vercel.app'
+    ];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'],
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
