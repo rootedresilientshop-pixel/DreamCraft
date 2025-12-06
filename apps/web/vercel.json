@@ -5,6 +5,6 @@
   "ignoreCommand": "echo ok",
   "github": { "enabled": true },
   "env": {
-    "VITE_API_BASE": "https://your-backend.onrender.com/api"
+    "VITE_API_BASE": "https://dreamcraft-f8w8.onrender.com/api"
   }
 }
