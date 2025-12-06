@@ -18,25 +18,24 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 // Security & Logging Middleware
-const corsOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
-  : [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:3001',
-      'https://dreamcraft-khaki.vercel.app',
-      'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app',
-      'https://dreamcraft-bzjwegd74-gardner-seeses-projects.vercel.app',
-      /^https:\/\/.*\.vercel\.app$/,
-      /^https:\/\/.*\.vercel\.live$/
-    ];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://dreamcraft-khaki.vercel.app',
+  'https://www.dreamcraft-khaki.vercel.app'
+];
 
-app.use(cors({
-  origin: corsOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+// Preflight OPTIONS handling for all routes
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 app.use(createRateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 100 }));
