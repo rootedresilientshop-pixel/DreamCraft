@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: string) => void }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
@@ -27,8 +29,10 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
-          // Trigger App re-render via onLoginSuccess - this will cause React to show the authenticated routes
+          // Trigger App re-render via onLoginSuccess
           onLoginSuccess(res.token);
+          // Force navigation to dashboard
+          navigate('/', { replace: true });
         } else {
           setError(res?.error || 'Login failed');
         }
