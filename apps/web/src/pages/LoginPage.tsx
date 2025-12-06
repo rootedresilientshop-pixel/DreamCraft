@@ -27,12 +27,8 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         if (res?.token) {
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
-          // Trigger App re-render via onLoginSuccess
+          // Trigger App re-render via onLoginSuccess - this will cause React to show the authenticated routes
           onLoginSuccess(res.token);
-          // Use setTimeout to ensure React state updates before navigation
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 100);
         } else {
           setError(res?.error || 'Login failed');
         }

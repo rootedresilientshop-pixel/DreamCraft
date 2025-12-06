@@ -19,13 +19,6 @@ const PORT = process.env.PORT || 3002;
 
 // Security & Logging Middleware
 const getDefaultOrigins = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return [
-      'https://dreamcraft-khaki.vercel.app',
-      'https://www.dreamcraft-khaki.vercel.app'
-    ];
-  }
-  // Development defaults
   return [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
@@ -40,7 +33,17 @@ const allowedOrigins = process.env.CORS_ORIGINS
   : getDefaultOrigins();
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS rejected origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

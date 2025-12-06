@@ -23,9 +23,10 @@ export default {
       const res = await instance.post('/auth/login', { email, password });
       console.log('Login response:', res.data);
       return res.data || {};
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      return { error: error.message || 'Login failed' };
+      const errorMsg = error?.response?.data?.error || error.message || 'Login failed';
+      return { error: errorMsg };
     }
   },
   async createIdea(payload: any) {
