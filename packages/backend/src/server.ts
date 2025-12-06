@@ -26,17 +26,17 @@ const allowedOrigins = [
   'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app'
 ];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 
 // Preflight OPTIONS handling for all routes
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 app.use(createRateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 100 }));
@@ -60,6 +60,12 @@ app.use('/api/transactions', (req, res) => {
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
+  // Ensure CORS headers are present even in error responses
+  const origin = req.headers.origin || '';
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
   res.status(500).json({ error: 'Internal server error' });
 });
 
