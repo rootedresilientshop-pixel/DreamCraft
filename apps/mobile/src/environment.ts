@@ -17,7 +17,7 @@ const getApiUrl = (): string => {
   }
 
   // Production default
-  return 'https://dreamcraft-backend.onrender.com/api';
+  return 'https://dreamcraft-f8w8.onrender.com/api';
 };
 
 export const API_URL = getApiUrl();
