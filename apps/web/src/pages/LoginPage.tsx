@@ -35,10 +35,12 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
           window.dispatchEvent(new Event('tokenChanged'));
 
           // Call the parent callback to update isLoggedIn state
-          // Wait for state to update before triggering navigation
+          onLoginSuccess(res.token);
+
+          // Navigate to home page after brief delay to ensure state updates
           setTimeout(() => {
-            onLoginSuccess(res.token);
-          }, 100);
+            navigate('/');
+          }, 200);
         } else {
           setError(res?.error || 'Login failed');
         }
