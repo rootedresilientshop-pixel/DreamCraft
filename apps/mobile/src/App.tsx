@@ -1,79 +1,39 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { loadToken } from "./utils/authStorage";
+import { NavigationContainer } from "@react-navigation/native";
+import RootNavigator from "./navigation/RootNavigator";
 
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import LoginScreen from './screens/LoginScreen';
-import HomeScreen from './screens/HomeScreen';
-import IdeaDocumentationScreen from './screens/IdeaDocumentationScreen';
-import CollaboratorBrowseScreen from './screens/CollaboratorBrowseScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import SplashScreen from './screens/SplashScreen';
-import CreateIdeaScreen from './screens/CreateIdeaScreen';
-import IdeaDetailScreen from './screens/IdeaDetailScreen';
-import CheckoutScreen from './screens/CheckoutScreen';
-import NotificationsScreen from './screens/NotificationsScreen';
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+  useEffect(() => {
+    async function checkToken() {
+      const token = await loadToken();
+      console.log("App: Checking token on mount:", token);
 
-const HomeTabNavigator = () => {
-  return (
-      <Tab.Navigator
-      screenOptions={({ route }: any) => ({
-        tabBarIcon: ({ color, size }: any) => {
-          const icons: any = {
-            Home: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>🏠</Text>,
-            Ideas: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>💡</Text>,
-            Notifications: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>🔔</Text>,
-            Collaborators: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>👥</Text>,
-            Profile: <Text style={{ color: color as any, fontSize: (size || 16) as any }}>👤</Text>,
-          };
-          return icons[route.name];
-        },
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Ideas" component={IdeaDocumentationScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} />
-      <Tab.Screen name="Collaborators" component={CollaboratorBrowseScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
-  );
-};
+      if (token) setIsLoggedIn(true);
+      setLoading(false);
+    }
+    checkToken();
 
-const AppNavigator = () => {
-  const { state } = useAuth();
+    // Listen for token changes (web only)
+    const listener = () => {
+      loadToken().then((t) => {
+        console.log("Storage changed:", t);
+        setIsLoggedIn(!!t);
+      });
+    };
 
-  if (state.isLoading) {
-    return <SplashScreen />;
-  }
+    window.addEventListener("storage", listener);
+    return () => window.removeEventListener("storage", listener);
+  }, []);
+
+  if (loading) return null;
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {state.userToken == null ? (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        ) : (
-          <>
-            <Stack.Screen name="Home" component={HomeTabNavigator} />
-            <Stack.Screen name="CreateIdea" component={CreateIdeaScreen} options={{ presentation: 'modal' }} />
-            <Stack.Screen name="IdeaDetail" component={IdeaDetailScreen} options={{ presentation: 'card' }} />
-            <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ presentation: 'card' }} />
-          </>
-        )}
-      </Stack.Navigator>
+      <RootNavigator isLoggedIn={isLoggedIn} />
     </NavigationContainer>
-  );
-};
-
-export default function App() {
-  return (
-    <AuthProvider>
-      <AppNavigator />
-    </AuthProvider>
   );
 }

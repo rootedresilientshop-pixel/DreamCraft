@@ -1,20 +1,16 @@
 services:
   - type: web
-    name: dreamcraft-backend
+    name: venturelab-backend
     runtime: node
     rootDir: packages/backend
     plan: free
     region: oregon
-    buildCommand: npm ci && NODE_OPTIONS="--max-old-space-size=512" npm run build && npm prune --omit=dev
+    buildCommand: npm ci && npm run build
     startCommand: npm start
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 20.19.4
-      - key: PORT
-        value: 3002
-      - key: NODE_ENV
-        value: production
       # Set the below via Render Dashboard with real values
       - key: MONGODB_URI
         sync: false

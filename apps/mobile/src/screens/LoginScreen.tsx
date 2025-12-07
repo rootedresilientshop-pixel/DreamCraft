@@ -1,28 +1,36 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
-import { useState } from 'react';
-import api from '../api';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import api from "../api";
+import { saveToken } from "../utils/authStorage";
 
 export default function LoginScreen({ navigation }: any) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
 
   const handleLogin = async () => {
     setLoading(true);
     try {
       const res = await api.login(email, password);
+
       if (res && res.token) {
-        await signIn(res.token);
-        // Navigation will happen automatically when AuthContext updates
+        // 💡 Cross-platform storage (web + native)
+        await saveToken(res.token);
+
+        navigation.replace("Home");
       } else {
-        Alert.alert('Login failed', res?.error || 'Unknown error');
+        Alert.alert("Login failed", res?.error || "Unknown error");
       }
     } catch (err: any) {
       console.error(err);
-      Alert.alert('Login error', err.message || 'Unknown error');
+      Alert.alert("Login error", err.message || "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -33,13 +41,13 @@ export default function LoginScreen({ navigation }: any) {
     try {
       const res = await api.register(email, password);
       if (res && res.success) {
-        Alert.alert('Account created', 'Please log in');
+        Alert.alert("Account created", "Please log in");
       } else {
-        Alert.alert('Registration failed', res?.error || 'Unknown error');
+        Alert.alert("Registration failed", res?.error || "Unknown error");
       }
     } catch (err: any) {
       console.error(err);
-      Alert.alert('Registration error', err.message || 'Unknown error');
+      Alert.alert("Registration error", err.message || "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -56,7 +64,6 @@ export default function LoginScreen({ navigation }: any) {
         placeholderTextColor="#999"
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
         autoCapitalize="none"
       />
 
@@ -69,8 +76,14 @@ export default function LoginScreen({ navigation }: any) {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Login'}</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Loading..." : "Login"}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleCreate} disabled={loading}>
@@ -83,48 +96,39 @@ export default function LoginScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
+    color: "#999",
+    textAlign: "center",
     marginBottom: 40,
   },
   input: {
-    backgroundColor: '#1a1a1a',
-    borderColor: '#0099ff',
+    backgroundColor: "#1a1a1a",
+    borderColor: "#0099ff",
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
-    color: '#fff',
+    color: "#fff",
   },
   button: {
-    backgroundColor: '#0099ff',
+    backgroundColor: "#0099ff",
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  link: {
-    color: '#0099ff',
-    textAlign: 'center',
-    marginTop: 20,
-    fontSize: 14,
-  },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  link: { color: "#0099ff", textAlign: "center", marginTop: 20, fontSize: 14 },
 });

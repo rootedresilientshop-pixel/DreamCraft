@@ -1,7 +1,7 @@
 {
-  "name": "dreamcraft",
+  "name": "venturelab",
   "version": "1.0.0",
-  "description": "DreamCraft - Idea to MVP Ecosystem",
+  "description": "VentureLab - Idea to MVP Ecosystem",
   "private": true,
   "scripts": {
     "mobile": "cd apps/mobile && npm start",

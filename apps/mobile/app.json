@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "DreamCraft",
-    "slug": "dreamcraft",
+    "name": "VentureLab",
+    "slug": "venturelab",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -10,17 +10,12 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "bundleIdentifier": "com.dreamcraft.app",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "bundleIdentifier": "com.venturelab.app"
     },
     "android": {
-      "package": "com.dreamcraft.app",
+      "package": "com.venturelab.app",
       "backgroundColor": "#000000"
     },
     "web": {
@@ -28,10 +23,7 @@
     },
     "plugins": [],
     "extra": {
-      "apiUrl": "https://dreamcraft-f8w8.onrender.com/api",
-      "eas": {
-        "projectId": "1e5195d7-d635-4c15-a5f8-21c96d4e9188"
-      }
+      "apiUrl": "http://192.168.0.230:3001/api"
     }
   }
 }
