@@ -2,7 +2,7 @@
   "framework": "vite",
   "buildCommand": "npm ci && npm run build",
   "outputDirectory": "dist",
-  "ignoreCommand": "echo ok",
+  "ignoreCommand": "git diff --quiet HEAD~1 HEAD -- apps/web/ || exit 1",
   "github": { "enabled": true },
   "env": {
     "VITE_API_BASE": "https://dreamcraft-f8w8.onrender.com/api"
