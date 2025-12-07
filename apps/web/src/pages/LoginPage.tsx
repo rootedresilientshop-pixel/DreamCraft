@@ -34,7 +34,7 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
           // Call the parent callback to update isLoggedIn state
           onLoginSuccess(res.token);
 
-          // Navigate to home page - state update will trigger route change
+          // Navigate to home page immediately
           navigate('/');
         } else {
           setError(res?.error || 'Login failed');

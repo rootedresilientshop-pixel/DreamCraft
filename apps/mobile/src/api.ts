@@ -18,6 +18,11 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
+// Helper function to extract error messages from API errors
+const extractErrorMessage = (error: any, defaultMessage: string): string => {
+  return error?.response?.data?.error || error.message || defaultMessage;
+};
+
 export default {
   async register(email: string, password: string) {
     try {
@@ -29,8 +34,7 @@ export default {
       return res.data;
     } catch (error: any) {
       console.error('Registration error:', error);
-      const errorMsg = error?.response?.data?.error || error.message || 'Registration failed';
-      return { error: errorMsg };
+      return { error: extractErrorMessage(error, 'Registration failed') };
     }
   },
   async login(email: string, password: string) {
@@ -40,8 +44,7 @@ export default {
       return res.data || {};
     } catch (error: any) {
       console.error('Login error:', error);
-      const errorMsg = error?.response?.data?.error || error.message || 'Login failed';
-      return { error: errorMsg };
+      return { error: extractErrorMessage(error, 'Login failed') };
     }
   },
   async createIdea(payload: any) {
