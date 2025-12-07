@@ -1,0 +1,78 @@
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dreamGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#feca57;stop-opacity:0.8" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background gradient -->
+  <rect width="1200" height="600" fill="url(#skyGradient)"/>
+
+  <!-- Floating clouds -->
+  <ellipse cx="200" cy="100" rx="80" ry="40" fill="#ffffff" opacity="0.3"/>
+  <ellipse cx="250" cy="110" rx="60" ry="30" fill="#ffffff" opacity="0.3"/>
+  <ellipse cx="150" cy="110" rx="50" ry="25" fill="#ffffff" opacity="0.3"/>
+
+  <ellipse cx="900" cy="150" rx="90" ry="45" fill="#ffffff" opacity="0.25"/>
+  <ellipse cx="960" cy="165" rx="70" ry="35" fill="#ffffff" opacity="0.25"/>
+  <ellipse cx="840" cy="165" rx="60" ry="30" fill="#ffffff" opacity="0.25"/>
+
+  <!-- Stars -->
+  <circle cx="150" cy="80" r="3" fill="#ffd700" opacity="0.8" filter="url(#glow)"/>
+  <circle cx="400" cy="120" r="2.5" fill="#ffd700" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="700" cy="100" r="3" fill="#ffd700" opacity="0.7" filter="url(#glow)"/>
+  <circle cx="1000" cy="140" r="2" fill="#ffd700" opacity="0.5" filter="url(#glow)"/>
+  <circle cx="550" cy="180" r="2.5" fill="#ffd700" opacity="0.6" filter="url(#glow)"/>
+
+  <!-- Dream bubbles (circles with glow) -->
+  <circle cx="300" cy="280" r="35" fill="url(#dreamGlow)" filter="url(#glow)" opacity="0.7"/>
+  <circle cx="800" cy="320" r="28" fill="url(#dreamGlow)" filter="url(#glow)" opacity="0.6"/>
+  <circle cx="1050" cy="250" r="32" fill="url(#dreamGlow)" filter="url(#glow)" opacity="0.65"/>
+
+  <!-- Central light orb (representing craft/creation) -->
+  <circle cx="600" cy="300" r="60" fill="#ffffff" filter="url(#glow)" opacity="0.9"/>
+  <circle cx="600" cy="300" r="50" fill="#ffd700" opacity="0.4" filter="url(#glow)"/>
+
+  <!-- Curved lines (representing connection/creativity flow) -->
+  <path d="M 250 350 Q 400 250, 550 320" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.6" stroke-linecap="round"/>
+  <path d="M 650 320 Q 800 250, 950 340" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.6" stroke-linecap="round"/>
+  <path d="M 350 450 Q 600 380, 850 460" stroke="#ffd700" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/>
+
+  <!-- Floating sparkles -->
+  <g opacity="0.7" filter="url(#glow)">
+    <circle cx="350" cy="200" r="1.5" fill="#ffd700"/>
+    <circle cx="500" cy="420" r="1.5" fill="#ffd700"/>
+    <circle cx="750" cy="150" r="1.5" fill="#ffd700"/>
+    <circle cx="900" cy="450" r="1.5" fill="#ffd700"/>
+    <circle cx="600" cy="500" r="1.5" fill="#ffd700"/>
+  </g>
+
+  <!-- Text background (semi-transparent dark overlay for readability) -->
+  <rect x="0" y="420" width="1200" height="180" fill="#000000" opacity="0.3"/>
+
+  <!-- Main title -->
+  <text x="600" y="480" font-size="72" font-weight="bold" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" letter-spacing="2">
+    DreamCraft
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="535" font-size="28" text-anchor="middle" fill="#ffd700" font-family="Arial, sans-serif" opacity="0.9">
+    Turn Your Ideas Into Reality
+  </text>
+
+  <!-- Decorative line under text -->
+  <line x1="350" y1="560" x2="850" y2="560" stroke="#ffd700" stroke-width="2" opacity="0.8"/>
+</svg>
