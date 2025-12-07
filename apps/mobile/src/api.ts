@@ -20,16 +20,29 @@ instance.interceptors.request.use(async (config) => {
 
 export default {
   async register(email: string, password: string) {
-    const res = await instance.post("/auth/register", {
-      email,
-      username: email.split("@")[0],
-      password,
-    });
-    return res.data;
+    try {
+      const res = await instance.post("/auth/register", {
+        email,
+        username: email.split("@")[0],
+        password,
+      });
+      return res.data;
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      const errorMsg = error?.response?.data?.error || error.message || 'Registration failed';
+      return { error: errorMsg };
+    }
   },
   async login(email: string, password: string) {
-    const res = await instance.post("/auth/login", { email, password });
-    return res.data;
+    try {
+      const res = await instance.post("/auth/login", { email, password });
+      console.log('Login response:', res.data);
+      return res.data || {};
+    } catch (error: any) {
+      console.error('Login error:', error);
+      const errorMsg = error?.response?.data?.error || error.message || 'Login failed';
+      return { error: errorMsg };
+    }
   },
   async createIdea(payload: any) {
     const res = await instance.post("/ideas", payload);

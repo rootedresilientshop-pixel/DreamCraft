@@ -31,16 +31,11 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
 
-          // Dispatch custom event to notify App component
-          window.dispatchEvent(new Event('tokenChanged'));
-
           // Call the parent callback to update isLoggedIn state
           onLoginSuccess(res.token);
 
-          // Navigate to home page after brief delay to ensure state updates
-          setTimeout(() => {
-            navigate('/');
-          }, 200);
+          // Navigate to home page - state update will trigger route change
+          navigate('/');
         } else {
           setError(res?.error || 'Login failed');
         }
