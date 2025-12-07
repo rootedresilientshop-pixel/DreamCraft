@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import heroImage from '../assets/dreamcraft-hero.svg';
 
 export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: string) => void }) {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
@@ -31,11 +29,12 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
           localStorage.setItem('userToken', res.token);
           console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
 
-          // Call the parent callback to update isLoggedIn state
-          onLoginSuccess(res.token);
+          // Dispatch custom event to notify App component
+          window.dispatchEvent(new Event('tokenChanged'));
 
-          // Navigate to home page immediately
-          navigate('/');
+          // Call the parent callback to update isLoggedIn state
+          // This will trigger a re-render of App and show the authenticated routes
+          onLoginSuccess(res.token);
         } else {
           setError(res?.error || 'Login failed');
         }
