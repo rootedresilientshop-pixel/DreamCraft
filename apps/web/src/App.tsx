@@ -11,17 +11,14 @@ import NotificationsPage from './pages/NotificationsPage';
 import { NotificationProvider } from './contexts/NotificationContext';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // Initialize from localStorage to avoid flash of login screen
+    const token = localStorage.getItem('userToken');
+    console.log('App: Initial token check:', token);
+    return !!token;
+  });
 
   useEffect(() => {
-    const token = localStorage.getItem('userToken');
-    console.log('App: Checking token on mount:', token);
-    if (token) {
-      setIsLoggedIn(true);
-    }
-    setLoading(false);
-
     // Listen for storage changes (including from LoginPage)
     const handleStorageChange = () => {
       const currentToken = localStorage.getItem('userToken');
@@ -49,10 +46,6 @@ function App() {
   useEffect(() => {
     console.log('App: isLoggedIn changed to:', isLoggedIn);
   }, [isLoggedIn]);
-
-  if (loading) {
-    return <div style={{ padding: '20px', color: '#999' }}>Loading...</div>;
-  }
 
   return (
     <NotificationProvider>
