@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import heroImage from '../assets/dreamcraft-hero.svg';
 
 export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: string) => void }) {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
@@ -35,12 +33,8 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
           window.dispatchEvent(new Event('tokenChanged'));
 
           // Call the parent callback to update isLoggedIn state
+          // This will trigger a re-render of App and show the authenticated routes
           onLoginSuccess(res.token);
-
-          // Navigate to home page after brief delay to ensure state updates
-          setTimeout(() => {
-            navigate('/');
-          }, 200);
         } else {
           setError(res?.error || 'Login failed');
         }
