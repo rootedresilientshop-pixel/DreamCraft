@@ -9,9 +9,9 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import api from '../api';
 import VersionBadge from '../components/VersionBadge';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ProfileScreen() {
   const [user, setUser] = useState<any>(null);
@@ -25,6 +25,7 @@ export default function ProfileScreen() {
     bio: '',
     skills: '',
   });
+  const { signOut } = useAuth();
 
   useEffect(() => {
     fetchUserProfile();
@@ -100,9 +101,7 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await SecureStore.deleteItemAsync('userToken');
-            // Re-load the app to trigger login screen
-            // This would be handled by the app's auth state in App.tsx
+            await signOut();
           } catch (err) {
             Alert.alert('Error', 'Failed to logout. Please try again.');
           }

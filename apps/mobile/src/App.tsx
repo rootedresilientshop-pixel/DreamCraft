@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as SecureStore from 'expo-secure-store';
-import { Home, Lightbulb, Users, User } from 'lucide-react-native';
 import { Text } from 'react-native';
 
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import IdeaDocumentationScreen from './screens/IdeaDocumentationScreen';
@@ -46,52 +45,8 @@ const HomeTabNavigator = () => {
   );
 };
 
-export default function App() {
-  const [state, dispatch] = React.useReducer(
-    (prevState: any, action: any) => {
-      switch (action.type) {
-        case 'RESTORE_TOKEN':
-          return {
-            ...prevState,
-            isLoading: false,
-            isSignout: false,
-            userToken: action.token,
-          };
-        case 'SIGN_IN':
-          return {
-            ...prevState,
-            isSignout: false,
-            userToken: action.token,
-          };
-        case 'SIGN_OUT':
-          return {
-            ...prevState,
-            isSignout: true,
-            userToken: null,
-          };
-      }
-    },
-    {
-      isLoading: true,
-      isSignout: false,
-      userToken: null,
-    }
-  );
-
-  useEffect(() => {
-    const bootstrapAsync = async () => {
-      let userToken;
-      try {
-        userToken = await SecureStore.getItemAsync('userToken');
-      } catch (e) {
-        console.error('Failed to restore token', e);
-      }
-
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
-    };
-
-    bootstrapAsync();
-  }, []);
+const AppNavigator = () => {
+  const { state } = useAuth();
 
   if (state.isLoading) {
     return <SplashScreen />;
@@ -112,5 +67,13 @@ export default function App() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+  );
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }

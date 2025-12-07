@@ -2,20 +2,21 @@ import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
 import api from '../api';
-import * as SecureStore from 'expo-secure-store';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
 
   const handleLogin = async () => {
     setLoading(true);
     try {
       const res = await api.login(email, password);
       if (res && res.token) {
-        await SecureStore.setItemAsync('userToken', res.token);
-        navigation.replace('Home');
+        await signIn(res.token);
+        // Navigation will happen automatically when AuthContext updates
       } else {
         Alert.alert('Login failed', res?.error || 'Unknown error');
       }
