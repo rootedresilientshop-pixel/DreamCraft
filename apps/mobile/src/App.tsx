@@ -7,26 +7,23 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Load token and update state
+  async function updateAuthState() {
+    const token = await loadToken();
+    console.log("App: Token updated:", token);
+    setIsLoggedIn(!!token);
+  }
+
   useEffect(() => {
-    async function checkToken() {
-      const token = await loadToken();
-      console.log("App: Checking token on mount:", token);
+    // Initial token load
+    updateAuthState().then(() => setLoading(false));
 
-      if (token) setIsLoggedIn(true);
-      setLoading(false);
-    }
-    checkToken();
+    // Listen for custom login/logout events
+    window.addEventListener("auth-changed", updateAuthState);
 
-    // Listen for token changes (web only)
-    const listener = () => {
-      loadToken().then((t) => {
-        console.log("Storage changed:", t);
-        setIsLoggedIn(!!t);
-      });
+    return () => {
+      window.removeEventListener("auth-changed", updateAuthState);
     };
-
-    window.addEventListener("storage", listener);
-    return () => window.removeEventListener("storage", listener);
   }, []);
 
   if (loading) return null;
