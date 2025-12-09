@@ -11,10 +11,11 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.19.4
-      # Set the below via Render Dashboard with real values
+      # Database and Auth (set via Render Dashboard with real values)
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
         sync: false
+      # CORS Origins - list all expected frontend origins
       - key: CORS_ORIGINS
-        value: "http://localhost:5173,https://your-vercel-domain.vercel.app"
+        value: "http://localhost:5173,http://127.0.0.1:5173,https://dreamcraft-khaki.vercel.app,https://www.dreamcraft-khaki.vercel.app,https://dreamcraft-git-main-gardner-seeses-projects.vercel.app"

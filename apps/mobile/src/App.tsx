@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { AppState, AppStateStatus } from "react-native";
 import { loadToken } from "./utils/authStorage";
 import { NavigationContainer } from "@react-navigation/native";
 import RootNavigator from "./navigation/RootNavigator";
@@ -8,23 +9,34 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   // Load token and update state
-  async function updateAuthState() {
-    const token = await loadToken();
-    console.log("App: Token updated:", token);
-    setIsLoggedIn(!!token);
-  }
+  const updateAuthState = useCallback(async () => {
+    try {
+      const token = await loadToken();
+      console.log("App: Token loaded:", token ? "present" : "not found");
+      setIsLoggedIn(!!token);
+    } catch (error) {
+      console.error("App: Error loading token:", error);
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   useEffect(() => {
     // Initial token load
     updateAuthState().then(() => setLoading(false));
 
-    // Listen for custom login/logout events
-    window.addEventListener("auth-changed", updateAuthState);
+    // Listen for app state changes (app comes to foreground)
+    // This ensures we refresh auth state when returning from browser OAuth flow
+    const subscription = AppState.addEventListener("change", (state: AppStateStatus) => {
+      if (state === "active") {
+        console.log("App: Returned to foreground, refreshing auth state");
+        updateAuthState();
+      }
+    });
 
     return () => {
-      window.removeEventListener("auth-changed", updateAuthState);
+      subscription.remove();
     };
-  }, []);
+  }, [updateAuthState]);
 
   if (loading) return null;
 

@@ -12,18 +12,28 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "bundleIdentifier": "com.venturelab.app"
+      "bundleIdentifier": "com.venturelab.app",
+      "supportsTabletMode": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "This app uses local network to connect to development server",
+        "NSBonjourServiceTypes": ["_http._tcp", "_https._tcp"]
+      }
     },
     "android": {
       "package": "com.venturelab.app",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#000000",
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
     },
     "web": {
       "bundler": "metro"
     },
     "plugins": [],
+    "scheme": [
+      "dreamcraft",
+      "com.venturelab.app"
+    ],
     "extra": {
-      "apiUrl": "http://192.168.0.230:3001/api"
+      "apiUrl": "https://api.render.com/api"
     }
   }
 }

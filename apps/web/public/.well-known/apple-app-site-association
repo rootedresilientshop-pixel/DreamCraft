@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "ABC123DEFG.com.venturelab.app",
+        "paths": ["/auth/*", "/login/*", "/callback/*"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["ABC123DEFG.com.venturelab.app"]
+  }
+}
