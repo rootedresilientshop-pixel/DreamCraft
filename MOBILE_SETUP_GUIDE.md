@@ -68,6 +68,7 @@ This takes precedence over `app.json`.
 ### Development Fallback
 
 If neither `EXPO_PUBLIC_API_URL` nor `app.json` is configured:
+
 - Dev mode: Uses `http://localhost:3001/api` (local testing)
 - Production: Uses placeholder (must be updated)
 
@@ -75,11 +76,11 @@ If neither `EXPO_PUBLIC_API_URL` nor `app.json` is configured:
 
 ## Tunnel Mode vs LAN
 
-| Mode | URL | Use Case | Pros | Cons |
-|------|-----|----------|------|------|
-| **Tunnel** | `exp://xxx.tunnel.exp.direct` | Production/Testing | Works anywhere, bypasses firewall | Slightly slower |
-| **LAN** | `exp://192.168.x.x:8081` | Local dev | Very fast | Requires same network |
-| **Local** | `exp://localhost:8081` | Web/Simulator only | Works on machine | Not for physical devices |
+| Mode       | URL                           | Use Case           | Pros                              | Cons                     |
+| ---------- | ----------------------------- | ------------------ | --------------------------------- | ------------------------ |
+| **Tunnel** | `exp://xxx.tunnel.exp.direct` | Production/Testing | Works anywhere, bypasses firewall | Slightly slower          |
+| **LAN**    | `exp://192.168.x.x:8081`      | Local dev          | Very fast                         | Requires same network    |
+| **Local**  | `exp://localhost:8081`        | Web/Simulator only | Works on machine                  | Not for physical devices |
 
 Use **Tunnel** for reliability.
 
@@ -103,9 +104,11 @@ Make sure you updated `app.json` with your Render URL, not `localhost`.
 ### "Invalid API URL"
 
 Check that URL format is exactly:
+
 ```
 https://venturelab-backend-xxxx.onrender.com/api
 ```
+
 (Includes `/api` at the end)
 
 ---

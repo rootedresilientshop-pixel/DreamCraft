@@ -21,14 +21,14 @@ In your project settings → **Environment Variables**, add:
 
 #### 🔴 CRITICAL (Must Set Before Deploy)
 
-| Variable | Value | Example |
-|----------|-------|---------|
+| Variable          | Value                            | Example                                            |
+| ----------------- | -------------------------------- | -------------------------------------------------- |
 | **VITE_API_BASE** | Your Render backend URL + `/api` | `https://venturelab-backend-xxxx.onrender.com/api` |
 
 #### ⚠️ OPTIONAL (Only if Stripe Payments Enabled)
 
-| Variable | Value | Example |
-|----------|-------|---------|
+| Variable                   | Value                       | Example          |
+| -------------------------- | --------------------------- | ---------------- |
 | **VITE_STRIPE_PUBLIC_KEY** | Your Stripe publishable key | `pk_test_xxx...` |
 
 ---
@@ -65,11 +65,11 @@ This is set **after** deploying the backend to Render:
 
 ### Common Issues:
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| **CORS error in console** | VITE_API_BASE not set or wrong | Check Vercel env vars; update CORS_ORIGINS in Render |
-| **Blank page** | Build failed silently | Check Vercel build logs |
-| **Login fails** | Backend not responding | Verify backend is running on Render; check VITE_API_BASE |
+| Issue                     | Cause                          | Fix                                                      |
+| ------------------------- | ------------------------------ | -------------------------------------------------------- |
+| **CORS error in console** | VITE_API_BASE not set or wrong | Check Vercel env vars; update CORS_ORIGINS in Render     |
+| **Blank page**            | Build failed silently          | Check Vercel build logs                                  |
+| **Login fails**           | Backend not responding         | Verify backend is running on Render; check VITE_API_BASE |
 
 ---
 
@@ -90,6 +90,7 @@ Once your Vercel URL is live, update the backend's `CORS_ORIGINS`:
 ## Environment Variable Validation
 
 After deployment, the app will:
+
 - ✅ Use `VITE_API_BASE` from Vercel env if set
 - ⚠️ Fall back to `http://localhost:3001/api` if not set (won't work in production)
 

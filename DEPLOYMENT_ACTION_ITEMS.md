@@ -2,13 +2,13 @@
 
 ## Pre-Deployment Validation ✅ COMPLETE
 
-| Check | Status | Details |
-|-------|--------|---------|
-| Backend builds | ✅ PASS | `npm run build` → tsc compiles |
-| Web builds | ✅ PASS | `npm run build` → Vite (260 KB gzipped) |
-| render.yaml valid | ✅ PASS | rootDir, buildCommand, startCommand correct |
-| vercel.json valid | ✅ PASS | framework, buildCommand, outputDirectory correct |
-| Git committed | ❓ VERIFY | All fixes committed and pushed to main branch |
+| Check             | Status    | Details                                          |
+| ----------------- | --------- | ------------------------------------------------ |
+| Backend builds    | ✅ PASS   | `npm run build` → tsc compiles                   |
+| Web builds        | ✅ PASS   | `npm run build` → Vite (260 KB gzipped)          |
+| render.yaml valid | ✅ PASS   | rootDir, buildCommand, startCommand correct      |
+| vercel.json valid | ✅ PASS   | framework, buildCommand, outputDirectory correct |
+| Git committed     | ❓ VERIFY | All fixes committed and pushed to main branch    |
 
 ---
 
@@ -17,6 +17,7 @@
 Before deploying, you **must** push all code changes to GitHub. Render and Vercel will pull from your repo.
 
 ### Check current status:
+
 ```powershell
 cd C:\Users\gardn\VentureLab
 git status
@@ -24,6 +25,7 @@ git log --oneline -n 3
 ```
 
 ### If changes exist, commit & push:
+
 ```powershell
 git add .
 git commit -m "fix: update env var handling and security checks for production deployment"
@@ -31,6 +33,7 @@ git push origin main
 ```
 
 **Verify:** Go to https://github.com/rootedresilientshop-pixel/DreamCraft/commits/main
+
 - Should see your commit at the top
 - Check that fixes are in the latest commit
 
@@ -41,19 +44,21 @@ git push origin main
 ### 1a. Setup (Before Render)
 
 - [ ] **Create MongoDB Atlas account & cluster**
+
   - Go to https://mongodb.com/cloud/atlas
   - Create free M0 cluster
   - Get connection string: `mongodb+srv://username:password@cluster.mongodb.net/dreamcraft`
   - Save this string; you'll need it in Step 1c
 
 - [ ] **Generate JWT_SECRET (32+ random characters)**
-  
+
   PowerShell:
+
   ```powershell
   $bytes = [System.Text.Encoding]::UTF8.GetBytes([guid]::NewGuid().ToString())
   [Convert]::ToBase64String($bytes)
   ```
-  
+
   Copy the output. You'll need it in Step 1c.
 
 ### 1b. Create Service on Render
@@ -62,6 +67,7 @@ git push origin main
 2. Click **New → Web Service**
 3. Select repo: `rootedresilientshop-pixel/DreamCraft`
 4. Configure:
+
    - **Name:** `venturelab-backend`
    - **Runtime:** Node
    - **Root Directory:** `packages/backend`
@@ -85,13 +91,14 @@ NODE_ENV = production
 CORS_ORIGINS = http://localhost:5173,https://your-vercel-domain.vercel.app
 ```
 
-*(Leave CORS_ORIGINS as-is for now; update after Vercel deployment)*
+_(Leave CORS_ORIGINS as-is for now; update after Vercel deployment)_
 
 ### 1d. Deploy
 
 Click **Deploy** button. Wait for build to complete (3-5 minutes).
 
 **Monitor logs for errors:**
+
 - Should see: `> npm ci && npm run build`
 - Should see: `DreamCraft Backend running on port 10000`
 - If errors: Check env vars, check MongoDB connection string
@@ -102,13 +109,15 @@ Once deployed (status shows "Live"):
 
 1. Get your backend URL from dashboard (e.g., `https://venturelab-backend-xxxx.onrender.com`)
 2. Test health endpoint:
+
    ```powershell
    curl https://venturelab-backend-xxxx.onrender.com/health
    ```
-   
+
    Expected response:
+
    ```json
-   {"status":"ok","timestamp":"2025-12-08T..."}
+   { "status": "ok", "timestamp": "2025-12-08T..." }
    ```
 
 3. **Save this URL** — you'll need it for Vercel
@@ -123,6 +132,7 @@ Once deployed (status shows "Live"):
 2. Click **Add New → Project**
 3. Import repo: `rootedresilientshop-pixel/DreamCraft`
 4. Configure:
+
    - **Root Directory:** `apps/web`
    - **Framework:** Vite (should auto-detect)
    - **Build Command:** `npm ci && npm run build`
@@ -135,17 +145,19 @@ Once deployed (status shows "Live"):
 Go to **Settings → Environment Variables**
 
 Add:
+
 ```
 VITE_API_BASE = https://venturelab-backend-xxxx.onrender.com/api
 ```
 
-*(Use your Render URL from Step 1e)*
+_(Use your Render URL from Step 1e)_
 
 ### 2c. Deploy
 
 Click **Deploy** button. Wait for build to complete (2-3 minutes).
 
 **Monitor logs:**
+
 - Should see: `vite build`
 - Should see: `built in X.XXs`
 - If errors: Check VITE_API_BASE format
@@ -170,10 +182,12 @@ Now that your web app is live, tell the backend to accept requests from it.
 
 1. Go to Render dashboard → `venturelab-backend` → **Settings → Environment**
 2. Edit `CORS_ORIGINS`:
+
    ```
    https://dreamcraft-abc.vercel.app,https://www.dreamcraft-abc.vercel.app
    ```
-   *(Use your Vercel URL from Step 2d)*
+
+   _(Use your Vercel URL from Step 2d)_
 
 3. Click **Save**
 4. Render will automatically redeploy backend
@@ -191,6 +205,7 @@ Edit `apps/mobile/app.json` and update line 26:
 ```
 
 Then:
+
 ```powershell
 cd C:\Users\gardn\VentureLab\apps\mobile
 npx expo start --clear --tunnel
@@ -215,6 +230,7 @@ Scan QR code with Expo Go app on your phone.
 7. **Expected:** See home feed with ideas
 
 **If it fails:**
+
 - Check browser console (F12) for errors
 - Most likely: CORS error → Check CORS_ORIGINS in Render
 - Or: VITE_API_BASE wrong format
@@ -236,36 +252,40 @@ Scan QR code with Expo Go app on your phone.
 
 ## Expected Timeline
 
-| Step | Time | Status |
-|------|------|--------|
-| MongoDB + JWT_SECRET setup | 5 min | ⏳ TODO |
-| Render backend deploy | 10 min | ⏳ TODO |
-| Vercel web deploy | 5 min | ⏳ TODO |
-| Update CORS | 2 min | ⏳ TODO |
-| Update mobile app | 2 min | ⏳ TODO |
-| Login testing | 10 min | ⏳ TODO |
-| **TOTAL** | **~35 min** | ⏳ TODO |
+| Step                       | Time        | Status  |
+| -------------------------- | ----------- | ------- |
+| MongoDB + JWT_SECRET setup | 5 min       | ⏳ TODO |
+| Render backend deploy      | 10 min      | ⏳ TODO |
+| Vercel web deploy          | 5 min       | ⏳ TODO |
+| Update CORS                | 2 min       | ⏳ TODO |
+| Update mobile app          | 2 min       | ⏳ TODO |
+| Login testing              | 10 min      | ⏳ TODO |
+| **TOTAL**                  | **~35 min** | ⏳ TODO |
 
 ---
 
 ## Troubleshooting
 
 ### Backend won't start
+
 - Check env vars: `MONGODB_URI` and `JWT_SECRET` must be set
 - Check MongoDB Atlas connection string (username/password)
 - Check Render logs for detailed error
 
 ### Web shows CORS error
+
 - CORS_ORIGINS in Render not updated with Vercel domain
 - VITE_API_BASE in Vercel wrong format (should end with `/api`)
 - Render backend not fully redeployed
 
 ### Login fails
+
 - Backend not responding: Check health endpoint
 - Wrong email/password: Try again
 - JWT_SECRET mismatch: Check Render env var
 
 ### Mobile offline
+
 - app.json apiUrl wrong: Must be `https://...onrender.com/api`
 - Using LAN mode? Switch to Tunnel: `npx expo start --clear --tunnel`
 - Network firewall? Tunnel bypasses it
@@ -291,7 +311,7 @@ Scan QR code with Expo Go app on your phone.
 ✅ Web app loads and shows login  
 ✅ Can register and login on web  
 ✅ Can login on mobile  
-✅ Data shared across platforms  
+✅ Data shared across platforms
 
 **Once all pass: You're production-ready!**
 

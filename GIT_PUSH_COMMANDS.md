@@ -22,6 +22,7 @@ git add -A
 ```
 
 This stages:
+
 - ✅ apps/mobile/src/App.tsx (modified)
 - ✅ apps/web/src/pages/LoginPage.tsx (modified)
 - ✅ DEPLOYMENT_READY.md (new file)
@@ -63,11 +64,13 @@ git log --oneline -n 1
 ```
 
 You should see:
+
 ```
 <commit-hash> Fix login/auth flow and update environment handling
 ```
 
 Then verify on GitHub:
+
 ```
 https://github.com/rootedresilientshop-pixel/DreamCraft/commits/main
 ```
@@ -78,11 +81,11 @@ Your new commit should appear at the top.
 
 ## WHAT GETS PUSHED
 
-| File | Status | Included |
-|------|--------|----------|
-| apps/mobile/src/App.tsx | Modified | ✅ Yes |
-| apps/web/src/pages/LoginPage.tsx | Modified | ✅ Yes |
-| DEPLOYMENT_READY.md | New | ✅ Yes |
+| File                             | Status   | Included |
+| -------------------------------- | -------- | -------- |
+| apps/mobile/src/App.tsx          | Modified | ✅ Yes   |
+| apps/web/src/pages/LoginPage.tsx | Modified | ✅ Yes   |
+| DEPLOYMENT_READY.md              | New      | ✅ Yes   |
 
 ---
 
@@ -93,6 +96,7 @@ Your new commit should appear at the top.
 - All files specified are either modified or tracked; no git issues expected
 
 If you want to also include other specific files not shown here, add them manually before the commit:
+
 ```powershell
 git add <filename>
 ```
@@ -102,6 +106,7 @@ git add <filename>
 ## COMMAND SUMMARY
 
 3 simple commands:
+
 1. `git add -A` — Stage everything
 2. `git commit -m "Fix login/auth flow and update environment handling"` — Create commit
 3. `git push origin main` — Push to GitHub

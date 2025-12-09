@@ -64,46 +64,49 @@ VITE_API_BASE=https://your-render-backend.onrender.com/api
 
 ## Key URLs
 
-| Service | URL Pattern | Status |
-|---------|------------|--------|
-| Render Backend | `https://venturelab-backend-xxxx.onrender.com` | ⏳ After Phase 3 |
-| Vercel Web | `https://dreamcraft-abc.vercel.app` | ⏳ After Phase 4 |
-| Health Check | `https://venturelab-backend-xxxx.onrender.com/health` | ⏳ Test after Phase 3 |
-| API Base | `https://venturelab-backend-xxxx.onrender.com/api` | ⏳ Use in Phase 4 & 6 |
+| Service        | URL Pattern                                           | Status                |
+| -------------- | ----------------------------------------------------- | --------------------- |
+| Render Backend | `https://venturelab-backend-xxxx.onrender.com`        | ⏳ After Phase 3      |
+| Vercel Web     | `https://dreamcraft-abc.vercel.app`                   | ⏳ After Phase 4      |
+| Health Check   | `https://venturelab-backend-xxxx.onrender.com/health` | ⏳ Test after Phase 3 |
+| API Base       | `https://venturelab-backend-xxxx.onrender.com/api`    | ⏳ Use in Phase 4 & 6 |
 
 ---
 
 ## Critical Settings
 
-| Setting | Value | Where |
-|---------|-------|-------|
-| Backend Root | `packages/backend` | Render |
-| Web Root | `apps/web` | Vercel |
-| Build (Backend) | `npm ci && npm run build` | Render |
-| Build (Web) | Auto (Vite) | Vercel |
-| Start (Backend) | `npm start` | Render |
-| Env: MONGODB_URI | MongoDB Atlas string | Render |
-| Env: JWT_SECRET | 32+ random chars | Render |
-| Env: NODE_ENV | `production` | Render |
-| Env: VITE_API_BASE | Backend URL + `/api` | Vercel |
-| Env: CORS_ORIGINS | Vercel domain | Render |
+| Setting            | Value                     | Where  |
+| ------------------ | ------------------------- | ------ |
+| Backend Root       | `packages/backend`        | Render |
+| Web Root           | `apps/web`                | Vercel |
+| Build (Backend)    | `npm ci && npm run build` | Render |
+| Build (Web)        | Auto (Vite)               | Vercel |
+| Start (Backend)    | `npm start`               | Render |
+| Env: MONGODB_URI   | MongoDB Atlas string      | Render |
+| Env: JWT_SECRET    | 32+ random chars          | Render |
+| Env: NODE_ENV      | `production`              | Render |
+| Env: VITE_API_BASE | Backend URL + `/api`      | Vercel |
+| Env: CORS_ORIGINS  | Vercel domain             | Render |
 
 ---
 
 ## Generate JWT_SECRET
 
 ### PowerShell (Windows):
+
 ```powershell
 $bytes = [System.Text.Encoding]::UTF8.GetBytes([guid]::NewGuid().ToString())
 [Convert]::ToBase64String($bytes)
 ```
 
 ### Bash (Mac/Linux):
+
 ```bash
 openssl rand -base64 32
 ```
 
 ### Online:
+
 Use: https://www.uuidgenerator.net/ (copy 2-3 times, concatenate)
 
 ---
@@ -111,6 +114,7 @@ Use: https://www.uuidgenerator.net/ (copy 2-3 times, concatenate)
 ## Verify Deployments
 
 ### Backend Health:
+
 ```bash
 curl https://venturelab-backend-xxxx.onrender.com/health
 ```
@@ -118,16 +122,19 @@ curl https://venturelab-backend-xxxx.onrender.com/health
 Expected: `{"status":"ok","timestamp":"..."}` ✅
 
 ### Web Accessible:
+
 Visit: `https://dreamcraft-abc.vercel.app`
 
 Expected: Login page loads ✅
 
 ### Login Works:
+
 1. Register test account
 2. Login
 3. See home feed ✅
 
 ### Mobile Connects:
+
 ```bash
 cd apps/mobile
 npx expo start --clear --tunnel
@@ -139,12 +146,12 @@ Expected: Scan QR → App loads → Can login ✅
 
 ## Common Issues
 
-| Problem | Check |
-|---------|-------|
-| Backend won't start | Is MONGODB_URI set? Is JWT_SECRET set? |
+| Problem              | Check                                                              |
+| -------------------- | ------------------------------------------------------------------ |
+| Backend won't start  | Is MONGODB_URI set? Is JWT_SECRET set?                             |
 | Web shows CORS error | Is VITE_API_BASE set in Vercel? Is CORS_ORIGINS updated in Render? |
-| Login fails | Is backend running? Is JWT_SECRET correct? |
-| Mobile offline | Is app.json apiUrl correct? Use Tunnel mode? |
+| Login fails          | Is backend running? Is JWT_SECRET correct?                         |
+| Mobile offline       | Is app.json apiUrl correct? Use Tunnel mode?                       |
 
 ---
 
@@ -160,15 +167,15 @@ Expected: Scan QR → App loads → Can login ✅
 
 ## Timeline
 
-| Phase | Est. Time | Status |
-|-------|-----------|--------|
-| Setup (MongoDB, secrets) | 10 min | ⏳ TODO |
-| Deploy Backend | 10 min | ⏳ TODO |
-| Deploy Web | 5 min | ⏳ TODO |
-| Update CORS | 2 min | ⏳ TODO |
-| Update Mobile | 2 min | ⏳ TODO |
-| Full E2E Test | 15 min | ⏳ TODO |
-| **TOTAL** | **~45 min** | ⏳ TODO |
+| Phase                    | Est. Time   | Status  |
+| ------------------------ | ----------- | ------- |
+| Setup (MongoDB, secrets) | 10 min      | ⏳ TODO |
+| Deploy Backend           | 10 min      | ⏳ TODO |
+| Deploy Web               | 5 min       | ⏳ TODO |
+| Update CORS              | 2 min       | ⏳ TODO |
+| Update Mobile            | 2 min       | ⏳ TODO |
+| Full E2E Test            | 15 min      | ⏳ TODO |
+| **TOTAL**                | **~45 min** | ⏳ TODO |
 
 ---
 

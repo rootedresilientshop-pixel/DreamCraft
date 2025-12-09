@@ -9,14 +9,18 @@ All critical issues from the environment variable audit have been fixed.
 ## Code Changes Made
 
 ### 1. Web App API URL (`apps/web/src/api.ts`)
+
 **Before:**
+
 ```typescript
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://dreamcraft-f8w8.onrender.com/api';
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "https://dreamcraft-f8w8.onrender.com/api";
 ```
 
 **After:**
+
 ```typescript
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001/api";
 ```
 
 **Reason:** Removed outdated hardcoded Render URL. Now falls back to localhost for local dev only. Production must set `VITE_API_BASE` in Vercel.
@@ -24,14 +28,17 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
 ---
 
 ### 2. Mobile Environment (`apps/mobile/src/environment.ts`)
+
 **Before:**
+
 ```typescript
-return 'https://dreamcraft-f8w8.onrender.com/api';
+return "https://dreamcraft-f8w8.onrender.com/api";
 ```
 
 **After:**
+
 ```typescript
-return 'https://api.render.com/api'; // TODO: Update after Render backend deployment
+return "https://api.render.com/api"; // TODO: Update after Render backend deployment
 ```
 
 **Reason:** Placeholder URL with TODO comment to remind you to update after Render deploy. More explicit than hardcoding.
@@ -39,12 +46,15 @@ return 'https://api.render.com/api'; // TODO: Update after Render backend deploy
 ---
 
 ### 3. JWT Authentication (`packages/backend/src/middleware/auth.ts`)
+
 **Before:**
+
 ```typescript
 jwt.verify(token, process.env.JWT_SECRET || 'secret', (err: any, decoded: any) => {
 ```
 
 **After:**
+
 ```typescript
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) {
@@ -60,17 +70,22 @@ jwt.verify(token, jwtSecret, (err: any, decoded: any) => {
 ---
 
 ### 4. JWT Login Route (`packages/backend/src/routes/auth.ts`)
+
 **Before:**
+
 ```typescript
 const jwtSecret = process.env.JWT_SECRET;
 ```
 
 **After:**
+
 ```typescript
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) {
-  console.error('CRITICAL: JWT_SECRET not set in environment');
-  return res.status(500).json({ error: 'Server configuration error: JWT_SECRET missing' });
+  console.error("CRITICAL: JWT_SECRET not set in environment");
+  return res
+    .status(500)
+    .json({ error: "Server configuration error: JWT_SECRET missing" });
 }
 ```
 
@@ -92,12 +107,14 @@ Both builds still compile successfully after changes:
 Three new deployment guides added:
 
 1. **`RENDER_ENV_SETUP.md`**
+
    - Step-by-step backend deployment to Render
    - How to set MONGODB_URI and JWT_SECRET
    - How to generate JWT_SECRET
    - Verification steps
 
 2. **`VERCEL_ENV_SETUP.md`**
+
    - Step-by-step web deployment to Vercel
    - How to set VITE_API_BASE
    - CORS troubleshooting
@@ -113,24 +130,26 @@ Three new deployment guides added:
 
 ## Environment Variables Status
 
-| Variable | Platform | Status | Fix Applied |
-|----------|----------|--------|-------------|
-| MONGODB_URI | Render | Missing | Documented in RENDER_ENV_SETUP.md |
-| JWT_SECRET | Render | Missing | Now fails explicitly if not set |
-| VITE_API_BASE | Vercel | Missing | Falls back to localhost only (dev) |
-| CORS_ORIGINS | Render | Partial | Documented in RENDER_ENV_SETUP.md |
-| EXPO_PUBLIC_API_URL | Mobile | Optional | Uses app.json fallback |
+| Variable            | Platform | Status   | Fix Applied                        |
+| ------------------- | -------- | -------- | ---------------------------------- |
+| MONGODB_URI         | Render   | Missing  | Documented in RENDER_ENV_SETUP.md  |
+| JWT_SECRET          | Render   | Missing  | Now fails explicitly if not set    |
+| VITE_API_BASE       | Vercel   | Missing  | Falls back to localhost only (dev) |
+| CORS_ORIGINS        | Render   | Partial  | Documented in RENDER_ENV_SETUP.md  |
+| EXPO_PUBLIC_API_URL | Mobile   | Optional | Uses app.json fallback             |
 
 ---
 
 ## Next Steps
 
 1. **Deploy Render Backend:** Follow `RENDER_ENV_SETUP.md`
+
    - Set MONGODB_URI (MongoDB Atlas)
    - Set JWT_SECRET (generate random 32+ char)
    - Deploy and get URL
 
 2. **Deploy Vercel Web:** Follow `VERCEL_ENV_SETUP.md`
+
    - Set VITE_API_BASE to Render URL
    - Deploy and get URL
 

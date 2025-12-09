@@ -24,41 +24,44 @@ After creating the service, go to **Settings → Environment**. Add these variab
 
 #### 🔴 CRITICAL (Must Set)
 
-| Variable | Value | Example |
-|----------|-------|---------|
-| **MONGODB_URI** | MongoDB Atlas connection string | `mongodb+srv://username:password@cluster.mongodb.net/dreamcraft` |
-| **JWT_SECRET** | Generate 32+ character random string | `$(openssl rand -base64 32)` |
+| Variable        | Value                                | Example                                                          |
+| --------------- | ------------------------------------ | ---------------------------------------------------------------- |
+| **MONGODB_URI** | MongoDB Atlas connection string      | `mongodb+srv://username:password@cluster.mongodb.net/dreamcraft` |
+| **JWT_SECRET**  | Generate 32+ character random string | `$(openssl rand -base64 32)`                                     |
 
 #### 🟡 RECOMMENDED (Should Set)
 
-| Variable | Value | Example |
-|----------|-------|---------|
+| Variable         | Value                                 | Example                                                                   |
+| ---------------- | ------------------------------------- | ------------------------------------------------------------------------- |
 | **CORS_ORIGINS** | Comma-separated list of frontend URLs | `https://dreamcraft-abc.vercel.app,https://www.dreamcraft-abc.vercel.app` |
-| **NODE_ENV** | Environment mode | `production` |
+| **NODE_ENV**     | Environment mode                      | `production`                                                              |
 
 #### ⚠️ OPTIONAL (Only if Feature Enabled)
 
-| Variable | Value | Example |
-|----------|-------|---------|
+| Variable              | Value                                                         | Example          |
+| --------------------- | ------------------------------------------------------------- | ---------------- |
 | **STRIPE_SECRET_KEY** | Your Stripe secret key (starts with `sk_live_` or `sk_test_`) | `sk_test_xxx...` |
-| **OPENAI_API_KEY** | Your OpenAI API key | `sk-xxx...` |
+| **OPENAI_API_KEY**    | Your OpenAI API key                                           | `sk-xxx...`      |
 
 ---
 
 ## How to Generate JWT_SECRET
 
 ### On Windows (PowerShell):
+
 ```powershell
 $bytes = [System.Text.Encoding]::UTF8.GetBytes([guid]::NewGuid().ToString())
 [Convert]::ToBase64String($bytes)
 ```
 
 ### On Mac/Linux:
+
 ```bash
 openssl rand -base64 32
 ```
 
 ### Alternative (any platform):
+
 Use an online generator: https://www.uuidgenerator.net/ (copy and paste)
 
 ---
@@ -77,6 +80,7 @@ If you don't have MongoDB Atlas set up:
    - Replace `<database>` with `dreamcraft`
 
 Example:
+
 ```
 mongodb+srv://myuser:mypassword@cluster0.mongodb.net/dreamcraft?retryWrites=true&w=majority
 ```
@@ -104,8 +108,9 @@ curl https://venturelab-backend-xxxx.onrender.com/health
 ```
 
 Expected response:
+
 ```json
-{"status":"ok","timestamp":"2025-12-08T..."}
+{ "status": "ok", "timestamp": "2025-12-08T..." }
 ```
 
 ---

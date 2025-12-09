@@ -13,11 +13,11 @@ const getApiUrl = (): string => {
 
   // Local development fallback
   if (__DEV__) {
-    return 'http://localhost:3001/api';
+    return "http://localhost:3001/api";
   }
 
   // Production: must be configured via app.json extra.apiUrl or EXPO_PUBLIC_API_URL
-  return 'https://api.render.com/api'; // TODO: Update after Render backend deployment
+  return "https://api.render.com/api"; // TODO: Update after Render backend deployment
 };
 
 export const API_URL = getApiUrl();

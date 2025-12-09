@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../api';
 import heroImage from '../assets/dreamcraft-hero.svg';
+import { saveToken, dispatchAuthChanged } from '../utils/authStorage';
 
 export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: string) => void }) {
   const [email, setEmail] = useState('');
@@ -30,11 +31,11 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
         const res = await api.login(email, password);
         console.log('LoginPage received res:', res);
         if (res?.token) {
-          localStorage.setItem('userToken', res.token);
-          console.log('Token saved to localStorage:', localStorage.getItem('userToken'));
+          saveToken(res.token);
+          console.log('Token saved to localStorage:', res.token);
 
-          // Dispatch custom event to notify App component
-          window.dispatchEvent(new Event('tokenChanged'));
+          // Dispatch auth-changed event to notify App component
+          dispatchAuthChanged();
 
           // Call the parent callback to update isLoggedIn state
           onLoginSuccess(res.token);

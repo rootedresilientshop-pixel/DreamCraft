@@ -9,37 +9,38 @@ import IdeaDetailPage from './pages/IdeaDetailPage';
 import CheckoutPage from './pages/CheckoutPage';
 import NotificationsPage from './pages/NotificationsPage';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { loadToken, removeToken, dispatchAuthChanged } from './utils/authStorage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     // Initialize from localStorage to avoid flash of login screen
-    const token = localStorage.getItem('userToken');
+    const token = loadToken();
     console.log('App: Initial token check:', token);
     return !!token;
   });
 
   useEffect(() => {
-    // Listen for storage changes (including from LoginPage)
+    // Listen for storage changes (from other tabs/windows)
     const handleStorageChange = () => {
-      const currentToken = localStorage.getItem('userToken');
+      const currentToken = loadToken();
       console.log('Storage changed, token:', currentToken);
       setIsLoggedIn(!!currentToken);
     };
 
     window.addEventListener('storage', handleStorageChange);
     
-    // Also create custom event for same-window updates
-    const handleTokenChange = (e: Event) => {
-      const currentToken = localStorage.getItem('userToken');
-      console.log('Token change event, token:', currentToken);
+    // Listen for custom auth-changed event (same-window updates)
+    const handleAuthChanged = () => {
+      const currentToken = loadToken();
+      console.log('Auth changed event, token:', currentToken);
       setIsLoggedIn(!!currentToken);
     };
     
-    window.addEventListener('tokenChanged', handleTokenChange);
+    window.addEventListener('auth-changed', handleAuthChanged);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('tokenChanged', handleTokenChange);
+      window.removeEventListener('auth-changed', handleAuthChanged);
     };
   }, []);
 
@@ -70,8 +71,8 @@ function App() {
                 element={
                   <div style={{ padding: '20px', color: '#fff' }}>
                     {(() => {
-                      localStorage.removeItem('userToken');
-                      setIsLoggedIn(false);
+                      removeToken();
+                      dispatchAuthChanged();
                       window.location.href = '/';
                       return null;
                     })()}
