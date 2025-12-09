@@ -16,8 +16,8 @@ const getApiUrl = (): string => {
     return 'http://localhost:3001/api';
   }
 
-  // Production default
-  return 'https://dreamcraft-f8w8.onrender.com/api';
+  // Production: must be configured via app.json extra.apiUrl or EXPO_PUBLIC_API_URL
+  return 'https://api.render.com/api'; // TODO: Update after Render backend deployment
 };
 
 export const API_URL = getApiUrl();

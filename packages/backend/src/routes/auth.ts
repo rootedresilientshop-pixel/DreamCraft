@@ -73,6 +73,10 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
+      console.error('CRITICAL: JWT_SECRET not set in environment');
+      return res.status(500).json({ error: 'Server configuration error: JWT_SECRET missing' });
+    }
+    if (!jwtSecret) {
       console.error('CRITICAL: JWT_SECRET environment variable not set');
       return res.status(500).json({ error: 'Server configuration error' });
     }
