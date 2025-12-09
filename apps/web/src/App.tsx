@@ -55,7 +55,7 @@ function App() {
           {!isLoggedIn ? (
             <Route
               path="/*"
-              element={<LoginPage onLoginSuccess={(token) => setIsLoggedIn(true)} />}
+              element={<LoginPage />}
             />
           ) : (
             <>

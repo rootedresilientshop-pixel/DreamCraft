@@ -3,7 +3,7 @@ import api from '../api';
 import heroImage from '../assets/dreamcraft-hero.svg';
 import { saveToken, dispatchAuthChanged } from '../utils/authStorage';
 
-export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: string) => void }) {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
@@ -36,9 +36,6 @@ export default function LoginPage({ onLoginSuccess }: { onLoginSuccess: (token: 
 
           // Dispatch auth-changed event to notify App component
           dispatchAuthChanged();
-
-          // Call the parent callback to update isLoggedIn state
-          onLoginSuccess(res.token);
         } else {
           setError(res?.error || 'Login failed');
         }
