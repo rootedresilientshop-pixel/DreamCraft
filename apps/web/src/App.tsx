@@ -31,11 +31,15 @@ function App() {
     
     // Listen for custom auth-changed event (same-window updates)
     const handleAuthChanged = () => {
-      const currentToken = loadToken();
-      console.log('Auth changed event, token:', currentToken);
-      setIsLoggedIn(!!currentToken);
+      // Delay to ensure token is actually written to localStorage
+      // before we check for it (React StrictMode double-invokes this)
+      setTimeout(() => {
+        const currentToken = loadToken();
+        console.log('Auth changed event, token:', currentToken);
+        setIsLoggedIn(!!currentToken);
+      }, 0);
     };
-    
+
     window.addEventListener('auth-changed', handleAuthChanged);
 
     return () => {
