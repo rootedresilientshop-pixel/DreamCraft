@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
 
 interface ResponsiveHeaderProps {
@@ -21,15 +21,15 @@ export default function ResponsiveHeader({ title, subtitle }: ResponsiveHeaderPr
           </div>
           <div style={styles.desktopNav}>
             <NotificationBell />
-            <a href="/create-idea" style={styles.button}>
+            <Link to="/create-idea" style={styles.button}>
               + New Idea
-            </a>
-            <a href="/collaborators" style={{ ...styles.button, backgroundColor: '#0099ff' }}>
+            </Link>
+            <Link to="/collaborators" style={{ ...styles.button, backgroundColor: '#0099ff' }}>
               👥 Collaborators
-            </a>
-            <a href="/profile" style={{ ...styles.button, backgroundColor: '#00ccaa' }}>
+            </Link>
+            <Link to="/profile" style={{ ...styles.button, backgroundColor: '#00ccaa' }}>
               👤 Profile
-            </a>
+            </Link>
           </div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -43,27 +43,25 @@ export default function ResponsiveHeader({ title, subtitle }: ResponsiveHeaderPr
 
       {mobileMenuOpen && (
         <div style={styles.mobileMenu}>
-          <a href="/create-idea" style={styles.mobileMenuItem}>
+          <Link to="/create-idea" style={styles.mobileMenuItem}>
             + New Idea
-          </a>
-          <a href="/collaborators" style={styles.mobileMenuItem}>
+          </Link>
+          <Link to="/collaborators" style={styles.mobileMenuItem}>
             👥 Collaborators
-          </a>
-          <a href="/profile" style={styles.mobileMenuItem}>
+          </Link>
+          <Link to="/profile" style={styles.mobileMenuItem}>
             👤 Profile
-          </a>
-          <a href="/notifications" style={styles.mobileMenuItem}>
+          </Link>
+          <Link to="/notifications" style={styles.mobileMenuItem}>
             🔔 Notifications
-          </a>
-          <button
-            onClick={() => {
-              navigate('/logout');
-              setMobileMenuOpen(false);
-            }}
+          </Link>
+          <Link
+            to="/logout"
             style={{ ...styles.mobileMenuItem, color: '#ff6666' }}
+            onClick={() => setMobileMenuOpen(false)}
           >
             Logout
-          </button>
+          </Link>
         </div>
       )}
     </>
