@@ -35,9 +35,12 @@ function App() {
       // before we check for it (React StrictMode double-invokes this)
       setTimeout(() => {
         const currentToken = loadToken();
-        console.log('Auth changed event, token:', currentToken);
-        setIsLoggedIn(!!currentToken);
-      }, 0);
+        console.log('Auth changed event, token:', currentToken ? 'present' : 'null');
+        // Only update state if token exists; don't flip to false on empty reads
+        if (currentToken) {
+          setIsLoggedIn(true);
+        }
+      }, 50); // 50ms delay to ensure localStorage write completes
     };
 
     window.addEventListener('auth-changed', handleAuthChanged);
