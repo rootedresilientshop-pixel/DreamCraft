@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import IdeaDetailPage from './pages/IdeaDetailPage';
 import CheckoutPage from './pages/CheckoutPage';
 import NotificationsPage from './pages/NotificationsPage';
+import LogoutPage from './pages/LogoutPage';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { loadToken, removeToken, dispatchAuthChanged } from './utils/authStorage';
 
@@ -73,19 +74,7 @@ function App() {
               <Route path="/create-idea" element={<CreateIdeaPage />} />
               <Route path="/collaborators" element={<CollaboratorsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route
-                path="/logout"
-                element={
-                  <div style={{ padding: '20px', color: '#fff' }}>
-                    {(() => {
-                      removeToken();
-                      dispatchAuthChanged();
-                      window.location.href = '/';
-                      return null;
-                    })()}
-                  </div>
-                }
-              />
+              <Route path="/logout" element={<LogoutPage />} />
               <Route path="/*" element={<Navigate to="/" replace />} />
             </>
           )}
