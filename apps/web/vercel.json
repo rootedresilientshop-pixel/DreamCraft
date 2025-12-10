@@ -1,6 +1,5 @@
 {
   "framework": "vite",
   "buildCommand": "npm ci && npm run build",
-  "outputDirectory": "dist",
-  "ignoreCommand": "git diff --quiet HEAD~1 HEAD -- ."
+  "outputDirectory": "dist"
 }
