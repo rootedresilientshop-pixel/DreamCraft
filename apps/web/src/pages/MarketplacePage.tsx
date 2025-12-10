@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { getFavorites, addFavorite, removeFavorite, isFavorite } from '../utils/favorites';
 import NotificationBell from '../components/NotificationBell';
@@ -58,8 +58,8 @@ export default function MarketplacePage() {
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <NotificationBell />
-          <a
-            href="/create-idea"
+          <Link
+            to="/create-idea"
             style={{
               padding: '10px 20px',
               backgroundColor: '#00cc66',
@@ -73,9 +73,9 @@ export default function MarketplacePage() {
             }}
           >
             + New Idea
-          </a>
-          <a
-            href="/collaborators"
+          </Link>
+          <Link
+            to="/collaborators"
             style={{
               padding: '10px 20px',
               backgroundColor: '#0099ff',
@@ -89,9 +89,9 @@ export default function MarketplacePage() {
             }}
           >
             👥 Collaborators
-          </a>
-          <a
-            href="/profile"
+          </Link>
+          <Link
+            to="/profile"
             style={{
               padding: '10px 20px',
               backgroundColor: '#00ccaa',
@@ -105,7 +105,7 @@ export default function MarketplacePage() {
             }}
           >
             👤 Profile
-          </a>
+          </Link>
         </div>
       </div>
 

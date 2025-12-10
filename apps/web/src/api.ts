@@ -61,6 +61,10 @@ export default {
     const res = await instance.get(`/ideas/${id}`);
     return res.data;
   },
+  async valuateIdea(id: string) {
+    const res = await instance.post(`/ideas/${id}/valuate`);
+    return res.data;
+  },
   async createPaymentIntent(ideaId: string, amount: number) {
     const res = await instance.post("/payments/intent", { ideaId, amount });
     return res.data;
