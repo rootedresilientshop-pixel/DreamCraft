@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,24 +19,24 @@ export default function Footer() {
             <h4 style={styles.sectionTitle}>Features</h4>
             <ul style={styles.list}>
               <li>
-                <a href="/" style={styles.link}>
+                <Link to="/" style={styles.link}>
                   Marketplace
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/create-idea" style={styles.link}>
+                <Link to="/create-idea" style={styles.link}>
                   Create Idea
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/collaborators" style={styles.link}>
+                <Link to="/collaborators" style={styles.link}>
                   Find Collaborators
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/notifications" style={styles.link}>
+                <Link to="/notifications" style={styles.link}>
                   Notifications
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -44,14 +45,14 @@ export default function Footer() {
             <h4 style={styles.sectionTitle}>Account</h4>
             <ul style={styles.list}>
               <li>
-                <a href="/profile" style={styles.link}>
+                <Link to="/profile" style={styles.link}>
                   Profile
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/logout" style={styles.link}>
+                <Link to="/logout" style={styles.link}>
                   Logout
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
