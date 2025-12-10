@@ -16,7 +16,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     // Initialize from localStorage to avoid flash of login screen
     const token = loadToken();
-    console.log('App: Initial token check:', token);
     return !!token;
   });
 
@@ -24,7 +23,6 @@ function App() {
     // Listen for storage changes (from other tabs/windows)
     const handleStorageChange = () => {
       const currentToken = loadToken();
-      console.log('Storage changed, token:', currentToken);
       setIsLoggedIn(!!currentToken);
     };
 
@@ -36,7 +34,6 @@ function App() {
       // before we check for it (React StrictMode double-invokes this)
       setTimeout(() => {
         const currentToken = loadToken();
-        console.log('Auth changed event, token:', currentToken ? 'present' : 'null');
         // Only update state if token exists; don't flip to false on empty reads
         if (currentToken) {
           setIsLoggedIn(true);
@@ -52,9 +49,6 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    console.log('App: isLoggedIn changed to:', isLoggedIn);
-  }, [isLoggedIn]);
 
   return (
     <NotificationProvider>

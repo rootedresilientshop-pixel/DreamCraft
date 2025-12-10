@@ -29,11 +29,8 @@ export default function LoginPage() {
       } else {
         // -------------------- LOGIN --------------------
         const res = await api.login(email, password);
-        console.log('LoginPage received res:', res);
         if (res?.token) {
           saveToken(res.token);
-          console.log('Token saved to localStorage:', res.token);
-
           // Dispatch auth-changed event to notify App component
           dispatchAuthChanged();
         } else {
