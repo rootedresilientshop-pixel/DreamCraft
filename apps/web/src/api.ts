@@ -14,11 +14,12 @@ instance.interceptors.request.use((config) => {
 });
 
 export default {
-  async register(email: string, password: string) {
+  async register(email: string, password: string, userType?: string) {
     const res = await instance.post("/auth/register", {
       email,
       username: email.split("@")[0],
       password,
+      userType: userType || "creator",
     });
     return res.data;
   },

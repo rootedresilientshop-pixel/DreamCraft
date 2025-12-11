@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
+import RoleSelectionPage from './pages/RoleSelectionPage';
 import MarketplacePage from './pages/MarketplacePage';
 import CreateIdeaPage from './pages/CreateIdeaPage';
 import CollaboratorsPage from './pages/CollaboratorsPage';
@@ -22,6 +23,19 @@ function App() {
     return !!token;
   });
 
+  const [userType, setUserType] = useState<string | null>(() => {
+    try {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        return parsed.userType || null;
+      }
+    } catch {
+      // Ignore JSON parse errors
+    }
+    return null;
+  });
+
   useEffect(() => {
     // Listen for storage changes (from other tabs/windows)
     const handleStorageChange = () => {
@@ -37,6 +51,16 @@ function App() {
       // before we check for it (React StrictMode double-invokes this)
       setTimeout(() => {
         const currentToken = loadToken();
+        // Also update userType from localStorage
+        try {
+          const userData = localStorage.getItem('userData');
+          if (userData) {
+            const parsed = JSON.parse(userData);
+            setUserType(parsed.userType || null);
+          }
+        } catch {
+          // Ignore JSON parse errors
+        }
         // Only update state if token exists; don't flip to false on empty reads
         if (currentToken) {
           setIsLoggedIn(true);
@@ -66,6 +90,7 @@ function App() {
             ) : (
               <>
                 <Route path="/" element={<MarketplacePage />} />
+                <Route path="/role-selection" element={<RoleSelectionPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                 <Route path="/checkout/:id" element={<CheckoutPage />} />

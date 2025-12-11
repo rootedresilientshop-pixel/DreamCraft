@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
 import heroImage from '../assets/dreamcraft-hero.svg';
 import { saveToken, dispatchAuthChanged } from '../utils/authStorage';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() => (location.state as any)?.message || '');
 
   const handleSubmit = async () => {
     setError('');
@@ -17,20 +20,21 @@ export default function LoginPage() {
     try {
       if (isRegister) {
         // -------------------- REGISTER --------------------
-        const res = await api.register(email, password);
-
-        if (res.success) {
-          setError('Account created! Please log in.');
-          setIsRegister(false);
-          setPassword('');
-        } else {
-          setError(res.error || 'Registration failed');
-        }
+        // Redirect to role selection page (don't call api.register yet)
+        navigate('/role-selection', {
+          state: { email, password },
+          replace: false,
+        });
+        setLoading(false);
       } else {
         // -------------------- LOGIN --------------------
         const res = await api.login(email, password);
         if (res?.token) {
           saveToken(res.token);
+          // Store user data including userType
+          if (res.user) {
+            localStorage.setItem('userData', JSON.stringify(res.user));
+          }
           // Dispatch auth-changed event to notify App component
           dispatchAuthChanged();
         } else {
