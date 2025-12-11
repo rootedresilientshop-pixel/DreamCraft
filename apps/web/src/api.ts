@@ -173,4 +173,13 @@ export default {
     const res = await instance.get(`/favorites/check/${ideaId}`);
     return res.data;
   },
+  // AI Features
+  async validateAndScoreIdea(ideaId: string) {
+    const res = await instance.post(`/ideas/${ideaId}/validate-and-score`);
+    return res.data;
+  },
+  async getAISuggestions(partialIdea: { title: string; description: string; category: string }) {
+    const res = await instance.post("/ideas/ai-suggestions", partialIdea);
+    return res.data;
+  },
 };

@@ -3,7 +3,7 @@ import Idea from '../models/Idea';
 import Message from '../models/Message';
 import Collaboration from '../models/Collaboration';
 import { authenticateToken } from '../middleware/auth';
-import { generateIdeaValuation, generateNDAText } from '../services/aiService';
+import { generateIdeaValuation, generateNDAText, validateAndScoreIdea, generateAISuggestions } from '../services/aiService';
 
 const router = express.Router();
 
@@ -132,6 +132,39 @@ router.post('/:id/valuate', authenticateToken, async (req: Request, res: Respons
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Valuation failed' });
+  }
+});
+
+// AI Validation and Scoring endpoint
+router.post('/:id/validate-and-score', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const idea = await Idea.findById(req.params.id);
+    if (!idea) return res.status(404).json({ success: false, error: 'Idea not found' });
+
+    const validation = await validateAndScoreIdea(idea);
+
+    res.json({ success: true, data: validation });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Validation failed' });
+  }
+});
+
+// AI Suggestions endpoint (for partial ideas during creation)
+router.post('/ai-suggestions', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const partialIdea = {
+      title: req.body.title || '',
+      description: req.body.description || '',
+      category: req.body.category || '',
+    };
+
+    const suggestions = await generateAISuggestions(partialIdea);
+
+    res.json({ success: true, data: suggestions });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Failed to generate suggestions' });
   }
 });
 
