@@ -33,10 +33,15 @@ VITE_API_BASE=https://your-backend.onrender.com/api
 ### Deploy Backend (Render)
 1. Go to render.com → New → Web Service
 2. Connect GitHub repo
-3. Build Command: `npm install`
-4. Start Command: `node packages/backend/src/server.ts`
-5. Add environment variables
+3. Build Command: `npm install && cd packages/backend && npm run build`
+4. Start Command: `node packages/backend/dist/server.js`
+5. Add environment variables (see below)
 6. Deploy (5-10 minutes)
+
+**⚠️ Important:** The backend requires TypeScript compilation before running. Make sure:
+- Build Command includes: `cd packages/backend && npm run build`
+- Start Command points to: `node packages/backend/dist/server.js`
+- Node version: 20.19.4 or higher
 
 ### Deploy Frontend (Vercel)
 1. Go to vercel.com → Add New → Project

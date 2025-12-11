@@ -2,8 +2,21 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
+
+// Extend Socket interface to include userId
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+    }
+  }
+}
+
+interface AuthSocket extends Socket {
+  userId?: string;
+}
 import authRoutes from './routes/auth';
 import ideasRoutes from './routes/ideas';
 import collaboratorsRoutes from './routes/collaborators';
@@ -68,7 +81,7 @@ const io = new Server(httpServer, {
 });
 
 // Socket.io authentication middleware
-io.use((socket, next) => {
+io.use((socket: any, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
     return next(new Error('Authentication error'));
@@ -84,7 +97,7 @@ io.use((socket, next) => {
 });
 
 // Socket.io connection handling
-io.on('connection', (socket) => {
+io.on('connection', (socket: AuthSocket) => {
   console.log('User connected:', socket.userId);
   socket.join(`user:${socket.userId}`);
 

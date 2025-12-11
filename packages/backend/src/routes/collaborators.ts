@@ -190,7 +190,7 @@ router.patch('/invitations/:id/accept', authenticateToken, async (req: Request, 
       title: 'Collaboration Accepted',
       message: `${collaborator?.username} accepted your collaboration invitation for "${idea?.title}"!`,
       actionUrl: `/ideas/${collaboration.ideaId}`,
-      metadata: { ideaId: collaboration.ideaId },
+      metadata: { ideaId: collaboration.ideaId.toString() },
     });
 
     res.json({ success: true, data: collaboration });
