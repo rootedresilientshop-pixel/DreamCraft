@@ -16,7 +16,7 @@ if (stripeKey) {
 }
 
 // Create a payment intent (stubbed when stripe not configured)
-router.post('/create-intent', async (req: Request, res: Response) => {
+router.post('/intent', async (req: Request, res: Response) => {
   const { amount = 1000, currency = 'usd' } = req.body || {};
   try {
     if (!stripe) {

@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import api from '../api';
 
-export default function CheckoutPage() {
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+
+function CheckoutForm() {
+  const stripe = useStripe();
+  const elements = useElements();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [idea, setIdea] = useState<any>(null);
@@ -11,13 +17,9 @@ export default function CheckoutPage() {
   const [cardError, setCardError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
-  const stripe: any = (window as any).Stripe;
-  const [elements, setElements] = useState<any>(null);
-  const [cardElement, setCardElement] = useState<any>(null);
 
   useEffect(() => {
     fetchIdea();
-    initializeStripe();
   }, [id]);
 
   const fetchIdea = async () => {
@@ -41,82 +43,33 @@ export default function CheckoutPage() {
     }
   };
 
-  const initializeStripe = () => {
-    if (!stripe) {
-      setError('Stripe failed to load. Please refresh the page.');
-      return;
-    }
-
-    const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-    if (!stripeKey) {
-      setError('Stripe is not configured. Please contact support.');
-      return;
-    }
-
-    try {
-      const stripeInstance = stripe(stripeKey);
-      const elementsInstance = stripeInstance.elements();
-      const card = elementsInstance.create('card', {
-        style: {
-          base: {
-            color: '#ccc',
-            backgroundColor: '#1a1a1a',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-            fontSize: '14px',
-            '::placeholder': {
-              color: '#666',
-            },
-          },
-          invalid: {
-            color: '#ff6666',
-          },
-        },
-      });
-
-      card.mount('#card-element');
-      card.addEventListener('change', (event: any) => {
-        if (event.error) {
-          setCardError(event.error.message);
-        } else {
-          setCardError('');
-        }
-      });
-
-      setElements(stripeInstance);
-      setCardElement(card);
-    } catch (err: any) {
-      setError('Failed to initialize payment form');
-      console.error('Stripe error:', err);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements || !cardElement || !id) return;
+    if (!stripe || !elements || !id) return;
 
     setProcessing(true);
     try {
       // Create payment intent
       const intentRes = await api.createPaymentIntent(id, idea.price * 100);
-      if (!intentRes.success || !intentRes.data) {
+      if (!intentRes.success || !intentRes.clientSecret) {
         setError(intentRes.error || 'Failed to create payment intent');
         setProcessing(false);
         return;
       }
 
-      const clientSecret = intentRes.data.clientSecret;
+      const clientSecret = intentRes.clientSecret;
 
-      // Confirm the payment
-      const result = await elements.confirmCardPayment(clientSecret, {
+      // Confirm the payment using CardElement
+      const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
-          card: cardElement,
+          card: elements.getElement(CardElement),
         },
       });
 
       if (result.error) {
         setError(result.error.message);
         setProcessing(false);
-      } else if (result.paymentIntent.status === 'succeeded') {
+      } else if (result.paymentIntent?.status === 'succeeded') {
         setSucceeded(true);
         setError('');
         setTimeout(() => {
@@ -237,22 +190,32 @@ export default function CheckoutPage() {
 
           <div style={styles.formGroup}>
             <label style={styles.label}>Card Details</label>
-            <div
-              id="card-element"
-              style={{
-                padding: '10px',
-                backgroundColor: '#1a1a1a',
-                border: '1px solid #333',
-                borderRadius: '4px',
-                minHeight: '40px',
-              }}
-            />
+            <div style={{ padding: '10px', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '4px' }}>
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      color: '#ccc',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                      fontSize: '14px',
+                      '::placeholder': {
+                        color: '#666',
+                      },
+                    },
+                    invalid: {
+                      color: '#ff6666',
+                    },
+                  },
+                }}
+                onChange={(e: any) => setCardError(e.error?.message || '')}
+              />
+            </div>
             {cardError && <p style={styles.fieldError}>{cardError}</p>}
           </div>
 
           <button
             type="submit"
-            disabled={processing || succeeded || !cardElement}
+            disabled={processing || succeeded || !stripe}
             style={{
               ...styles.submitButton,
               opacity: processing || succeeded ? 0.7 : 1,
@@ -268,6 +231,14 @@ export default function CheckoutPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm />
+    </Elements>
   );
 }
 

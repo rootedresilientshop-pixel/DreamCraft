@@ -20,6 +20,7 @@ export default function IdeaDetailPage() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [proposingCollaboration, setProposingCollaboration] = useState(false);
+  const [loadingNda, setLoadingNda] = useState(false);
 
   useEffect(() => {
     fetchIdea();
@@ -134,6 +135,36 @@ export default function IdeaDetailPage() {
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleViewNDA = async () => {
+    if (!id) return;
+    setLoadingNda(true);
+    try {
+      const response = await fetch(`/api/ideas/${id}/nda`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        }
+      });
+      if (response.ok) {
+        const text = await response.text();
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${idea.title || 'idea'}-nda.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        alert('Failed to download NDA');
+      }
+    } catch (err: any) {
+      alert('Error downloading NDA: ' + err.message);
+    } finally {
+      setLoadingNda(false);
+    }
   };
 
   const handleGenerateValuation = async () => {
@@ -461,6 +492,19 @@ export default function IdeaDetailPage() {
             }}
           >
             {proposingCollaboration ? '⏳ Proposing...' : '👥 Collaborate'}
+          </button>
+          <button
+            onClick={handleViewNDA}
+            disabled={loadingNda}
+            style={{
+              ...styles.actionButton,
+              backgroundColor: '#666',
+              color: '#fff',
+              opacity: loadingNda ? 0.7 : 1,
+              cursor: loadingNda ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {loadingNda ? '⏳ Downloading...' : '📋 View NDA'}
           </button>
           {idea.price && (
             <button

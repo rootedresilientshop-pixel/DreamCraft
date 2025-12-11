@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Share,
+  AsyncStorage,
 } from 'react-native';
 import api from '../api';
 import { addFavorite, removeFavorite, isFavorite } from '../utils/favorites';
@@ -18,6 +19,8 @@ export default function IdeaDetailScreen({ route, navigation }: any) {
   const [error, setError] = useState('');
   const [valuating, setValuating] = useState(false);
   const [isFav, setIsFav] = useState(false);
+  const [loadingNda, setLoadingNda] = useState(false);
+  const [proposingCollaboration, setProposingCollaboration] = useState(false);
 
   useEffect(() => {
     fetchIdea();
@@ -58,6 +61,61 @@ export default function IdeaDetailScreen({ route, navigation }: any) {
       });
     } catch (err: any) {
       console.error(err);
+    }
+  };
+
+  const handleViewNDA = async () => {
+    if (!ideaId) return;
+    setLoadingNda(true);
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE || 'http://localhost:3001/api'}/ideas/${ideaId}/nda`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const text = await response.text();
+        alert('NDA Document:\n\n' + text);
+      } else {
+        alert('Failed to download NDA');
+      }
+    } catch (err: any) {
+      alert('Error downloading NDA: ' + err.message);
+    } finally {
+      setLoadingNda(false);
+    }
+  };
+
+  const handleCollaborate = async () => {
+    if (!ideaId || !idea) return;
+    setProposingCollaboration(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE || 'http://localhost:3001/api'}/collaborators/invite`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await AsyncStorage.getItem('userToken')}`
+          },
+          body: JSON.stringify({
+            collaboratorId: await AsyncStorage.getItem('userId'),
+            ideaId,
+            role: 'other',
+            message: 'I\'m interested in collaborating on this idea'
+          })
+        }
+      );
+      if (response.ok) {
+        alert('Collaboration proposal sent!');
+      } else {
+        alert('Failed to propose collaboration');
+      }
+    } catch (err: any) {
+      alert('Error proposing collaboration: ' + err.message);
+    } finally {
+      setProposingCollaboration(false);
     }
   };
 
@@ -260,8 +318,23 @@ export default function IdeaDetailScreen({ route, navigation }: any) {
               {isFav ? '❤️ Favorited' : '🤍 Add to Favorites'}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.collaborateButton}>
-            <Text style={styles.collaborateButtonText}>👥 Collaborate</Text>
+          <TouchableOpacity
+            style={[styles.collaborateButton, proposingCollaboration && { opacity: 0.7 }]}
+            onPress={handleCollaborate}
+            disabled={proposingCollaboration}
+          >
+            <Text style={styles.collaborateButtonText}>
+              {proposingCollaboration ? '⏳ Proposing...' : '👥 Collaborate'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.shareButton, loadingNda && { opacity: 0.7 }]}
+            onPress={handleViewNDA}
+            disabled={loadingNda}
+          >
+            <Text style={styles.shareButtonText}>
+              {loadingNda ? '⏳ Downloading...' : '📋 View NDA'}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
             <Text style={styles.shareButtonText}>📤 Share</Text>
