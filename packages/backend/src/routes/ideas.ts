@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import Idea from '../models/Idea';
+import Message from '../models/Message';
+import Collaboration from '../models/Collaboration';
 import { authenticateToken } from '../middleware/auth';
 import { generateIdeaValuation, generateNDAText } from '../services/aiService';
 
@@ -25,6 +27,43 @@ router.get('/', async (req: Request, res: Response) => {
     const ideas = await Idea.find({ visibility: 'public' }).sort({ createdAt: -1 }).limit(50).lean();
     res.json({ success: true, data: ideas });
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to list ideas' });
+  }
+});
+
+// Get user's ideas (authenticated)
+router.get('/my-ideas', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const ideas = await Idea.find({ creatorId: userId }).sort({ createdAt: -1 });
+
+    // Add engagement stats for each idea
+    const ideasWithStats = await Promise.all(
+      ideas.map(async (idea) => {
+        const pendingRequests = await Collaboration.countDocuments({
+          ideaId: idea._id,
+          status: 'pending',
+          invitedBy: 'collaborator',
+        });
+
+        const activeCollaborators = await Collaboration.countDocuments({
+          ideaId: idea._id,
+          status: 'accepted',
+        });
+
+        return {
+          ...idea.toObject(),
+          stats: {
+            pendingRequests,
+            activeCollaborators,
+          },
+        };
+      })
+    );
+
+    res.json({ success: true, data: ideasWithStats });
+  } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: 'Failed to list ideas' });
   }
@@ -108,6 +147,24 @@ router.get('/:id/nda', authenticateToken, async (req: Request, res: Response) =>
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to generate NDA' });
+  }
+});
+
+// GET - Get idea discussion messages
+router.get('/:id/messages', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const messages = await Message.find({
+      threadType: 'idea',
+      ideaId: req.params.id
+    })
+    .populate('fromUserId', 'username profile')
+    .sort({ createdAt: 1 })
+    .limit(200);
+
+    res.json({ success: true, data: messages });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get messages' });
   }
 });
 

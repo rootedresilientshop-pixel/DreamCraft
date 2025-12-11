@@ -76,4 +76,112 @@ export default {
     });
     return res.data;
   },
+  async getNotifications() {
+    const res = await instance.get("/notifications");
+    return res.data;
+  },
+  async markNotificationRead(id: string) {
+    const res = await instance.patch(`/notifications/${id}/read`);
+    return res.data;
+  },
+  async markAllNotificationsRead() {
+    const res = await instance.patch("/notifications", { markAll: true });
+    return res.data;
+  },
+  async deleteNotification(id: string) {
+    const res = await instance.delete(`/notifications/${id}`);
+    return res.data;
+  },
+  // Direct messages
+  async sendDirectMessage(toUserId: string, content: string) {
+    const res = await instance.post("/messages", {
+      threadType: "dm",
+      toUserId,
+      content,
+    });
+    return res.data;
+  },
+  async getDirectMessages(userId: string) {
+    const res = await instance.get(`/messages/direct/${userId}`);
+    return res.data;
+  },
+  async getConversations() {
+    const res = await instance.get("/messages/conversations");
+    return res.data;
+  },
+  // Idea discussions
+  async sendIdeaMessage(ideaId: string, content: string, parentId?: string) {
+    const res = await instance.post("/messages", {
+      threadType: "idea",
+      ideaId,
+      content,
+      parentId,
+    });
+    return res.data;
+  },
+  async getIdeaMessages(ideaId: string) {
+    const res = await instance.get(`/ideas/${ideaId}/messages`);
+    return res.data;
+  },
+  // Collaboration invitations
+  async inviteCollaborator(collaboratorId: string, ideaId: string, role?: string, message?: string) {
+    const res = await instance.post("/collaborators/invite", {
+      collaboratorId,
+      ideaId,
+      role,
+      message,
+    });
+    return res.data;
+  },
+  async getInvitations(type?: "received" | "sent") {
+    const params = type ? `?type=${type}` : "";
+    const res = await instance.get(`/collaborators/invitations${params}`);
+    return res.data;
+  },
+  async acceptInvitation(invitationId: string) {
+    const res = await instance.patch(`/collaborators/invitations/${invitationId}/accept`);
+    return res.data;
+  },
+  async rejectInvitation(invitationId: string) {
+    const res = await instance.patch(`/collaborators/invitations/${invitationId}/reject`);
+    return res.data;
+  },
+  async getMyCollaborations() {
+    const res = await instance.get("/collaborators/my-collaborations");
+    return res.data;
+  },
+  // User profile and dashboard
+  async getProfile() {
+    const res = await instance.get("/users/me");
+    return res.data;
+  },
+  async updateProfile(data: any) {
+    const res = await instance.patch("/users/me", data);
+    return res.data;
+  },
+  async getDashboard() {
+    const res = await instance.get("/users/dashboard");
+    return res.data;
+  },
+  async getMyIdeas() {
+    const res = await instance.get("/ideas/my-ideas");
+    return res.data;
+  },
+  // Favorites
+  async addFavorite(ideaId: string) {
+    const res = await instance.post(`/favorites/${ideaId}`);
+    return res.data;
+  },
+  async removeFavorite(ideaId: string) {
+    const res = await instance.delete(`/favorites/${ideaId}`);
+    return res.data;
+  },
+  async getFavorites() {
+    const res = await instance.get("/favorites");
+    return res.data;
+  },
+  async checkFavorite(ideaId: string) {
+    const res = await instance.get(`/favorites/check/${ideaId}`);
+    return res.data;
+  },
 };

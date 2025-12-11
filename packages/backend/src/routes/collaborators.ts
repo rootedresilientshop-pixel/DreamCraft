@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import User from '../models/User';
+import Idea from '../models/Idea';
+import Collaboration from '../models/Collaboration';
 import { authenticateToken } from '../middleware/auth';
+import { sendNotification } from '../services/notificationService';
 
 const router = express.Router();
 
@@ -46,32 +49,204 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
 router.post('/invite', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { collaboratorId, ideaId } = req.body;
+    const { collaboratorId, ideaId, role, message } = req.body;
 
     // Validate input
     if (!collaboratorId || !ideaId) {
-      return res.status(400).json({ error: 'collaboratorId and ideaId required' });
+      return res.status(400).json({ success: false, error: 'collaboratorId and ideaId required' });
     }
 
     // Check if collaborator exists
     const collaborator = await User.findById(collaboratorId);
     if (!collaborator) {
-      return res.status(404).json({ error: 'Collaborator not found' });
+      return res.status(404).json({ success: false, error: 'Collaborator not found' });
     }
 
-    // In a full implementation, this would:
-    // 1. Create an invitation record
-    // 2. Send notification to collaborator
-    // 3. Track invitation status
-    // For now, we return success
+    // Check if idea exists and user is authorized
+    const idea = await Idea.findById(ideaId);
+    if (!idea) {
+      return res.status(404).json({ success: false, error: 'Idea not found' });
+    }
+
+    const isCreator = idea.creatorId.toString() === userId;
+
+    // Check for existing active invitation or collaboration
+    const existing = await Collaboration.findOne({
+      ideaId,
+      collaboratorId,
+      status: { $in: ['pending', 'accepted'] },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invitation already exists or collaboration is active',
+      });
+    }
+
+    // Create collaboration invitation
+    const collaboration = await Collaboration.create({
+      ideaId,
+      creatorId: idea.creatorId,
+      collaboratorId,
+      status: 'pending',
+      role: role || 'other',
+      message,
+      invitedBy: isCreator ? 'creator' : 'collaborator',
+    });
+
+    // Send notification to target user
+    const targetUserId = isCreator ? collaboratorId : idea.creatorId.toString();
+    const currentUser = await User.findById(userId);
+
+    await sendNotification({
+      userId: targetUserId,
+      type: 'collaboration_invite',
+      title: 'Collaboration Invitation',
+      message: isCreator
+        ? `You've been invited to collaborate on "${idea.title}"`
+        : `${currentUser?.username} wants to collaborate on your idea "${idea.title}"`,
+      actionUrl: `/ideas/${ideaId}`,
+      metadata: {
+        ideaId,
+        inviteId: collaboration._id.toString(),
+      },
+    });
+
     res.json({
       success: true,
-      message: `Invitation sent to ${collaborator.username}`,
-      data: { collaboratorId, ideaId, status: 'pending' }
+      data: collaboration,
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to send invitation' });
+  } catch (err: any) {
+    console.error('Invite error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get user's invitations (received or sent)
+router.get('/invitations', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { type } = req.query; // 'received', 'sent', or all
+
+    let query: any;
+    if (type === 'received') {
+      query = { collaboratorId: userId };
+    } else if (type === 'sent') {
+      query = { creatorId: userId, invitedBy: 'creator' };
+    } else {
+      query = {
+        $or: [{ collaboratorId: userId }, { creatorId: userId }],
+      };
+    }
+
+    const invitations = await Collaboration.find(query)
+      .populate('ideaId', 'title description category')
+      .populate('creatorId', 'username profile')
+      .populate('collaboratorId', 'username profile')
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, data: invitations });
+  } catch (err: any) {
+    console.error('Get invitations error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Accept collaboration invitation
+router.patch('/invitations/:id/accept', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const collaboration = await Collaboration.findById(req.params.id);
+
+    if (!collaboration) {
+      return res.status(404).json({ success: false, error: 'Invitation not found' });
+    }
+
+    // Only collaborator can accept
+    if (collaboration.collaboratorId.toString() !== userId) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    if (collaboration.status !== 'pending') {
+      return res.status(400).json({ success: false, error: 'Invitation already responded to' });
+    }
+
+    collaboration.status = 'accepted';
+    collaboration.respondedAt = new Date();
+    await collaboration.save();
+
+    // Update idea status to in-collaboration
+    await Idea.findByIdAndUpdate(collaboration.ideaId, {
+      status: 'in-collaboration',
+    });
+
+    // Notify creator
+    const idea = await Idea.findById(collaboration.ideaId);
+    const collaborator = await User.findById(collaboration.collaboratorId);
+    await sendNotification({
+      userId: collaboration.creatorId.toString(),
+      type: 'success',
+      title: 'Collaboration Accepted',
+      message: `${collaborator?.username} accepted your collaboration invitation for "${idea?.title}"!`,
+      actionUrl: `/ideas/${collaboration.ideaId}`,
+      metadata: { ideaId: collaboration.ideaId },
+    });
+
+    res.json({ success: true, data: collaboration });
+  } catch (err: any) {
+    console.error('Accept error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Reject collaboration invitation
+router.patch('/invitations/:id/reject', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const collaboration = await Collaboration.findById(req.params.id);
+
+    if (!collaboration) {
+      return res.status(404).json({ success: false, error: 'Invitation not found' });
+    }
+
+    // Only collaborator can reject
+    if (collaboration.collaboratorId.toString() !== userId) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    if (collaboration.status !== 'pending') {
+      return res.status(400).json({ success: false, error: 'Invitation already responded to' });
+    }
+
+    collaboration.status = 'rejected';
+    collaboration.respondedAt = new Date();
+    await collaboration.save();
+
+    res.json({ success: true, data: collaboration });
+  } catch (err: any) {
+    console.error('Reject error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get user's active collaborations
+router.get('/my-collaborations', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+
+    const collaborations = await Collaboration.find({
+      collaboratorId: userId,
+      status: 'accepted',
+    })
+      .populate('ideaId', 'title description category status')
+      .populate('creatorId', 'username profile')
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, data: collaborations });
+  } catch (err: any) {
+    console.error('Get collaborations error:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

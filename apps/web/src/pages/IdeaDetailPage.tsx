@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 import { addFavorite, removeFavorite, isFavorite } from '../utils/favorites';
+import { getCurrentUserId } from '../utils/authStorage';
 
 export default function IdeaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const currentUserId = getCurrentUserId();
   const [idea, setIdea] = useState<any>(null);
   const [creator, setCreator] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -13,6 +15,11 @@ export default function IdeaDetailPage() {
   const [copied, setCopied] = useState(false);
   const [valuating, setValuating] = useState(false);
   const [isFav, setIsFav] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [messageContent, setMessageContent] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [proposingCollaboration, setProposingCollaboration] = useState(false);
 
   useEffect(() => {
     fetchIdea();
@@ -21,8 +28,73 @@ export default function IdeaDetailPage() {
   useEffect(() => {
     if (id) {
       setIsFav(isFavorite(id));
+      fetchMessages();
     }
   }, [id, idea]);
+
+  const fetchMessages = async () => {
+    if (!id) return;
+    setLoadingMessages(true);
+    try {
+      const res = await api.getIdeaMessages(id);
+      if (res.success && res.data) {
+        setMessages(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch messages:', err);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!id || !messageContent.trim()) return;
+
+    setSendingMessage(true);
+    try {
+      const res = await api.sendIdeaMessage(id, messageContent);
+      if (res.success && res.data) {
+        setMessages((prev) => [...prev, res.data]);
+        setMessageContent('');
+      } else {
+        alert(res.error || 'Failed to send message');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error sending message');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const handleCollaborate = async () => {
+    if (!id || !idea || !currentUserId) return;
+
+    // If user is the creator, they shouldn't collaborate with themselves
+    if (idea.creatorId === currentUserId || idea.creatorId._id === currentUserId) {
+      alert('You are the creator of this idea');
+      return;
+    }
+
+    setProposingCollaboration(true);
+    try {
+      const res = await api.inviteCollaborator(
+        currentUserId,
+        id,
+        'other',
+        'I\'m interested in collaborating on this idea'
+      );
+
+      if (res.success) {
+        alert('Collaboration proposal sent! The creator will receive a notification.');
+      } else {
+        alert(res.error || 'Failed to propose collaboration');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error proposing collaboration');
+    } finally {
+      setProposingCollaboration(false);
+    }
+  };
 
   const fetchIdea = async () => {
     setLoading(true);
@@ -303,10 +375,92 @@ export default function IdeaDetailPage() {
           </div>
         )}
 
+        {/* Discussion Thread */}
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>💬 Discussion</h2>
+
+          {/* Messages List */}
+          <div style={styles.messagesList}>
+            {loadingMessages ? (
+              <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>Loading messages...</p>
+            ) : messages.length === 0 ? (
+              <p style={{ color: '#999', textAlign: 'center', padding: '20px' }}>
+                No messages yet. Be the first to comment!
+              </p>
+            ) : (
+              messages.map((msg: any) => {
+                const isOwn = msg.fromUserId._id === currentUserId || msg.fromUserId === currentUserId;
+                return (
+                  <div
+                    key={msg._id}
+                    style={{
+                      ...styles.messageItem,
+                      ...(isOwn ? styles.messageItemOwn : {}),
+                    }}
+                  >
+                    <div style={styles.messageMeta}>
+                      <span
+                        style={{
+                          ...styles.messageAuthor,
+                          ...(isOwn ? { color: '#00cc66' } : {}),
+                        }}
+                      >
+                        {msg.fromUserId?.username || 'Anonymous'}
+                        {isOwn && ' (You)'}
+                      </span>
+                      <span style={styles.messageTime}>
+                        {new Date(msg.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p style={styles.messageContent}>{msg.content}</p>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Message Composer */}
+          <div style={styles.messageComposer}>
+            <textarea
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+              placeholder="Share your thoughts about this idea..."
+              style={styles.messageInput}
+              disabled={sendingMessage}
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={sendingMessage || !messageContent.trim()}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: sendingMessage || !messageContent.trim() ? '#555' : '#0099ff',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: sendingMessage || !messageContent.trim() ? 'not-allowed' : 'pointer',
+                fontWeight: '600',
+                fontSize: '14px',
+                opacity: sendingMessage || !messageContent.trim() ? 0.6 : 1,
+              }}
+            >
+              {sendingMessage ? '📤 Sending...' : '💬 Send Message'}
+            </button>
+          </div>
+        </div>
+
         {/* Action Buttons */}
         <div style={styles.actionButtons}>
-          <button style={{ ...styles.actionButton, ...styles.primaryButton }}>
-            👥 Collaborate
+          <button
+            onClick={handleCollaborate}
+            disabled={proposingCollaboration}
+            style={{
+              ...styles.actionButton,
+              ...styles.primaryButton,
+              opacity: proposingCollaboration ? 0.7 : 1,
+              cursor: proposingCollaboration ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {proposingCollaboration ? '⏳ Proposing...' : '👥 Collaborate'}
           </button>
           {idea.price && (
             <button
@@ -505,5 +659,60 @@ const styles: any = {
     color: '#ff6666',
     margin: '0 0 15px 0',
     fontSize: '16px',
+  },
+  messagesList: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: '8px',
+    border: '1px solid #333',
+    maxHeight: '400px',
+    overflowY: 'auto' as const,
+    marginBottom: '20px',
+    padding: '15px',
+  },
+  messageItem: {
+    borderBottom: '1px solid #333',
+    paddingBottom: '15px',
+    marginBottom: '15px',
+  },
+  messageItemOwn: {
+    backgroundColor: 'rgba(0, 204, 102, 0.1)',
+    borderLeft: '3px solid #00cc66',
+    paddingLeft: '12px',
+  },
+  messageMeta: {
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '8px',
+    fontSize: '13px',
+  },
+  messageAuthor: {
+    color: '#0099ff',
+    fontWeight: '600',
+  },
+  messageTime: {
+    color: '#666',
+  },
+  messageContent: {
+    color: '#ccc',
+    margin: '0',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    wordWrap: 'break-word' as const,
+  },
+  messageComposer: {
+    display: 'flex',
+    gap: '10px',
+    flexDirection: 'column' as const,
+  },
+  messageInput: {
+    backgroundColor: '#1a1a1a',
+    border: '1px solid #333',
+    borderRadius: '6px',
+    color: '#fff',
+    padding: '12px',
+    fontSize: '14px',
+    fontFamily: 'inherit',
+    minHeight: '80px',
+    resize: 'vertical' as const,
   },
 };

@@ -16,3 +16,20 @@ export function removeToken(): void {
 export function dispatchAuthChanged(): void {
   window.dispatchEvent(new Event('auth-changed'));
 }
+
+export function getCurrentUserId(): string | null {
+  const token = loadToken();
+  if (!token) return null;
+
+  try {
+    // JWT structure: header.payload.signature
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    // Decode payload
+    const payload = JSON.parse(atob(parts[1]));
+    return payload.userId || null;
+  } catch (err) {
+    return null;
+  }
+}

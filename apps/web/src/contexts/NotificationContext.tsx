@@ -1,8 +1,10 @@
-import React, { createContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useCallback, useEffect } from 'react';
+import { useSocket } from './SocketContext';
+import api from '../api';
 
 export interface Notification {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: 'info' | 'success' | 'warning' | 'error' | 'collaboration_invite' | 'message' | 'favorite';
   title: string;
   message: string;
   timestamp: Date;
@@ -24,6 +26,50 @@ export const NotificationContext = createContext<NotificationContextType | undef
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { socket } = useSocket();
+
+  // Fetch notifications on mount
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await api.getNotifications();
+        if (response.success && response.data) {
+          setNotifications(response.data.map((notif: any) => ({
+            ...notif,
+            timestamp: new Date(notif.createdAt),
+          })));
+        }
+      } catch (err) {
+        console.error('Failed to fetch notifications:', err);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // Listen for real-time notifications
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNotification = (data: any) => {
+      const newNotif: Notification = {
+        id: data.id,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        actionUrl: data.actionUrl,
+        timestamp: new Date(data.timestamp),
+        read: false,
+      };
+      setNotifications((prev) => [newNotif, ...prev]);
+    };
+
+    socket.on('notification', handleNotification);
+
+    return () => {
+      socket.off('notification', handleNotification);
+    };
+  }, [socket]);
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {

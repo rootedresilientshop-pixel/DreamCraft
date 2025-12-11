@@ -1,11 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import http from 'http';
+import { Server } from 'socket.io';
+import jwt from 'jsonwebtoken';
 import authRoutes from './routes/auth';
 import ideasRoutes from './routes/ideas';
 import collaboratorsRoutes from './routes/collaborators';
 import marketplaceRoutes from './routes/marketplace';
 import paymentsRoutes from './routes/payments';
+import notificationRoutes from './routes/notifications';
+import messageRoutes from './routes/messages';
+import userRoutes from './routes/users';
+import favoriteRoutes from './routes/favorites';
 import connectDB from './db';
 import { requestLogger } from './middleware/logger';
 import { createRateLimiter } from './middleware/rateLimiter';
@@ -16,6 +23,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+
+// Create HTTP server for WebSocket support
+const httpServer = http.createServer(app);
 
 // Security & Logging Middleware
 const getDefaultOrigins = () => {
@@ -36,7 +46,7 @@ const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -48,6 +58,40 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
+
+// Initialize Socket.io
+const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+
+// Socket.io authentication middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error('Authentication error'));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as any;
+    socket.userId = decoded.userId;
+    next();
+  } catch (err) {
+    next(new Error('Authentication failed'));
+  }
+});
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.userId);
+  socket.join(`user:${socket.userId}`);
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.userId);
+  });
+});
 
 app.use(cors(corsOptions));
 
@@ -65,10 +109,13 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/ideas', ideasRoutes);
-
 app.use('/api/collaborators', collaboratorsRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/payments', paymentsRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/favorites', favoriteRoutes);
 app.use('/api/transactions', (req, res) => {
   res.status(501).json({ error: 'Transactions routes not implemented' });
 });
@@ -85,11 +132,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// Export io for use in other modules
+export { io };
+
 // Connect to DB and Start server
 const startServer = async () => {
   await connectDB();
-  app.listen(PORT, () => {
-    console.log(`DreamCraft Backend running on port ${PORT}`);
+  httpServer.listen(PORT, () => {
+    console.log(`DreamCraft Backend with WebSocket running on port ${PORT}`);
   });
 };
 

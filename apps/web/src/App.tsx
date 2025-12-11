@@ -9,7 +9,10 @@ import IdeaDetailPage from './pages/IdeaDetailPage';
 import CheckoutPage from './pages/CheckoutPage';
 import NotificationsPage from './pages/NotificationsPage';
 import LogoutPage from './pages/LogoutPage';
+import MessagesPage from './pages/MessagesPage';
+import DashboardPage from './pages/DashboardPage';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { SocketProvider } from './contexts/SocketContext';
 import { loadToken, removeToken, dispatchAuthChanged } from './utils/authStorage';
 
 function App() {
@@ -51,30 +54,35 @@ function App() {
 
 
   return (
-    <NotificationProvider>
-      <Router>
-        <Routes>
-          {!isLoggedIn ? (
-            <Route
-              path="/*"
-              element={<LoginPage />}
-            />
-          ) : (
-            <>
-              <Route path="/" element={<MarketplacePage />} />
-              <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-              <Route path="/checkout/:id" element={<CheckoutPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/create-idea" element={<CreateIdeaPage />} />
-              <Route path="/collaborators" element={<CollaboratorsPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/logout" element={<LogoutPage />} />
-              <Route path="/*" element={<Navigate to="/" replace />} />
-            </>
-          )}
-        </Routes>
-      </Router>
-    </NotificationProvider>
+    <Router>
+      <SocketProvider>
+        <NotificationProvider>
+          <Routes>
+            {!isLoggedIn ? (
+              <Route
+                path="/*"
+                element={<LoginPage />}
+              />
+            ) : (
+              <>
+                <Route path="/" element={<MarketplacePage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                <Route path="/checkout/:id" element={<CheckoutPage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/messages" element={<MessagesPage />} />
+                <Route path="/messages/direct/:userId" element={<MessagesPage />} />
+                <Route path="/create-idea" element={<CreateIdeaPage />} />
+                <Route path="/collaborators" element={<CollaboratorsPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/logout" element={<LogoutPage />} />
+                <Route path="/*" element={<Navigate to="/" replace />} />
+              </>
+            )}
+          </Routes>
+        </NotificationProvider>
+      </SocketProvider>
+    </Router>
   );
 }
 
