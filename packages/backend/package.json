@@ -9,7 +9,8 @@
     "dev": "nodemon --exec node --loader ts-node/esm src/server.ts",
     "start": "node dist/server.js",
     "start:ts": "node --loader ts-node/esm src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "migrate:onboarding": "node --loader ts-node/esm src/migrations/add-onboarding-fields.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
