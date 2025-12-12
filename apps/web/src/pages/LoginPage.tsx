@@ -44,6 +44,10 @@ export default function LoginPage() {
           }
           // Dispatch auth-changed event to notify App component
           dispatchAuthChanged();
+          // Navigate to dashboard after a brief delay to allow auth state to update
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 100);
         } else {
           setError(res?.error || 'Login failed');
           setLoading(false);
