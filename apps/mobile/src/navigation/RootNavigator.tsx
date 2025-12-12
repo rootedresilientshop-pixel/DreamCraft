@@ -6,6 +6,7 @@ import { View, StyleSheet } from "react-native";
 // Screens
 import LoginScreen from "../screens/LoginScreen";
 import RoleSelectionScreen from "../screens/RoleSelectionScreen";
+import CollaboratorProfileWizardScreen from "../screens/CollaboratorProfileWizardScreen";
 import HomeScreen from "../screens/HomeScreen";
 import CreatorHomeScreen from "../screens/CreatorHomeScreen";
 import CollaboratorHomeScreen from "../screens/CollaboratorHomeScreen";
@@ -40,6 +41,14 @@ function AuthStack() {
         component={RoleSelectionScreen}
         options={{
           title: "Choose Your Role",
+          headerLeft: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="ProfileWizard"
+        component={CollaboratorProfileWizardScreen}
+        options={{
+          title: "Complete Your Profile",
           headerLeft: () => null,
         }}
       />

@@ -36,12 +36,18 @@ export default function RoleSelectionScreen({ route, navigation }: RouteProps) {
       const res = await api.register(email, password, role);
 
       if (res.success) {
-        Alert.alert('Account Created!', 'Please log in with your credentials', [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
+        if (role === 'collaborator') {
+          // Collaborators go to profile wizard
+          navigation.navigate('ProfileWizard', { email });
+        } else {
+          // Creators go to login
+          Alert.alert('Account Created!', 'Please log in with your credentials', [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Login'),
+            },
+          ]);
+        }
       } else {
         Alert.alert('Registration Failed', res.error || 'Unknown error');
         setLoading(false);

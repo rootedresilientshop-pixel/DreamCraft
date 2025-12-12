@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import api from '../api';
+import CreatorIntroModal from '../components/CreatorIntroModal';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +18,7 @@ export default function CreatorHomeScreen({ navigation }: any) {
   const [stats, setStats] = useState<any>(null);
   const [ideas, setIdeas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showIntroModal, setShowIntroModal] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -25,13 +27,23 @@ export default function CreatorHomeScreen({ navigation }: any) {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [statsRes, ideasRes] = await Promise.all([
+      const [statsRes, ideasRes, profileRes] = await Promise.all([
         api.getDashboard?.() || Promise.resolve({ success: false }),
         api.getMyIdeas?.() || Promise.resolve({ success: false }),
+        api.getProfile?.() || Promise.resolve({ success: false }),
       ]);
 
       if (statsRes?.success) setStats(statsRes.data);
       if (ideasRes?.success) setIdeas(ideasRes.data);
+
+      // Check if creator needs to see intro modal
+      if (
+        profileRes?.success &&
+        profileRes.data?.userType === 'creator' &&
+        !profileRes.data?.onboarding?.creatorIntroShown
+      ) {
+        setShowIntroModal(true);
+      }
     } catch (err) {
       console.error('Failed to load dashboard:', err);
     } finally {
@@ -145,6 +157,114 @@ export default function CreatorHomeScreen({ navigation }: any) {
       </View>
     </ScrollView>
   );
+
+  return (
+    <>
+      <CreatorIntroModal visible={showIntroModal} onDismiss={() => setShowIntroModal(false)} />
+      {renderMainContent()}
+    </>
+  );
+
+  function renderMainContent() {
+    return (
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>Create & Collaborate</Text>
+          <Text style={styles.heroSubtitle}>Turn your ideas into reality</Text>
+          <TouchableOpacity
+            style={styles.heroCTA}
+            onPress={() => navigation.navigate('CreateIdea')}
+          >
+            <Text style={styles.heroCTAText}>✨ Start New Idea</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Stats Section */}
+        <View style={styles.statsSection}>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>💡</Text>
+            <Text style={styles.statValue}>{stats?.myIdeasCount || 0}</Text>
+            <Text style={styles.statLabel}>Ideas</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🤝</Text>
+            <Text style={styles.statValue}>{stats?.myCollaborationsCount || 0}</Text>
+            <Text style={styles.statLabel}>Collaborations</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>📬</Text>
+            <Text style={styles.statValue}>{stats?.pendingInvitationsCount || 0}</Text>
+            <Text style={styles.statLabel}>Requests</Text>
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.actionsSection}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('CreateIdea')}
+          >
+            <Text style={styles.actionIcon}>➕</Text>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Create Idea</Text>
+              <Text style={styles.actionDesc}>Start a new project</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Browse')}
+          >
+            <Text style={styles.actionIcon}>🔍</Text>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Find Collaborators</Text>
+              <Text style={styles.actionDesc}>Search for teammates</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Ideas List */}
+        <View style={styles.ideasSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>My Ideas</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('CreateIdea')}>
+              <Text style={styles.seeAll}>+ New</Text>
+            </TouchableOpacity>
+          </View>
+
+          {ideas.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>💭</Text>
+              <Text style={styles.emptyTitle}>No ideas yet</Text>
+              <Text style={styles.emptyText}>Start creating your first idea</Text>
+            </View>
+          ) : (
+            <FlatList
+              scrollEnabled={false}
+              data={ideas}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.ideaCard}
+                  onPress={() => navigation.navigate('IdeaDetail', { ideaId: item._id })}
+                >
+                  <View style={styles.ideaCardHeader}>
+                    <Text style={styles.ideaTitle}>{item.title}</Text>
+                    <Text style={styles.ideaStatus}>{item.status || 'draft'}</Text>
+                  </View>
+                  <Text style={styles.ideaDesc}>{item.description?.substring(0, 80)}...</Text>
+                  <View style={styles.ideaStats}>
+                    <Text style={styles.ideaStat}>🤝 {item.stats?.activeCollaborators || 0}</Text>
+                    <Text style={styles.ideaStat}>⏳ {item.stats?.pendingRequests || 0}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          )}
+        </View>
+      </ScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

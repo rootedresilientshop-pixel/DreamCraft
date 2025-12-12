@@ -65,7 +65,15 @@ export default {
     return res.data;
   },
   async getProfile() {
-    const res = await instance.get('/collaborators/me');
+    const res = await instance.get('/users/me');
+    return res.data;
+  },
+  async updateProfile(data: any) {
+    const res = await instance.patch('/users/me', data);
+    return res.data;
+  },
+  async completeOnboarding(data: { type: 'collaborator-wizard' | 'creator-intro' }) {
+    const res = await instance.post('/users/complete-onboarding', data);
     return res.data;
   },
   async createPaymentIntent(ideaId: string, amount: number) {

@@ -10,19 +10,27 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "bundleIdentifier": "com.venturelab.app",
       "supportsTabletMode": true,
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "This app uses local network to connect to development server",
-        "NSBonjourServiceTypes": ["_http._tcp", "_https._tcp"]
+        "NSBonjourServiceTypes": [
+          "_http._tcp",
+          "_https._tcp"
+        ]
       }
     },
     "android": {
       "package": "com.venturelab.app",
       "backgroundColor": "#000000",
-      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -33,7 +41,11 @@
       "com.venturelab.app"
     ],
     "extra": {
-      "apiUrl": "https://api.render.com/api"
-    }
+      "apiUrl": "https://api.render.com/api",
+      "eas": {
+        "projectId": "875f7cd7-1664-46e8-a593-0f0d1f8f8f57"
+      }
+    },
+    "owner": "gardners"
   }
 }
