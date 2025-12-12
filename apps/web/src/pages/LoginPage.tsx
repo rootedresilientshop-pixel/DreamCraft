@@ -27,7 +27,7 @@ export default function LoginPage() {
       if (isRegister) {
         // -------------------- REGISTER --------------------
         // Redirect to role selection page (don't call api.register yet)
-        setLoading(false); // Reset before navigation
+        console.log('Navigating to role selection with:', { email });
         navigate('/role-selection', {
           state: { email, password },
           replace: false,
@@ -50,6 +50,7 @@ export default function LoginPage() {
         }
       }
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Error occurred');
       setLoading(false);
     }
