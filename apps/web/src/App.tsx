@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RoleSelectionPage from './pages/RoleSelectionPage';
+import CollaboratorProfileWizardPage from './pages/CollaboratorProfileWizardPage';
 import MarketplacePage from './pages/MarketplacePage';
 import CreateIdeaPage from './pages/CreateIdeaPage';
 import CollaboratorsPage from './pages/CollaboratorsPage';
@@ -85,6 +86,7 @@ function App() {
             {/* Public routes (no login required) */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/role-selection" element={<RoleSelectionPage />} />
+            <Route path="/profile-wizard" element={<CollaboratorProfileWizardPage />} />
 
             {/* Protected routes (login required) */}
             {isLoggedIn ? (

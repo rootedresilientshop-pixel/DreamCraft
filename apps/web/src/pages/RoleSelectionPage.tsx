@@ -25,11 +25,19 @@ export default function RoleSelectionPage() {
       const res = await api.register(email, password, role);
 
       if (res.success) {
-        // Redirect to login with success message
-        navigate('/login', {
-          state: { message: 'Account created! Please log in.' },
-          replace: true,
-        });
+        if (role === 'collaborator') {
+          // Collaborators go to profile wizard to complete their profile
+          navigate('/profile-wizard', {
+            state: { email },
+            replace: true,
+          });
+        } else {
+          // Creators go to login
+          navigate('/login', {
+            state: { message: 'Account created! Please log in.' },
+            replace: true,
+          });
+        }
       } else {
         alert(res.error || 'Registration failed');
         setLoading(false);

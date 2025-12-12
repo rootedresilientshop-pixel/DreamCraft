@@ -156,6 +156,10 @@ export default {
     const res = await instance.patch("/users/me", data);
     return res.data;
   },
+  async completeOnboarding(data: { type: 'collaborator-wizard' | 'creator-intro' }) {
+    const res = await instance.post("/users/complete-onboarding", data);
+    return res.data;
+  },
   async getDashboard() {
     const res = await instance.get("/users/dashboard");
     return res.data;
