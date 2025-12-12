@@ -14,6 +14,12 @@ export default function LoginPage() {
   const [error, setError] = useState(() => (location.state as any)?.message || '');
 
   const handleSubmit = async () => {
+    // Validate inputs
+    if (!email || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -25,7 +31,6 @@ export default function LoginPage() {
           state: { email, password },
           replace: false,
         });
-        setLoading(false);
       } else {
         // -------------------- LOGIN --------------------
         const res = await api.login(email, password);
