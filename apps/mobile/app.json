@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "VentureLab",
-    "slug": "venturelab",
+    "name": "DreamCraft",
+    "slug": "dreamcraft",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -14,7 +14,7 @@
       "**/*"
     ],
     "ios": {
-      "bundleIdentifier": "com.venturelab.app",
+      "bundleIdentifier": "com.dreamcraft.app",
       "supportsTabletMode": true,
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "This app uses local network to connect to development server",
@@ -25,7 +25,7 @@
       }
     },
     "android": {
-      "package": "com.venturelab.app",
+      "package": "com.dreamcraft.app",
       "backgroundColor": "#000000",
       "permissions": [
         "INTERNET",
@@ -38,7 +38,7 @@
     "plugins": [],
     "scheme": [
       "dreamcraft",
-      "com.venturelab.app"
+      "com.dreamcraft.app"
     ],
     "extra": {
       "apiUrl": "https://api.render.com/api",
