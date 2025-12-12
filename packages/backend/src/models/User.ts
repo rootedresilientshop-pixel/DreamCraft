@@ -11,7 +11,14 @@ const userSchema = new mongoose.Schema({
     bio: String,
     avatar: String,
     skills: [String],
+    primarySkill: String,
     location: String,
+    profileCompleted: { type: Boolean, default: false },
+  },
+  onboarding: {
+    collaboratorWizardCompleted: { type: Boolean, default: false },
+    creatorIntroShown: { type: Boolean, default: false },
+    completedAt: Date,
   },
   subscription: {
     tier: { type: String, enum: ['free', 'explorer', 'builder', 'enterprise'], default: 'free' },

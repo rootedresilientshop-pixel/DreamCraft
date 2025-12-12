@@ -12,7 +12,11 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const q = (req.query.q as string) || '';
     const skill = (req.query.skill as string) || '';
-    const filter: any = { userType: 'collaborator' };
+    const filter: any = {
+      userType: 'collaborator',
+      'profile.profileCompleted': true // Only show collaborators with completed profiles
+    };
+
     if (q) {
       filter.$or = [
         { username: { $regex: q, $options: 'i' } },
@@ -20,11 +24,26 @@ router.get('/', async (req: Request, res: Response) => {
         { 'profile.lastName': { $regex: q, $options: 'i' } },
       ];
     }
+
     if (skill) {
-      filter['profile.skills'] = { $in: [skill] };
+      // Prioritize primary skill matches over other skill matches
+      filter.$or = [
+        { 'profile.primarySkill': skill },
+        { 'profile.skills': { $in: [skill] } }
+      ];
     }
 
-    const users = await User.find(filter).limit(50).select('-password').lean();
+    let users: any = await User.find(filter).limit(50).select('-password').lean();
+
+    // If filtering by skill, sort primary skill matches first
+    if (skill && users.length > 0) {
+      users.sort((a: any, b: any) => {
+        const aIsPrimary = a.profile?.primarySkill === skill ? 1 : 0;
+        const bIsPrimary = b.profile?.primarySkill === skill ? 1 : 0;
+        return bIsPrimary - aIsPrimary;
+      });
+    }
+
     res.json({ success: true, data: users });
   } catch (err) {
     console.error(err);
