@@ -15,13 +15,20 @@ instance.interceptors.request.use((config) => {
 
 export default {
   async register(email: string, password: string, userType?: string) {
-    const res = await instance.post("/auth/register", {
-      email,
-      username: email.split("@")[0],
-      password,
-      userType: userType || "creator",
-    });
-    return res.data;
+    try {
+      const res = await instance.post("/auth/register", {
+        email,
+        username: email.split("@")[0],
+        password,
+        userType: userType || "creator",
+      });
+      return res.data;
+    } catch (error: any) {
+      console.error("Register error:", error);
+      const errorMsg =
+        error?.response?.data?.error || error.message || "Registration failed";
+      return { error: errorMsg };
+    }
   },
   async login(email: string, password: string) {
     try {
