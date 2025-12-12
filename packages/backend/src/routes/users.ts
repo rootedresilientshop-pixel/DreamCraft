@@ -137,4 +137,114 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
   }
 });
 
+// POST /api/users/run-migration - One-time migration endpoint (for Render free tier workaround)
+// This endpoint runs the database migration to add onboarding fields
+// Protected by simple token check (deploy-time secret)
+router.post('/run-migration', async (req: Request, res: Response) => {
+  try {
+    // Simple security check - require a migration token
+    const migrationToken = req.headers['x-migration-token'] as string;
+    const expectedToken = process.env.MIGRATION_TOKEN || 'dev-migration-token';
+
+    if (migrationToken !== expectedToken) {
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized: Invalid migration token',
+      });
+    }
+
+    console.log('🚀 Starting migration via HTTP endpoint...');
+
+    const usersCollection = User.collection;
+
+    // Count existing users
+    const totalUsers = await usersCollection.countDocuments({});
+    console.log(`📈 Found ${totalUsers} existing users`);
+
+    // Step 1: Add missing profile.profileCompleted field
+    console.log('📝 Step 1: Adding profile.profileCompleted field...');
+    const result1 = await usersCollection.updateMany(
+      { 'profile.profileCompleted': { $exists: false } },
+      { $set: { 'profile.profileCompleted': true } }
+    );
+    console.log(`✅ Updated ${result1.modifiedCount} documents`);
+
+    // Step 2: Set primary skill for collaborators
+    console.log('📝 Step 2: Setting primary skill for collaborators...');
+    const collaborators = await usersCollection
+      .find({
+        userType: 'collaborator',
+        'profile.skills': { $exists: true, $ne: [] },
+        'profile.primarySkill': { $exists: false },
+      })
+      .toArray() as any[];
+
+    let collaboratorsUpdated = 0;
+    for (const user of collaborators) {
+      if (user.profile?.skills && user.profile.skills.length > 0) {
+        const primarySkill = user.profile.skills[0];
+        await usersCollection.updateOne(
+          { _id: user._id },
+          { $set: { 'profile.primarySkill': primarySkill } }
+        );
+        collaboratorsUpdated++;
+      }
+    }
+    console.log(`✅ Updated ${collaboratorsUpdated} collaborators`);
+
+    // Step 3: Add onboarding object
+    console.log('📝 Step 3: Adding onboarding tracking object...');
+    const result3 = await usersCollection.updateMany(
+      { onboarding: { $exists: false } },
+      {
+        $set: {
+          onboarding: {
+            collaboratorWizardCompleted: true,
+            creatorIntroShown: true,
+            completedAt: new Date(),
+          },
+        },
+      }
+    );
+    console.log(`✅ Updated ${result3.modifiedCount} documents`);
+
+    // Verification
+    const usersWithoutProfileCompleted = await usersCollection.countDocuments({
+      'profile.profileCompleted': { $exists: false },
+    });
+    const usersWithoutOnboarding = await usersCollection.countDocuments({
+      onboarding: { $exists: false },
+    });
+
+    if (usersWithoutProfileCompleted === 0 && usersWithoutOnboarding === 0) {
+      console.log('✅ Migration completed successfully!');
+      res.json({
+        success: true,
+        message: 'Migration completed successfully',
+        summary: {
+          totalUsers,
+          profileCompletedUpdated: result1.modifiedCount,
+          collaboratorsWithPrimarySkill: collaboratorsUpdated,
+          onboardingObjectsAdded: result3.modifiedCount,
+        },
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: 'Migration verification failed',
+        details: {
+          usersWithoutProfileCompleted,
+          usersWithoutOnboarding,
+        },
+      });
+    }
+  } catch (err: any) {
+    console.error('❌ Migration failed:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Migration failed: ' + err.message,
+    });
+  }
+});
+
 export default router;
