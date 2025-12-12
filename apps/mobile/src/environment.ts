@@ -15,18 +15,17 @@ const getApiUrl = (): string => {
     return envUrl;
   }
 
-  // 2. Local development fallback
+  // 2. Development fallback - use Render backend for mobile dev testing
   if (__DEV__) {
-    const devUrl = "http://localhost:3001/api";
-    console.log('[API Config] Development mode, using:', devUrl);
+    const devUrl = "https://dreamcraft-f8w8.onrender.com/api";
+    console.log('[API Config] Development mode (mobile), using Render backend:', devUrl);
     return devUrl;
   }
 
   // 3. Production default (Render backend)
   // Note: For production builds, set EXPO_PUBLIC_API_URL environment variable
-  const prodUrl = "https://your-render-backend.onrender.com/api";
+  const prodUrl = "https://dreamcraft-f8w8.onrender.com/api";
   console.log('[API Config] Production mode, using:', prodUrl);
-  console.warn('[API Config] WARNING: Using default Render URL. Set EXPO_PUBLIC_API_URL env var for your actual backend.');
   return prodUrl;
 };
 
