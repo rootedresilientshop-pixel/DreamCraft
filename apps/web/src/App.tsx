@@ -82,15 +82,14 @@ function App() {
       <SocketProvider>
         <NotificationProvider>
           <Routes>
-            {!isLoggedIn ? (
-              <Route
-                path="/*"
-                element={<LoginPage />}
-              />
-            ) : (
+            {/* Public routes (no login required) */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/role-selection" element={<RoleSelectionPage />} />
+
+            {/* Protected routes (login required) */}
+            {isLoggedIn ? (
               <>
                 <Route path="/" element={<MarketplacePage />} />
-                <Route path="/role-selection" element={<RoleSelectionPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                 <Route path="/checkout/:id" element={<CheckoutPage />} />
@@ -101,9 +100,12 @@ function App() {
                 <Route path="/collaborators" element={<CollaboratorsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/logout" element={<LogoutPage />} />
-                <Route path="/*" element={<Navigate to="/" replace />} />
               </>
-            )}
+            ) : null}
+
+            {/* Redirect logic */}
+            {!isLoggedIn && <Route path="/*" element={<Navigate to="/login" replace />} />}
+            {isLoggedIn && <Route path="/*" element={<Navigate to="/" replace />} />}
           </Routes>
         </NotificationProvider>
       </SocketProvider>
