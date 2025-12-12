@@ -27,10 +27,12 @@ export default function LoginPage() {
       if (isRegister) {
         // -------------------- REGISTER --------------------
         // Redirect to role selection page (don't call api.register yet)
+        setLoading(false); // Reset before navigation
         navigate('/role-selection', {
           state: { email, password },
           replace: false,
         });
+        return;
       } else {
         // -------------------- LOGIN --------------------
         const res = await api.login(email, password);
@@ -44,11 +46,11 @@ export default function LoginPage() {
           dispatchAuthChanged();
         } else {
           setError(res?.error || 'Login failed');
+          setLoading(false);
         }
       }
     } catch (err: any) {
       setError(err.message || 'Error occurred');
-    } finally {
       setLoading(false);
     }
   };
