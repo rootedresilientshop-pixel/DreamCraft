@@ -217,3 +217,194 @@ API Docs:       https://dreamcraft-backend-xxxxx.render.com/api/health
 - Check Vercel logs: Dashboard → dreamcraft-web → Deployments
 - Check browser console: F12 → Console tab
 - Check network errors: F12 → Network tab (filter by XHR/Fetch)
+
+---
+
+## Phase 4: Deploy Collaborator Profile Onboarding Feature
+
+This feature adds mandatory profile completion for collaborators and an introduction modal for creators.
+
+### New Feature Commits (Ready to Deploy)
+
+Four commits have been prepared and pushed:
+
+1. **3609e8a** - Backend: User schema updates, API endpoints, search enhancements
+2. **45824c0** - Web: Profile wizard, creator intro modal, routing updates
+3. **0667c1f** - Mobile: Profile wizard screen, intro modal, navigation updates
+4. **76e15e4** - Backend: Database migration script for existing users
+
+### Step 1: Backend Deployment (Automatic via Render)
+
+Render should auto-deploy when commits are pushed to GitHub:
+
+1. Check [Render Dashboard](https://dashboard.render.com) → dreamcraft-backend
+2. Verify latest commit is being deployed
+3. Wait for deployment to complete (2-5 minutes)
+
+### Step 2: Run Database Migration
+
+After backend deployment, run the migration to add onboarding fields to all existing users:
+
+```bash
+# Via Render Shell (Production)
+# In Render Dashboard → Backend → Shell
+cd /opt/render/project/src/packages/backend
+npm run migrate:onboarding
+
+# Or locally against production database
+cd packages/backend
+npm run migrate:onboarding
+```
+
+**Migration does:**
+- Adds `profile.profileCompleted: true` to all users
+- Sets `profile.primarySkill` for collaborators (uses first skill)
+- Adds `onboarding` tracking object to all users
+- Marks existing users as having completed onboarding (grandfathered in)
+
+**Note:** The migration is idempotent (safe to run multiple times)
+
+### Step 3: Web Deployment (Automatic via Vercel)
+
+Vercel auto-deploys when commits are pushed:
+
+1. Check [Vercel Dashboard](https://vercel.com) → DreamCraft project
+2. Confirm latest commit deployed
+3. Wait for deployment (3-5 minutes)
+
+### Step 4: Mobile Deployment (Manual via EAS)
+
+Build Android APK for testing:
+
+```bash
+cd apps/mobile
+
+# Build preview APK (for testing)
+eas build --platform android --profile preview
+
+# Or build production APK (signed for Play Store)
+eas build --platform android --profile production
+```
+
+**Note:** Requires interactive mode for keystore generation. You'll be prompted during the build.
+
+### Testing New Features
+
+#### Test Collaborator Profile Wizard
+
+**Web:**
+1. Register new collaborator account
+2. Should redirect to `/profile-wizard`
+3. Complete 3-step wizard:
+   - Step 1: Select skills, mark one as primary
+   - Step 2: Enter name, bio, location
+   - Step 3: Review and submit
+4. Redirected to login after completion
+
+**Mobile:**
+1. Register as collaborator
+2. See ProfileWizard screen
+3. Same 3-step process with mobile UI
+4. After completion, navigate to dashboard
+
+#### Test Creator Introduction Modal
+
+**Web:**
+1. Register new creator account
+2. Login to dashboard
+3. Should see introduction modal
+4. Click "Get Started" to dismiss
+5. Reload page - modal should not reappear
+
+**Mobile:**
+1. Register as creator
+2. Login to CreatorHomeScreen
+3. Modal appears with features explanation
+4. Dismiss with X or button
+5. Modal shouldn't show again
+
+#### Test Collaborator Search
+
+**Web:**
+1. Login as creator
+2. Go to "Find Collaborators"
+3. Search by skill (e.g., "Frontend Development")
+4. Results show only collaborators with completed profiles
+5. Primary skill matches appear first in list
+
+### Verification Checklist
+
+**Backend**
+- [ ] Migration script ran successfully
+- [ ] All users have `profile.profileCompleted` field
+- [ ] All users have `onboarding` object
+- [ ] Collaborators have `profile.primarySkill` set
+- [ ] New API endpoints respond correctly
+
+**Web**
+- [ ] Collaborator registration routes to wizard
+- [ ] Wizard validation works (requires 1 skill, first name)
+- [ ] Creator intro modal shows on first login
+- [ ] Modal doesn't reappear on reload
+- [ ] Search filters by primary skill
+
+**Mobile**
+- [ ] APK builds successfully
+- [ ] ProfileWizard screen displays all 3 steps
+- [ ] Form validation matches web version
+- [ ] Creator intro modal shows correctly
+- [ ] Navigation flow works smoothly
+
+### Troubleshooting
+
+**Migration fails with "MONGODB_URI not set"**
+- Ensure env var is set in Render dashboard
+- Or set locally: `export MONGODB_URI=mongodb+srv://...`
+
+**Collaborators don't see wizard**
+- Check that route `/profile-wizard` exists in App.tsx
+- Verify RoleSelectionPage routing is updated
+
+**Creator modal doesn't appear**
+- Check browser console for errors
+- Verify `onboarding.creatorIntroShown` field exists in DB
+- Check DashboardPage integration
+
+**Mobile APK fails to build**
+- Run without `--non-interactive` flag for keystore generation
+- Check EAS logs in dashboard
+- Increase timeout: `eas build --platform android --timeout 3600`
+
+### Rollback Instructions
+
+If issues occur:
+
+```bash
+# Revert commits
+git revert 76e15e4  # Migration script
+git revert 0667c1f  # Mobile changes
+git revert 45824c0  # Web changes
+git revert 3609e8a  # Backend changes
+
+# Push reverts
+git push origin main
+
+# Services will auto-redeploy previous versions
+```
+
+---
+
+## Feature Complete Summary
+
+All components of the Collaborator Profile Onboarding feature are complete:
+
+✅ Backend schema updates with new fields
+✅ API endpoints for profile updates and onboarding completion
+✅ Search enhancements (filtering + primary skill prioritization)
+✅ Web components (wizard + intro modal) with routing
+✅ Mobile components (screens + modal) with navigation
+✅ Database migration script for existing users
+✅ Git commits prepared and pushed to GitHub
+✅ Documentation and testing guides
+
+**Ready for production deployment!**
