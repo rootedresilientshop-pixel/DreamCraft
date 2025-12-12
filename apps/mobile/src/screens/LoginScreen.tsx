@@ -24,6 +24,16 @@ export default function LoginScreen({ navigation }: any) {
         // 💡 Cross-platform storage (web + native)
         await saveToken(res.token);
 
+        // Store user data including userType
+        if (res.user) {
+          try {
+            const userStorage = require("expo-secure-store");
+            await userStorage.setItemAsync("userData", JSON.stringify(res.user));
+          } catch (e) {
+            console.error("Failed to store user data:", e);
+          }
+        }
+
         navigation.replace("Home");
       } else {
         Alert.alert("Login failed", res?.error || "Unknown error");
@@ -37,20 +47,12 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   const handleCreate = async () => {
-    setLoading(true);
-    try {
-      const res = await api.register(email, password);
-      if (res && res.success) {
-        Alert.alert("Account created", "Please log in");
-      } else {
-        Alert.alert("Registration failed", res?.error || "Unknown error");
-      }
-    } catch (err: any) {
-      console.error(err);
-      Alert.alert("Registration error", err.message || "Unknown error");
-    } finally {
-      setLoading(false);
+    // Redirect to role selection screen instead of registering directly
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter email and password");
+      return;
     }
+    navigation.navigate("RoleSelection", { email, password });
   };
 
   return (
@@ -96,39 +98,56 @@ export default function LoginScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#0a0a0a",
     padding: 20,
     justifyContent: "center",
+    paddingTop: 40,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: "#fff",
     textAlign: "center",
     marginBottom: 10,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 14,
     color: "#999",
     textAlign: "center",
     marginBottom: 40,
+    lineHeight: 20,
   },
   input: {
-    backgroundColor: "#1a1a1a",
-    borderColor: "#0099ff",
+    backgroundColor: "#111",
+    borderColor: "#333",
     borderWidth: 1,
     borderRadius: 8,
-    padding: 12,
+    padding: 14,
     marginBottom: 15,
     color: "#fff",
+    fontSize: 14,
   },
   button: {
     backgroundColor: "#0099ff",
-    padding: 15,
+    padding: 14,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
+    minHeight: 48,
+    justifyContent: "center",
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  link: { color: "#0099ff", textAlign: "center", marginTop: 20, fontSize: 14 },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  link: {
+    color: "#0099ff",
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 14,
+    fontWeight: "500",
+  },
 });
