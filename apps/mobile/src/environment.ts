@@ -23,8 +23,10 @@ const getApiUrl = (): string => {
   }
 
   // 3. Production default (Render backend)
-  const prodUrl = "https://api.render.com/api";
+  // Note: For production builds, set EXPO_PUBLIC_API_URL environment variable
+  const prodUrl = "https://your-render-backend.onrender.com/api";
   console.log('[API Config] Production mode, using:', prodUrl);
+  console.warn('[API Config] WARNING: Using default Render URL. Set EXPO_PUBLIC_API_URL env var for your actual backend.');
   return prodUrl;
 };
 
