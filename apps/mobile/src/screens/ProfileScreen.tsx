@@ -8,12 +8,14 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import api from '../api';
 import VersionBadge from '../components/VersionBadge';
-import { useAuth } from '../contexts/AuthContext';
+import { removeToken } from '../utils/authStorage';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }: any) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -25,7 +27,6 @@ export default function ProfileScreen() {
     bio: '',
     skills: '',
   });
-  const { signOut } = useAuth();
 
   useEffect(() => {
     fetchUserProfile();
@@ -101,7 +102,18 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await signOut();
+            await removeToken();
+            // Clear user data
+            if (Platform.OS === 'web') {
+              localStorage.removeItem('userData');
+            } else {
+              await SecureStore.deleteItemAsync('userData');
+            }
+            // Navigate to login (App.tsx will detect no token and show auth)
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
           } catch (err) {
             Alert.alert('Error', 'Failed to logout. Please try again.');
           }
