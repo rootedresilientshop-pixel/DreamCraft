@@ -1,13 +1,13 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
 // Screens
 import LoginScreen from "../screens/LoginScreen";
 import RoleSelectionScreen from "../screens/RoleSelectionScreen";
 import CollaboratorProfileWizardScreen from "../screens/CollaboratorProfileWizardScreen";
-import HomeScreen from "../screens/HomeScreen";
 import CreatorHomeScreen from "../screens/CreatorHomeScreen";
 import CollaboratorHomeScreen from "../screens/CollaboratorHomeScreen";
 import IdeaDetailScreen from "../screens/IdeaDetailScreen";
@@ -186,11 +186,16 @@ export default function RootNavigator({ isLoggedIn }: RootNavigatorProps) {
 
   React.useEffect(() => {
     if (isLoggedIn) {
-      // Get userType from AsyncStorage or SecureStore
+      // Get userType from secure storage
       const loadUserType = async () => {
         try {
-          const userStorage = require("expo-secure-store");
-          const userData = await userStorage.getItemAsync("userData");
+          let userData: string | null = null;
+          if (Platform.OS === "web") {
+            userData = localStorage.getItem("userData");
+          } else {
+            userData = await SecureStore.getItemAsync("userData");
+          }
+
           if (userData) {
             const parsed = JSON.parse(userData);
             setUserType(parsed.userType || "creator");
