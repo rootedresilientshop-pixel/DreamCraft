@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+import { saveToken, loadToken } from "./utils/authStorage";
 import { API_URL } from "./environment";
 
 // API URL determined by environment.ts based on __DEV__ and env vars
@@ -11,7 +11,7 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync("userToken");
+  const token = await loadToken();
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -33,9 +33,9 @@ export default {
         userType: userType || "creator",
       });
 
-      // Store token in SecureStore if provided
+      // Store token if provided
       if (res.data?.token) {
-        await SecureStore.setItemAsync("userToken", res.data.token);
+        await saveToken(res.data.token);
         console.log('Token stored after registration');
       }
 
@@ -50,9 +50,9 @@ export default {
       const res = await instance.post("/auth/login", { email, password });
       console.log('Login response:', res.data);
 
-      // Store token in SecureStore if provided
+      // Store token if provided
       if (res.data?.token) {
-        await SecureStore.setItemAsync("userToken", res.data.token);
+        await saveToken(res.data.token);
         console.log('Token stored after login');
       }
 

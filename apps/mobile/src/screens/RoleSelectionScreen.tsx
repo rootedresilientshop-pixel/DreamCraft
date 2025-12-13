@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import api from '../api';
+import { loadToken } from '../utils/authStorage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,8 +37,16 @@ export default function RoleSelectionScreen({ route, navigation }: RouteProps) {
       const res = await api.register(email, password, role);
 
       if (res.success) {
+        // For collaborators, verify token is stored before navigating to profile wizard
         if (role === 'collaborator') {
-          // Collaborators go to profile wizard
+          const token = await loadToken();
+          if (!token) {
+            Alert.alert('Error', 'Failed to store authentication token. Please try again.');
+            setLoading(false);
+            setSelectedRole(null);
+            return;
+          }
+          // Token is verified, navigate to profile wizard
           navigation.navigate('ProfileWizard', { email });
         } else {
           // Creators go to login
