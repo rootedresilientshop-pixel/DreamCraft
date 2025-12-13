@@ -6,9 +6,11 @@ import {
   TextInput,
   StyleSheet,
   Alert,
+  Platform,
 } from "react-native";
 import api from "../api";
 import { saveToken } from "../utils/authStorage";
+import * as SecureStore from "expo-secure-store";
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState("");
@@ -21,14 +23,17 @@ export default function LoginScreen({ navigation }: any) {
       const res = await api.login(email, password);
 
       if (res && res.token) {
-        // 💡 Cross-platform storage (web + native)
+        // Store token (cross-platform: web + native)
         await saveToken(res.token);
 
         // Store user data including userType
         if (res.user) {
           try {
-            const userStorage = require("expo-secure-store");
-            await userStorage.setItemAsync("userData", JSON.stringify(res.user));
+            if (Platform.OS === "web") {
+              localStorage.setItem("userData", JSON.stringify(res.user));
+            } else {
+              await SecureStore.setItemAsync("userData", JSON.stringify(res.user));
+            }
           } catch (e) {
             console.error("Failed to store user data:", e);
           }
