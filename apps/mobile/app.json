@@ -15,7 +15,6 @@
     ],
     "ios": {
       "bundleIdentifier": "com.dreamcraft.app",
-      "supportsTabletMode": true,
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "This app uses local network to connect to development server",
         "NSBonjourServiceTypes": [
