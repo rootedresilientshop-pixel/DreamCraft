@@ -42,7 +42,7 @@ export default function CreateIdeaScreen({ navigation }: any) {
                 category: 'Technology',
                 visibility: 'private',
               });
-              navigation.replace('Home');
+              navigation.replace('CreatorHome');
             },
           },
         ]);
