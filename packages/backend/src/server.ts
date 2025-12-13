@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
+
+// Force redeploy - trigger Render autodeploy
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 
