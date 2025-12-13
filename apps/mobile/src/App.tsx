@@ -7,7 +7,6 @@ import RootNavigator from "./navigation/RootNavigator";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userType, setUserType] = useState<string | null>(null);
 
   // Load token and update state
   const updateAuthState = useCallback(async () => {
@@ -15,21 +14,7 @@ export default function App() {
       const token = await loadToken();
       console.log("App: Token loaded:", token ? "present" : "not found");
       setIsLoggedIn(!!token);
-
-      // Load userType from secure storage if logged in
-      if (token) {
-        try {
-          const userStorage = require("expo-secure-store");
-          const userData = await userStorage.getItemAsync("userData");
-          if (userData) {
-            const parsed = JSON.parse(userData);
-            setUserType(parsed.userType || "creator");
-          }
-        } catch (e) {
-          console.error("Failed to load user type:", e);
-          setUserType("creator");
-        }
-      }
+      // Note: userType is loaded by RootNavigator from secure storage
     } catch (error) {
       console.error("App: Error loading token:", error);
       setIsLoggedIn(false);
