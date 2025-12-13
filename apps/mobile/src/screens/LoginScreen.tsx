@@ -39,14 +39,16 @@ export default function LoginScreen({ navigation }: any) {
           }
         }
 
-        navigation.replace("Home");
+        // Token is stored, App.tsx will detect it and re-render with correct navigation
+        // No need to navigate manually - the auth state change will trigger proper screen
+        // setLoading stays true until component unmounts
       } else {
         Alert.alert("Login failed", res?.error || "Unknown error");
+        setLoading(false);
       }
     } catch (err: any) {
       console.error(err);
       Alert.alert("Login error", err.message || "Unknown error");
-    } finally {
       setLoading(false);
     }
   };
