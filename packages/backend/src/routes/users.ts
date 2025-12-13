@@ -247,4 +247,52 @@ router.post('/run-migration', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/users/clear-database - Clear all data (dev only)
+router.post('/clear-database', async (req: Request, res: Response) => {
+  try {
+    const clearToken = req.headers['x-clear-token'] as string;
+    const expectedToken = process.env.CLEAR_DB_TOKEN || 'dev-clear-token';
+
+    if (clearToken !== expectedToken) {
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized: Invalid clear token',
+      });
+    }
+
+    console.log('🗑️  Starting database clear...');
+
+    const db = require('mongoose').connection.db;
+    if (!db) {
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection failed',
+      });
+    }
+
+    const collections = await db.listCollections().toArray();
+    console.log(`Found ${collections.length} collections to clear`);
+
+    let clearedCount = 0;
+    for (const collection of collections) {
+      await db.dropCollection(collection.name);
+      console.log(`✅ Dropped collection: ${collection.name}`);
+      clearedCount++;
+    }
+
+    console.log('✅ All collections cleared successfully');
+    res.json({
+      success: true,
+      message: 'Database cleared successfully',
+      collectionsCleared: clearedCount,
+    });
+  } catch (err: any) {
+    console.error('❌ Clear database error:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Clear database failed: ' + err.message,
+    });
+  }
+});
+
 export default router;
