@@ -74,6 +74,10 @@ export default {
     const res = await instance.get(`/ideas/${id}`);
     return res.data;
   },
+  async searchIdeas(q?: string, category?: string) {
+    const res = await instance.get('/ideas', { params: { q, category } });
+    return res.data;
+  },
   async searchCollaborators(q?: string, skill?: string) {
     const res = await instance.get('/collaborators', { params: { q, skill } });
     return res.data;

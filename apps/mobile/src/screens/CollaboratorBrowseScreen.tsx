@@ -1,64 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import api from '../api';
 
-export default function CollaboratorBrowseScreen() {
+export default function CollaboratorBrowseScreen({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [collaborators, setCollaborators] = useState([
-    { id: '1', name: 'Sarah Chen', role: 'Full-Stack Developer', skills: ['React', 'Node.js', 'AI'] },
-    { id: '2', name: 'Marcus Johnson', role: 'UI/UX Designer', skills: ['Figma', 'Web Design'] },
-    { id: '3', name: 'Elena Rodriguez', role: 'Growth Marketer', skills: ['SEO', 'Content'] },
-  ]);
-  const [loading, setLoading] = useState(false);
-  const [invitedUsers, setInvitedUsers] = useState<Set<string>>(new Set());
+  const [ideas, setIdeas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleInvite = async (collaboratorId: string, name: string) => {
-    Alert.alert('Send Invitation', `Invite ${name} to collaborate?`, [
-      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
-      {
-        text: 'Invite',
-        onPress: async () => {
-          setInvitedUsers((prev) => new Set(prev).add(collaboratorId));
-          Alert.alert('Success', `Invitation sent to ${name}!`);
-        },
-      },
-    ]);
-  };
+  useEffect(() => {
+    loadIdeas();
+  }, []);
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setCollaborators([
-        { id: '1', name: 'Sarah Chen', role: 'Full-Stack Developer', skills: ['React', 'Node.js', 'AI'] },
-        { id: '2', name: 'Marcus Johnson', role: 'UI/UX Designer', skills: ['Figma', 'Web Design'] },
-        { id: '3', name: 'Elena Rodriguez', role: 'Growth Marketer', skills: ['SEO', 'Content'] },
-      ]);
-      return;
-    }
-
+  const loadIdeas = async () => {
     setLoading(true);
     try {
-      const res = await api.searchCollaborators(searchQuery);
-      if (res.success) {
-        setCollaborators(res.data || []);
+      const res = await api.searchIdeas();
+      if (res.success && res.data) {
+        setIdeas(res.data);
       } else {
-        Alert.alert('Error', 'Failed to search collaborators');
+        setIdeas([]);
       }
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Error searching');
+      console.error('Error loading ideas:', err);
+      setIdeas([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const res = await api.searchIdeas(searchQuery || undefined);
+      if (res.success && res.data) {
+        setIdeas(res.data);
+      } else {
+        setIdeas([]);
+      }
+    } catch (err: any) {
+      console.error('Error searching ideas:', err);
+      setIdeas([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewIdea = (ideaId: string) => {
+    navigation.navigate('IdeaDetail', { ideaId });
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Find Collaborators</Text>
-      <Text style={styles.subtitle}>Connect with verified builders for your ideas</Text>
+      <Text style={styles.title}>Browse Ideas</Text>
+      <Text style={styles.subtitle}>Discover ideas looking for collaborators</Text>
 
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search collaborators..."
+          placeholder="Search ideas..."
           placeholderTextColor="#666"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -76,40 +75,33 @@ export default function CollaboratorBrowseScreen() {
             <View key={i} style={[styles.card, { opacity: 0.6 }]}>
               <View style={{ height: 16, backgroundColor: '#333', borderRadius: 4, marginBottom: 8, width: '70%' }} />
               <View style={{ height: 14, backgroundColor: '#333', borderRadius: 4, marginBottom: 12, width: '50%' }} />
-              <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
-                {[1, 2].map((j) => (
-                  <View key={j} style={{ height: 20, width: 50, backgroundColor: '#333', borderRadius: 4 }} />
-                ))}
-              </View>
               <View style={{ height: 40, backgroundColor: '#333', borderRadius: 6 }} />
             </View>
           ))}
         </>
+      ) : ideas.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>No ideas found</Text>
+          <Text style={styles.emptyStateSubtext}>Check back soon for new opportunities</Text>
+        </View>
       ) : (
         <FlatList
-          data={collaborators}
-          keyExtractor={(item) => item.id}
+          data={ideas}
+          keyExtractor={(item) => item._id || item.id}
           renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.role}>{item.role}</Text>
-            <View style={styles.skills}>
-              {item.skills.map((skill) => (
-                <View key={skill} style={styles.skillTag}>
-                  <Text style={styles.skillText}>{skill}</Text>
+            <TouchableOpacity style={styles.card} onPress={() => handleViewIdea(item._id || item.id)}>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.description}>{item.description}</Text>
+              {item.category && (
+                <View style={styles.categoryBadge}>
+                  <Text style={styles.categoryText}>{item.category}</Text>
                 </View>
-              ))}
-            </View>
-            <TouchableOpacity
-              style={[styles.button, invitedUsers.has(item.id) && styles.buttonInvited]}
-              onPress={() => handleInvite(item.id, item.name)}
-              disabled={invitedUsers.has(item.id)}
-            >
-              <Text style={styles.buttonText}>
-                {invitedUsers.has(item.id) ? '✓ Invited' : 'Send Invitation'}
-              </Text>
+              )}
+              <View style={styles.footer}>
+                <Text style={styles.creator}>by {item.creator?.username || 'Anonymous'}</Text>
+                <Text style={styles.viewMore}>View Details →</Text>
+              </View>
             </TouchableOpacity>
-          </View>
           )}
         />
       )}
@@ -167,45 +159,58 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderTopColor: '#0099ff',
   },
-  name: {
+  cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 5,
-  },
-  role: {
-    fontSize: 14,
-    color: '#0099ff',
-    marginBottom: 10,
-  },
-  skills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 15,
-  },
-  skillTag: {
-    backgroundColor: '#333',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
     marginBottom: 8,
   },
-  skillText: {
-    color: '#fff',
-    fontSize: 12,
+  description: {
+    fontSize: 13,
+    color: '#ccc',
+    marginBottom: 10,
+    lineHeight: 18,
   },
-  button: {
-    backgroundColor: '#00cc66',
-    padding: 12,
-    borderRadius: 6,
+  categoryBadge: {
+    backgroundColor: '#333',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+    marginBottom: 10,
+  },
+  categoryText: {
+    color: '#0099ff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  buttonInvited: {
-    backgroundColor: '#669999',
+  creator: {
+    fontSize: 12,
+    color: '#999',
   },
-  buttonText: {
-    color: '#000',
+  viewMore: {
+    fontSize: 12,
+    color: '#0099ff',
     fontWeight: '600',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#999',
   },
 });
