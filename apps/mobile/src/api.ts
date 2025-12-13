@@ -32,6 +32,13 @@ export default {
         password,
         userType: userType || "creator",
       });
+
+      // Store token in SecureStore if provided
+      if (res.data?.token) {
+        await SecureStore.setItemAsync("userToken", res.data.token);
+        console.log('Token stored after registration');
+      }
+
       return res.data;
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -42,6 +49,13 @@ export default {
     try {
       const res = await instance.post("/auth/login", { email, password });
       console.log('Login response:', res.data);
+
+      // Store token in SecureStore if provided
+      if (res.data?.token) {
+        await SecureStore.setItemAsync("userToken", res.data.token);
+        console.log('Token stored after login');
+      }
+
       return res.data || {};
     } catch (error: any) {
       console.error('Login error:', error);

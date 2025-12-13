@@ -51,9 +51,29 @@ router.post("/register", async (req: Request, res: Response) => {
     });
 
     await user.save();
-    res
-      .status(201)
-      .json({ success: true, message: "User registered successfully" });
+
+    // Generate token for newly registered user
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("CRITICAL: JWT_SECRET not set in environment");
+      return res.status(500).json({ error: "Server configuration error: JWT_SECRET missing" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "7d",
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        userType: user.userType,
+      },
+    });
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({ error: "Registration failed" });
