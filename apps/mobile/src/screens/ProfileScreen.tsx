@@ -102,6 +102,7 @@ export default function ProfileScreen({ navigation }: any) {
         style: 'destructive',
         onPress: async () => {
           try {
+            // Remove token - App.tsx will detect and re-render to show login
             await removeToken();
             // Clear user data
             if (Platform.OS === 'web') {
@@ -109,11 +110,6 @@ export default function ProfileScreen({ navigation }: any) {
             } else {
               await SecureStore.deleteItemAsync('userData');
             }
-            // Navigate to login (App.tsx will detect no token and show auth)
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
           } catch (err) {
             Alert.alert('Error', 'Failed to logout. Please try again.');
           }
