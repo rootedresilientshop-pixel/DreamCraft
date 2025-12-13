@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator, Picker } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import api from '../api';
 
 export default function CreateIdeaScreen({ navigation }: any) {
@@ -102,7 +103,7 @@ export default function CreateIdeaScreen({ navigation }: any) {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={formData.category}
-              onValueChange={(value) => handleChange('category', value)}
+              onValueChange={(value: string) => handleChange('category', value)}
               style={styles.picker}
               enabled={!loading}
             >
@@ -123,7 +124,7 @@ export default function CreateIdeaScreen({ navigation }: any) {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={formData.visibility}
-              onValueChange={(value) => handleChange('visibility', value)}
+              onValueChange={(value: string) => handleChange('visibility', value)}
               style={styles.picker}
               enabled={!loading}
             >

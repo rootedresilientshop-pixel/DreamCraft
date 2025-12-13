@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Share,
-  AsyncStorage,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api';
 import { addFavorite, removeFavorite, isFavorite } from '../utils/favorites';
 

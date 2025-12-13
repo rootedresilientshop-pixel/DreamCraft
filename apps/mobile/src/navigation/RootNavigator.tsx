@@ -21,6 +21,31 @@ import { Feather } from "@expo/vector-icons";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const styles = StyleSheet.create({
+  header: {
+    backgroundColor: "#111",
+    borderBottomColor: "#222",
+    borderBottomWidth: 1,
+  },
+  headerTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  tabBar: {
+    backgroundColor: "#111",
+    borderTopColor: "#222",
+    borderTopWidth: 1,
+    paddingBottom: 8,
+    paddingTop: 8,
+  },
+  tabLabel: {
+    fontSize: 11,
+    fontWeight: "500",
+    marginTop: 4,
+  },
+});
+
 const screenOptions = {
   headerStyle: styles.header,
   headerTintColor: "#0099ff",
@@ -231,28 +256,3 @@ export default function RootNavigator({ isLoggedIn }: RootNavigatorProps) {
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: "#111",
-    borderBottomColor: "#222",
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  tabBar: {
-    backgroundColor: "#111",
-    borderTopColor: "#222",
-    borderTopWidth: 1,
-    paddingBottom: 8,
-    paddingTop: 8,
-  },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: "500",
-    marginTop: 4,
-  },
-});
