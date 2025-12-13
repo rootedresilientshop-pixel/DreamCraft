@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DreamCraft",
-    "slug": "venturelab",
+    "slug": "dreamcraft",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -43,7 +43,7 @@
     "extra": {
       "apiUrl": "https://api.render.com/api",
       "eas": {
-        "projectId": "875f7cd7-1664-46e8-a593-0f0d1f8f8f57"
+        "projectId": "1e5195d7-d635-4c15-a5f8-21c96d4e9188"
       }
     },
     "owner": "gardners"
