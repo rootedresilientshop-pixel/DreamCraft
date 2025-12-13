@@ -27,6 +27,7 @@ export default function LoginScreen({ navigation }: any) {
         await saveToken(res.token);
 
         // Store user data including userType
+        const userType = res.user?.userType || "creator";
         if (res.user) {
           try {
             if (Platform.OS === "web") {
@@ -39,9 +40,18 @@ export default function LoginScreen({ navigation }: any) {
           }
         }
 
-        // Token is stored, App.tsx will detect it and re-render with correct navigation
-        // No need to navigate manually - the auth state change will trigger proper screen
-        // setLoading stays true until component unmounts
+        // Navigate to appropriate dashboard based on userType
+        if (userType === "creator") {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "CreatorTabs" }],
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "CollaboratorTabs" }],
+          });
+        }
       } else {
         Alert.alert("Login failed", res?.error || "Unknown error");
         setLoading(false);
