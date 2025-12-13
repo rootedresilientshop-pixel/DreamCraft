@@ -74,6 +74,10 @@ export default {
     const res = await instance.get(`/ideas/${id}`);
     return res.data;
   },
+  async getMyIdeas() {
+    const res = await instance.get('/ideas/my-ideas');
+    return res.data;
+  },
   async searchIdeas(q?: string, category?: string) {
     const res = await instance.get('/ideas', { params: { q, category } });
     return res.data;
@@ -92,6 +96,23 @@ export default {
   },
   async completeOnboarding(data: { type: 'collaborator-wizard' | 'creator-intro' }) {
     const res = await instance.post('/users/complete-onboarding', data);
+    return res.data;
+  },
+  async getDashboard() {
+    const res = await instance.get('/users/dashboard');
+    return res.data;
+  },
+  async getMyCollaborations() {
+    const res = await instance.get('/collaborators/my-collaborations');
+    return res.data;
+  },
+  async getInvitations(type?: string) {
+    const url = type ? `/collaborators/invitations?type=${type}` : '/collaborators/invitations';
+    const res = await instance.get(url);
+    return res.data;
+  },
+  async acceptInvitation(invitationId: string) {
+    const res = await instance.patch(`/collaborators/invitations/${invitationId}/accept`);
     return res.data;
   },
   async createPaymentIntent(ideaId: string, amount: number) {

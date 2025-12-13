@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { AppState, AppStateStatus } from "react-native";
+import { AppState, AppStateStatus, Platform } from "react-native";
 import { loadToken } from "./utils/authStorage";
 import { NavigationContainer } from "@react-navigation/native";
 import RootNavigator from "./navigation/RootNavigator";
+import * as SecureStore from "expo-secure-store";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,8 +35,15 @@ export default function App() {
       }
     });
 
+    // Set up periodic polling to detect token changes from storage
+    // This handles login/logout that happens within the app
+    const tokenCheckInterval = setInterval(() => {
+      updateAuthState();
+    }, 500); // Check every 500ms for storage changes
+
     return () => {
       subscription.remove();
+      clearInterval(tokenCheckInterval);
     };
   }, [updateAuthState]);
 
