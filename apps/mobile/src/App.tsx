@@ -7,13 +7,20 @@ import RootNavigator from "./navigation/RootNavigator";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const lastTokenRef = React.useRef<string | null>(null);
 
   // Load token and update state
   const updateAuthState = useCallback(async () => {
     try {
       const token = await loadToken();
       console.log("App: Token loaded:", token ? "present" : "not found");
-      setIsLoggedIn(!!token);
+
+      // Only update state if token changed
+      if (lastTokenRef.current !== token) {
+        console.log("App: Token state changed, updating isLoggedIn");
+        lastTokenRef.current = token;
+        setIsLoggedIn(!!token);
+      }
       // Note: userType is loaded by RootNavigator from secure storage
     } catch (error) {
       console.error("App: Error loading token:", error);
