@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function CreateIdeaPage({ onSuccess }: any) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -16,6 +18,43 @@ export default function CreateIdeaPage({ onSuccess }: any) {
   const [loadingValidation, setLoadingValidation] = useState(false);
   const [suggestions, setSuggestions] = useState<any>(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    try {
+      const response = await fetch('/api/templates');
+      const data = await response.json();
+      if (data.success) {
+        setTemplates(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load templates:', err);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const handleSelectTemplate = (template: any) => {
+    setSelectedTemplate(template);
+    setShowTemplateModal(true);
+  };
+
+  const handleApplyTemplate = () => {
+    if (selectedTemplate) {
+      setFormData((prev) => ({
+        ...prev,
+        category: selectedTemplate.category,
+      }));
+      setShowTemplateModal(false);
+    }
+  };
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -24,12 +63,16 @@ export default function CreateIdeaPage({ onSuccess }: any) {
 
   const handleGetSuggestions = async () => {
     setLoadingSuggestions(true);
+    setError('');
     try {
       const res = await api.getAISuggestions(formData);
       if (res.success) {
         setSuggestions(res.data);
+      } else {
+        setError(res.error || 'Failed to get suggestions');
       }
-    } catch (err) {
+    } catch (err: any) {
+      setError(err.message || 'Error fetching suggestions');
       console.error('Failed to get suggestions:', err);
     } finally {
       setLoadingSuggestions(false);
@@ -86,7 +129,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
             if (onSuccess) {
               onSuccess(createRes.data);
             } else {
-              window.location.href = '/';
+              window.location.href = '/dashboard';
             }
           }, 1000);
         }
@@ -102,12 +145,66 @@ export default function CreateIdeaPage({ onSuccess }: any) {
 
   return (
     <div style={styles.container}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: '#0099ff', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
+          ← Back to Dashboard
+        </button>
+      </div>
       <div style={styles.card}>
         <h1 style={styles.title}>Create New Idea</h1>
         <p style={styles.subtitle}>Share your innovation with the world</p>
 
         {error && <div style={styles.error}>{error}</div>}
         {success && <div style={styles.success}>✓ Idea created successfully! Redirecting...</div>}
+
+        {/* Template Selection */}
+        {!loadingTemplates && templates.length > 0 && (
+          <div style={{
+            backgroundColor: '#1a1a3d',
+            border: '1px solid #6a0dad',
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '24px',
+          }}>
+            <h3 style={{ color: '#ddd', fontSize: '14px', marginTop: 0, marginBottom: '12px' }}>📋 Start with a Template</h3>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+              gap: '8px',
+            }}>
+              {templates.map((template) => (
+                <button
+                  key={template._id}
+                  type="button"
+                  onClick={() => handleSelectTemplate(template)}
+                  style={{
+                    padding: '12px',
+                    backgroundColor: '#2a2a4d',
+                    border: '1px solid #4a4a8d',
+                    borderRadius: '6px',
+                    color: '#ccc',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    transition: 'all 0.2s',
+                    textAlign: 'center',
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = '#3a3a5d';
+                    e.currentTarget.style.borderColor = '#6a0dad';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2a2a4d';
+                    e.currentTarget.style.borderColor = '#4a4a8d';
+                  }}
+                >
+                  <div style={{ fontSize: '20px', marginBottom: '4px' }}>{template.icon}</div>
+                  <div style={{ fontWeight: '600', marginBottom: '4px' }}>{template.name}</div>
+                  <div style={{ fontSize: '11px', color: '#999' }}>{template.category}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
@@ -288,7 +385,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
               width: '90%',
               border: '1px solid #333',
             }}>
-              <h2 style={{ color: '#fff', marginTop: 0 }}>🎯 AI Validation Results</h2>
+              <h2 style={{ color: '#fff', marginTop: 0 }}>🎯 Idea Evaluation</h2>
 
               <div style={{
                 fontSize: '48px',
@@ -296,8 +393,14 @@ export default function CreateIdeaPage({ onSuccess }: any) {
                 color: validation.score >= 70 ? '#66ff99' : validation.score >= 40 ? '#ffaa00' : '#ff6666',
                 margin: '20px 0',
               }}>
-                {validation.score}/100
+                {Math.min(Math.max(Math.round(validation.score), 0), 100)}/100
               </div>
+
+              {validation.valuation && (
+                <div style={{ textAlign: 'center', marginBottom: '20px', color: '#0099ff', fontSize: '14px' }}>
+                  Estimated Value: ${Math.round(validation.valuation.mid || 0).toLocaleString()}
+                </div>
+              )}
 
               <div style={{ marginBottom: '20px' }}>
                 <h3 style={{ color: '#66ff99', fontSize: '16px' }}>✅ Strengths</h3>
@@ -332,7 +435,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
                   if (onSuccess) {
                     onSuccess(validation);
                   } else {
-                    window.location.href = '/';
+                    window.location.href = '/dashboard';
                   }
                 }}
                 style={{
@@ -343,6 +446,107 @@ export default function CreateIdeaPage({ onSuccess }: any) {
               >
                 Continue to Dashboard
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Template Details Modal */}
+        {showTemplateModal && selectedTemplate && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}>
+            <div style={{
+              backgroundColor: '#111',
+              borderRadius: '12px',
+              padding: '32px',
+              maxWidth: '700px',
+              width: '90%',
+              border: '1px solid #333',
+              maxHeight: '80vh',
+              overflow: 'auto',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <div style={{ fontSize: '40px', marginRight: '16px' }}>{selectedTemplate.icon}</div>
+                <div>
+                  <h2 style={{ color: '#fff', marginTop: 0, marginBottom: '4px' }}>{selectedTemplate.name}</h2>
+                  <p style={{ color: '#999', margin: 0, fontSize: '14px' }}>{selectedTemplate.description}</p>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: '#1a1a1a', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+                <h3 style={{ color: '#ddd', fontSize: '14px', marginTop: 0 }}>📝 Form Sections</h3>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {selectedTemplate.sections?.map((section: any, index: number) => (
+                    <div key={index} style={{
+                      backgroundColor: '#2a2a2a',
+                      borderLeft: '3px solid #6a0dad',
+                      padding: '12px',
+                      borderRadius: '4px',
+                    }}>
+                      <div style={{ color: '#0099ff', fontWeight: '600', marginBottom: '4px' }}>
+                        {section.title} {section.required && <span style={{ color: '#ff6666' }}>*</span>}
+                      </div>
+                      <div style={{ color: '#999', fontSize: '13px', marginBottom: '4px' }}>
+                        {section.description}
+                      </div>
+                      {section.hints && section.hints.length > 0 && (
+                        <div style={{ color: '#666', fontSize: '12px', marginTop: '6px' }}>
+                          <strong>💡 Tips:</strong> {section.hints.join(', ')}
+                        </div>
+                      )}
+                      {section.wordCountTarget && (
+                        <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
+                          Target length: ~{section.wordCountTarget} words
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={handleApplyTemplate}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    backgroundColor: '#6a0dad',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ✓ Use This Template
+                </button>
+                <button
+                  onClick={() => setShowTemplateModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}

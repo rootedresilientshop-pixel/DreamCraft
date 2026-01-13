@@ -9,6 +9,12 @@
     "backend": "cd packages/backend && npm run dev",
     "start:web": "cd apps/mobile && npm run start:web",
     "start:mobile:clear": "cd apps/mobile && npm run start:clear",
-    "start:mobile": "cd apps/mobile && npm start"
+    "start:mobile": "cd apps/mobile && npm start",
+    "db:clear": "node clear-db.js",
+    "db:clear-and-samples": "node clear-db.js && node create-samples.js",
+    "templates:seed": "node create-templates.js"
+  },
+  "dependencies": {
+    "mongoose": "^9.1.1"
   }
 }
