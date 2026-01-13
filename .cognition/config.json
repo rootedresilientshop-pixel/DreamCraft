@@ -1,0 +1,131 @@
+{
+  "project": "VentureLab",
+  "description": "Idea-to-MVP marketplace ecosystem connecting creators with collaborators",
+  "version": "2.0",
+  "lastUpdated": "2026-01-12",
+  "currentPhase": "2 - Templates Implementation",
+  "completionPercentage": 92,
+  "status": "active development",
+  "technology": {
+    "frontend": {
+      "web": "React 18 + Vite",
+      "mobile": "React Native + Expo",
+      "port": "3000"
+    },
+    "backend": {
+      "runtime": "Node.js with Express.js",
+      "language": "TypeScript",
+      "port": "3002"
+    },
+    "database": {
+      "primary": "MongoDB 7.0",
+      "orm": "Mongoose",
+      "indexes": "Composite on frequently-queried fields"
+    },
+    "realtime": "Socket.io",
+    "auth": "JWT with bcryptjs",
+    "payments": "Stripe",
+    "ai": "OpenAI API"
+  },
+  "phases": {
+    "phase1": {
+      "name": "NDA Generation",
+      "status": "✅ COMPLETE",
+      "completedDate": "2026-01-06",
+      "description": "Auto-generate NDA documents for collaborators"
+    },
+    "phase2": {
+      "name": "Templates for Creators",
+      "status": "✅ IN PROGRESS",
+      "startDate": "2026-01-12",
+      "description": "Template selection UI for guided idea creation",
+      "completedItems": [
+        "Template Selection UI (grid display with icons)",
+        "Template Preview Modal (sections, hints, word targets)",
+        "Template API endpoints (get all, by category, by id)",
+        "Template Model with section-based structure",
+        "Database seeding script with 4 example templates"
+      ],
+      "pendingItems": [
+        "Dynamic form generation based on template sections",
+        "Placeholder text population",
+        "Word count tracking per section"
+      ]
+    },
+    "phase3": {
+      "name": "Dynamic Template-Guided Forms",
+      "status": "⏳ PENDING",
+      "description": "Auto-generate form fields based on selected template"
+    }
+  },
+  "lastSessionSummary": {
+    "date": "2026-01-12",
+    "focusArea": "Phase 2 Templates Implementation",
+    "completed": [
+      "Added template selection UI to CreateIdeaPage",
+      "Implemented template preview modal with sections",
+      "Created template seeding script with 4 examples",
+      "Added npm script 'templates:seed'",
+      "Committed both features to git",
+      "Updated .cognition intent.md and decisions.md"
+    ],
+    "currentState": {
+      "templates": "Grid display + modal preview working, API integration complete",
+      "phase2": "UI complete, pending dynamic form generation for Phase 3",
+      "readyFor": "Phase 3 dynamic form implementation"
+    },
+    "gitCommits": [
+      "feat: Phase 2 - Add template selection UI to CreateIdeaPage",
+      "docs: Add Phase 2 Templates implementation guide"
+    ]
+  },
+  "importantFiles": {
+    "frontend": [
+      "apps/web/src/pages/CreateIdeaPage.tsx - Template UI + loading",
+      "apps/web/src/api.ts - API client with JWT interceptors",
+      "apps/web/src/App.tsx - Auth state management"
+    ],
+    "backend": [
+      "packages/backend/src/models/Template.ts - Template schema",
+      "packages/backend/src/routes/templates.ts - Template endpoints",
+      "packages/backend/src/routes/ideas.ts - Idea + NDA endpoints"
+    ],
+    "scripts": [
+      "create-templates.js - Seed 4 templates into MongoDB",
+      "package.json - npm scripts (templates:seed)"
+    ],
+    "documentation": [
+      "PHASE_2_TEMPLATES.md - Phase 2 implementation guide",
+      ".cognition/intent.md - Project vision",
+      ".cognition/decisions.md - Architecture decisions"
+    ]
+  },
+  "nextSteps": [
+    {
+      "priority": 1,
+      "task": "Phase 3: Dynamic Form Generation",
+      "description": "Auto-generate form fields from template sections, add placeholders",
+      "estimatedDays": 2,
+      "depends_on": "Phase 2 templates UI (complete)"
+    },
+    {
+      "priority": 2,
+      "task": "Phase 3: AI Suggestions for Forms",
+      "description": "Offer AI suggestions for each template section",
+      "estimatedDays": 1
+    },
+    {
+      "priority": 3,
+      "task": "User Testing & Feedback",
+      "description": "Test templates with users, gather feedback for Phase 3",
+      "estimatedDays": 2
+    }
+  ],
+  "npm_scripts": {
+    "mobile": "Start mobile app",
+    "web": "Start web app",
+    "backend": "Start backend server",
+    "db:clear": "Clear MongoDB",
+    "templates:seed": "Seed 4 templates into database"
+  }
+}
