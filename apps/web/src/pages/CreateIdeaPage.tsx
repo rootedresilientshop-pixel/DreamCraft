@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import TemplateForm from '../components/TemplateForm';
 
 export default function CreateIdeaPage({ onSuccess }: any) {
   const navigate = useNavigate();
@@ -48,10 +49,7 @@ export default function CreateIdeaPage({ onSuccess }: any) {
 
   const handleApplyTemplate = () => {
     if (selectedTemplate) {
-      setFormData((prev) => ({
-        ...prev,
-        category: selectedTemplate.category,
-      }));
+      // Close modal and show template form
       setShowTemplateModal(false);
     }
   };
@@ -142,6 +140,71 @@ export default function CreateIdeaPage({ onSuccess }: any) {
       setLoading(false);
     }
   };
+
+  // Handle template form submission
+  const handleTemplateFormSubmit = async (formData: any) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Create idea with template data
+      const createRes = await api.createIdea(formData);
+
+      if (createRes.success || createRes.data) {
+        const ideaId = createRes.data._id;
+
+        // Validate it with AI
+        try {
+          const validationRes = await api.validateAndScoreIdea(ideaId);
+          if (validationRes.success) {
+            setValidation(validationRes.data);
+            setShowValidation(true);
+          }
+        } catch (err) {
+          console.error('Validation failed:', err);
+        }
+
+        setSuccess(true);
+        setSelectedTemplate(null);
+
+        // Redirect after delay
+        setTimeout(() => {
+          if (onSuccess) {
+            onSuccess(createRes.data);
+          } else {
+            window.location.href = '/dashboard';
+          }
+        }, 1000);
+      } else {
+        setError(createRes.error || 'Failed to create idea');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Error creating idea');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // If a template is selected, show the template form
+  if (selectedTemplate && !showValidation) {
+    return (
+      <div style={styles.container}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: '#0099ff', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
+            ← Back to Dashboard
+          </button>
+        </div>
+        <div style={styles.card}>
+          <TemplateForm
+            template={selectedTemplate}
+            onSubmit={handleTemplateFormSubmit}
+            onCancel={() => setSelectedTemplate(null)}
+          />
+          {success && <div style={styles.success}>✓ Idea created successfully! Redirecting...</div>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
