@@ -43,10 +43,10 @@ export default function App() {
 
     // Set up periodic polling to detect token changes from storage
     // This handles login/logout that happens within the app
-    // Polls every 300ms to provide responsive UI updates
+    // Polls every 1000ms to balance responsiveness with battery efficiency
     const tokenCheckInterval = setInterval(() => {
       updateAuthState();
-    }, 300); // Check every 300ms for storage changes (responsive but not excessive)
+    }, 1000); // Check every 1000ms for storage changes
 
     return () => {
       subscription.remove();

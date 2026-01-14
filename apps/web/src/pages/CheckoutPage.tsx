@@ -26,7 +26,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+    const stripeKey = (import.meta.env as any).VITE_STRIPE_PUBLIC_KEY;
     if (!stripeKey) {
       setError('Stripe is not configured. Please contact support.');
       return;

@@ -21,6 +21,9 @@ export default function IdeaDetailPage() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [proposingCollaboration, setProposingCollaboration] = useState(false);
   const [loadingNda, setLoadingNda] = useState(false);
+  const [showNDAModal, setShowNDAModal] = useState(false);
+  const [collaborationId, setCollaborationId] = useState<string | null>(null);
+  const [ndaStatus, setNdaStatus] = useState<any>(null);
 
   useEffect(() => {
     fetchIdea();
@@ -67,6 +70,25 @@ export default function IdeaDetailPage() {
     }
   };
 
+  const handleAcceptNDA = async () => {
+    if (!collaborationId) return;
+
+    setLoadingNda(true);
+    try {
+      const res = await api.acceptNDA(collaborationId);
+      if (res.success) {
+        setNdaStatus(res.data);
+        if (res.data.bothAccepted) {
+          setShowNDAModal(false);
+        }
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to accept NDA');
+    } finally {
+      setLoadingNda(false);
+    }
+  };
+
   const handleCollaborate = async () => {
     if (!id || !idea || !currentUserId) return;
 
@@ -86,7 +108,14 @@ export default function IdeaDetailPage() {
       );
 
       if (res.success) {
-        alert('Collaboration proposal sent! The creator will receive a notification.');
+        setCollaborationId(res.data._id);
+        setShowNDAModal(true);
+        setNdaStatus({
+          ndaAcceptedByCreator: false,
+          ndaAcceptedByCollaborator: false,
+          bothAccepted: false,
+          ndaText: res.data.ndaText || 'Standard NDA for idea collaboration - Both parties agree not to disclose proprietary information without written consent.'
+        });
       } else {
         alert(res.error || 'Failed to propose collaboration');
       }
@@ -222,7 +251,7 @@ export default function IdeaDetailPage() {
     published: '#00cc66',
     'in-collaboration': '#0099ff',
     sold: '#ffaa00',
-  }[idea.status] || '#999';
+  }[idea.status as string] || '#999';
 
   return (
     <div style={styles.container}>
@@ -516,6 +545,94 @@ export default function IdeaDetailPage() {
           )}
         </div>
       </div>
+
+      {/* NDA Modal */}
+      {showNDAModal && ndaStatus && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: '#111',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '90%',
+            border: '1px solid #333',
+          }}>
+            <h2 style={{ color: '#fff', marginTop: 0 }}>🔐 Non-Disclosure Agreement</h2>
+
+            <div style={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #444',
+              borderRadius: '6px',
+              padding: '16px',
+              marginBottom: '20px',
+              maxHeight: '200px',
+              overflow: 'auto',
+              fontSize: '13px',
+              color: '#ccc',
+              lineHeight: '1.6',
+            }}>
+              {ndaStatus.ndaText}
+            </div>
+
+            <div style={{ marginBottom: '20px', color: '#999', fontSize: '12px' }}>
+              <p>By accepting this NDA, you agree to:</p>
+              <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                <li>Not disclose proprietary information without written consent</li>
+                <li>Keep shared details confidential for the duration of collaboration</li>
+                <li>Use information solely for the purpose of collaboration</li>
+              </ul>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setShowNDAModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: '#333',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                }}
+              >
+                Decline
+              </button>
+              <button
+                onClick={handleAcceptNDA}
+                disabled={loadingNda}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: '#00cc66',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loadingNda ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  opacity: loadingNda ? 0.7 : 1,
+                }}
+              >
+                {loadingNda ? '⏳ Accepting...' : '✓ Accept NDA'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

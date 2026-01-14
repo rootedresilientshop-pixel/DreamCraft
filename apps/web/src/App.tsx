@@ -38,44 +38,51 @@ function App() {
   });
 
   useEffect(() => {
+    // Function to check and update auth state
+    const checkAndUpdateAuthState = () => {
+      const currentToken = loadToken();
+      const shouldBeLoggedIn = !!currentToken;
+
+      if (shouldBeLoggedIn !== isLoggedIn) {
+        setIsLoggedIn(shouldBeLoggedIn);
+      }
+
+      // Also update userType from localStorage
+      try {
+        const userData = localStorage.getItem('userData');
+        const parsedUserType = userData ? JSON.parse(userData).userType : null;
+        if (parsedUserType !== userType) {
+          setUserType(parsedUserType || null);
+        }
+      } catch {
+        // Ignore JSON parse errors
+      }
+    };
+
     // Listen for storage changes (from other tabs/windows)
     const handleStorageChange = () => {
-      const currentToken = loadToken();
-      setIsLoggedIn(!!currentToken);
+      checkAndUpdateAuthState();
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Listen for custom auth-changed event (same-window updates)
     const handleAuthChanged = () => {
-      // Delay to ensure token is actually written to localStorage
-      // before we check for it (React StrictMode double-invokes this)
-      setTimeout(() => {
-        const currentToken = loadToken();
-        // Also update userType from localStorage
-        try {
-          const userData = localStorage.getItem('userData');
-          if (userData) {
-            const parsed = JSON.parse(userData);
-            setUserType(parsed.userType || null);
-          }
-        } catch {
-          // Ignore JSON parse errors
-        }
-        // Only update state if token exists; don't flip to false on empty reads
-        if (currentToken) {
-          setIsLoggedIn(true);
-        }
-      }, 50); // 50ms delay to ensure localStorage write completes
+      setTimeout(checkAndUpdateAuthState, 50);
     };
 
     window.addEventListener('auth-changed', handleAuthChanged);
 
+    // Check auth state periodically to catch changes from browser back button
+    // This helps when routes don't update but auth state does
+    const checkInterval = setInterval(checkAndUpdateAuthState, 1000);
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('auth-changed', handleAuthChanged);
+      clearInterval(checkInterval);
     };
-  }, []);
+  }, [isLoggedIn, userType]);
 
 
   return (

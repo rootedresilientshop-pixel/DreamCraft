@@ -115,6 +115,7 @@ export default function LoginPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             autoComplete="email"
             style={{
               width: '100%',
@@ -139,6 +140,7 @@ export default function LoginPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             autoComplete={isRegister ? 'new-password' : 'current-password'}
             style={{
               width: '100%',

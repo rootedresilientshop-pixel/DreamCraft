@@ -24,7 +24,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return;
     }
 
-    const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:3002';
+    const apiBase = (import.meta.env as any).VITE_API_BASE || 'http://localhost:3002';
     const newSocket = io(apiBase, {
       auth: { token },
       reconnection: true,

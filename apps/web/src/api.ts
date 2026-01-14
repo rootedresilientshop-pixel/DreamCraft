@@ -1,17 +1,34 @@
 import axios from "axios";
+import { removeToken, dispatchAuthChanged } from "./utils/authStorage";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001/api";
+const API_BASE = (import.meta.env as any).VITE_API_BASE || "http://localhost:3002/api";
 
 const instance = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
 });
 
+// Request interceptor: Add token to all requests
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem("userToken");
   if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+// Response interceptor: Handle 401 errors (expired/invalid tokens)
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is expired or invalid
+      removeToken();
+      dispatchAuthChanged();
+      // Optionally redirect to login
+      // window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default {
   async register(email: string, password: string, userType?: string) {
@@ -24,7 +41,6 @@ export default {
       });
       return res.data;
     } catch (error: any) {
-      console.error("Register error:", error);
       const errorMsg =
         error?.response?.data?.error || error.message || "Registration failed";
       return { error: errorMsg };
@@ -33,10 +49,8 @@ export default {
   async login(email: string, password: string) {
     try {
       const res = await instance.post("/auth/login", { email, password });
-      console.log("Login response:", res.data);
       return res.data || {};
     } catch (error: any) {
-      console.error("Login error:", error);
       const errorMsg =
         error?.response?.data?.error || error.message || "Login failed";
       return { error: errorMsg };
@@ -147,18 +161,41 @@ export default {
     const res = await instance.get("/collaborators/my-collaborations");
     return res.data;
   },
+  // NDA Methods
+  async acceptNDA(collaborationId: string) {
+    const res = await instance.patch(`/collaborators/invitations/${collaborationId}/accept-nda`);
+    return res.data;
+  },
+  async getNDAStatus(collaborationId: string) {
+    const res = await instance.get(`/collaborators/invitations/${collaborationId}/nda-status`);
+    return res.data;
+  },
   // User profile and dashboard
   async getProfile() {
     const res = await instance.get("/users/me");
     return res.data;
   },
   async updateProfile(data: any) {
-    const res = await instance.patch("/users/me", data);
-    return res.data;
+    try {
+      const res = await instance.patch("/users/me", data);
+      return res.data;
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || error.message || "Failed to update profile";
+      console.error('updateProfile error:', {
+        status: error.response?.status,
+        errorMsg,
+        fullError: error
+      });
+      throw new Error(errorMsg);
+    }
   },
   async completeOnboarding(data: { type: 'collaborator-wizard' | 'creator-intro' }) {
-    const res = await instance.post("/users/complete-onboarding", data);
-    return res.data;
+    try {
+      const res = await instance.post("/users/complete-onboarding", data);
+      return res.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || error.message || "Failed to complete onboarding");
+    }
   },
   async getDashboard() {
     const res = await instance.get("/users/dashboard");
@@ -193,5 +230,14 @@ export default {
   async getAISuggestions(partialIdea: { title: string; description: string; category: string }) {
     const res = await instance.post("/ideas/ai-suggestions", partialIdea);
     return res.data;
+  },
+  // Sample data creation for testing
+  async createSampleIdeas() {
+    try {
+      const res = await instance.post("/ideas/dev/create-samples", {});
+      return res.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "Failed to create sample ideas");
+    }
   },
 };

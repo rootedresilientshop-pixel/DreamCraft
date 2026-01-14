@@ -15,6 +15,11 @@ const logs: LogEntry[] = [];
 const MAX_LOGS = 1000; // Keep last 1000 logs in memory
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
+  // Skip logging for OPTIONS (CORS preflight) requests
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   const startTime = Date.now();
   const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
 

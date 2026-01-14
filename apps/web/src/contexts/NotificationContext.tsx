@@ -28,10 +28,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { socket } = useSocket();
 
-  // Fetch notifications on mount
+  // Fetch notifications on mount (only if authenticated)
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
+        const token = localStorage.getItem('userToken');
+        if (!token) {
+          // Not authenticated, skip notification fetch
+          return;
+        }
         const response = await api.getNotifications();
         if (response.success && response.data) {
           setNotifications(response.data.map((notif: any) => ({

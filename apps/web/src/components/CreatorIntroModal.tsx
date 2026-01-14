@@ -8,6 +8,32 @@ interface CreatorIntroModalProps {
 
 export default function CreatorIntroModal({ isOpen, onDismiss }: CreatorIntroModalProps) {
   const [loading, setLoading] = React.useState(false);
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
+  const [error, setError] = React.useState('');
+  const [showNameForm, setShowNameForm] = React.useState(true);
+
+  const handleSaveName = async () => {
+    if (!firstName.trim()) {
+      setError('Please enter your first name');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    try {
+      await api.updateProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      });
+      setShowNameForm(false);
+    } catch (err: any) {
+      console.error('Failed to save profile:', err);
+      setError(err.message || 'Failed to save profile');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDismiss = async () => {
     setLoading(true);
@@ -88,85 +114,157 @@ export default function CreatorIntroModal({ isOpen, onDismiss }: CreatorIntroMod
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <h2 style={{ color: '#00cc66', fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
-              Welcome to DreamCraft!
+              {showNameForm ? 'Tell Us Your Name' : 'Welcome to DreamCraft!'}
             </h2>
             <p style={{ color: '#999', fontSize: '14px', margin: 0 }}>
-              Let's help you bring your ideas to life
+              {showNameForm ? 'How should we address you?' : "Let's help you bring your ideas to life"}
             </p>
           </div>
 
-          {/* Main Message */}
-          <p style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.8', marginBottom: '30px' }}>
-            We're excited to have you here. DreamCraft connects visionary creators like you with
-            talented collaborators who can help bring your ideas to life. Whether you're building a
-            startup, launching a product, or exploring new opportunities, we've got the tools and
-            community you need.
-          </p>
+          {showNameForm && (
+            <div style={{ marginBottom: '30px' }}>
+              {error && (
+                <div style={{ backgroundColor: '#ff6b6b20', border: '1px solid #ff6b6b', borderRadius: '6px', padding: '12px', marginBottom: '16px', color: '#ff6b6b', fontSize: '14px' }}>
+                  {error}
+                </div>
+              )}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', color: '#ccc', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>First Name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Your first name"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #333',
+                    backgroundColor: '#0f1419',
+                    color: '#ccc',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', color: '#ccc', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>Last Name (Optional)</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Your last name"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #333',
+                    backgroundColor: '#0f1419',
+                    color: '#ccc',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+              <button
+                onClick={handleSaveName}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: '#00cc66',
+                  color: '#000',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
+                }}
+              >
+                {loading ? 'Saving...' : 'Continue'}
+              </button>
+            </div>
+          )}
 
-          {/* Features */}
-          <div style={{ marginBottom: '30px' }}>
-            <div
-              style={{
-                marginBottom: '16px',
-                padding: '16px',
-                backgroundColor: '#0f1419',
-                borderRadius: '8px',
-              }}
-            >
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '24px' }}>💡</span>
-                <div>
-                  <h3 style={{ color: '#00cc66', fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
-                    Create & Share Ideas
-                  </h3>
-                  <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>
-                    Post your innovative ideas and get instant AI-powered valuations
-                  </p>
+          {!showNameForm && (
+            <div>
+              {/* Main Message */}
+              <p style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.8', marginBottom: '30px' }}>
+                We're excited to have you here. DreamCraft connects visionary creators like you with
+                talented collaborators who can help bring your ideas to life. Whether you're building a
+                startup, launching a product, or exploring new opportunities, we've got the tools and
+                community you need.
+              </p>
+
+              {/* Features */}
+              <div style={{ marginBottom: '30px' }}>
+                <div
+                  style={{
+                    marginBottom: '16px',
+                    padding: '16px',
+                    backgroundColor: '#0f1419',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: '24px' }}>💡</span>
+                    <div>
+                      <h3 style={{ color: '#00cc66', fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
+                        Create & Share Ideas
+                      </h3>
+                      <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>
+                        Post your innovative ideas and get instant AI-powered valuations
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    marginBottom: '16px',
+                    padding: '16px',
+                    backgroundColor: '#0f1419',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: '24px' }}>🤝</span>
+                    <div>
+                      <h3 style={{ color: '#00cc66', fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
+                        Find Collaborators
+                      </h3>
+                      <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>
+                        Search and invite talented people based on their skills and expertise
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: '16px',
+                    backgroundColor: '#0f1419',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: '24px' }}>🚀</span>
+                    <div>
+                      <h3 style={{ color: '#00cc66', fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
+                        Build Together
+                      </h3>
+                      <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>
+                        Collaborate in real-time, iterate on feedback, and turn your vision into reality
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div
-              style={{
-                marginBottom: '16px',
-                padding: '16px',
-                backgroundColor: '#0f1419',
-                borderRadius: '8px',
-              }}
-            >
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '24px' }}>🤝</span>
-                <div>
-                  <h3 style={{ color: '#00cc66', fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
-                    Find Collaborators
-                  </h3>
-                  <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>
-                    Search and invite talented people based on their skills and expertise
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                padding: '16px',
-                backgroundColor: '#0f1419',
-                borderRadius: '8px',
-              }}
-            >
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '24px' }}>🚀</span>
-                <div>
-                  <h3 style={{ color: '#00cc66', fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
-                    Build Together
-                  </h3>
-                  <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>
-                    Collaborate in real-time, iterate on feedback, and turn your vision into reality
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Call to Action */}
           <button

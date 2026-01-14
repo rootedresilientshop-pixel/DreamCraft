@@ -10,6 +10,8 @@ export default function CreatorDashboard() {
   const [invitations, setInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [creatingsamples, setCreatingSamples] = useState(false);
+  const [sampleMessage, setSampleMessage] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -41,10 +43,12 @@ export default function CreatorDashboard() {
       const res = await api.acceptInvitation(invitationId);
       if (res.success) {
         setInvitations(invitations.filter((inv) => inv._id !== invitationId));
-        alert('Collaboration accepted!');
+        setError('');
+      } else {
+        setError(res.error || 'Failed to accept invitation');
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to accept invitation');
+      setError(err.message || 'Failed to accept invitation');
     }
   };
 
@@ -53,9 +57,30 @@ export default function CreatorDashboard() {
       const res = await api.rejectInvitation(invitationId);
       if (res.success) {
         setInvitations(invitations.filter((inv) => inv._id !== invitationId));
+        setError('');
+      } else {
+        setError(res.error || 'Failed to reject invitation');
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to reject invitation');
+      setError(err.message || 'Failed to reject invitation');
+    }
+  };
+
+  const handleCreateSamples = async () => {
+    setCreatingSamples(true);
+    setSampleMessage('');
+    try {
+      const res = await api.createSampleIdeas();
+      setSampleMessage(`✓ Created ${res.data?.length || 4} sample ideas! Collaborators can now see them in the marketplace.`);
+      setTimeout(() => {
+        loadDashboardData();
+        setSampleMessage('');
+      }, 2000);
+    } catch (err: any) {
+      setSampleMessage('❌ Failed to create sample ideas: ' + (err.message || 'Unknown error'));
+      setTimeout(() => setSampleMessage(''), 3000);
+    } finally {
+      setCreatingSamples(false);
     }
   };
 
@@ -102,6 +127,21 @@ export default function CreatorDashboard() {
           ))}
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div style={{
+          backgroundColor: '#ff6b6b20',
+          border: '1px solid #ff6b6b',
+          borderRadius: '6px',
+          padding: '12px 16px',
+          color: '#ff6b6b',
+          fontSize: '14px',
+          marginBottom: '20px',
+        }}>
+          {error}
+        </div>
+      )}
 
       {/* Content */}
       <div style={styles.content}>
@@ -153,7 +193,31 @@ export default function CreatorDashboard() {
                 >
                   Browse Ideas
                 </button>
+                <button
+                  onClick={handleCreateSamples}
+                  disabled={creatingsamples}
+                  style={{
+                    ...styles.actionBtnSecondary,
+                    opacity: creatingsamples ? 0.6 : 1,
+                    cursor: creatingsamples ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {creatingsamples ? '⏳ Creating...' : '📊 Create Sample Ideas'}
+                </button>
               </div>
+              {sampleMessage && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  backgroundColor: sampleMessage.includes('✓') ? '#1f3d2f' : '#3d1f1f',
+                  border: sampleMessage.includes('✓') ? '1px solid #3f7a54' : '1px solid #7a3f3f',
+                  color: sampleMessage.includes('✓') ? '#66ff99' : '#ff6666',
+                  fontSize: '14px',
+                }}>
+                  {sampleMessage}
+                </div>
+              )}
             </div>
           </div>
         )}

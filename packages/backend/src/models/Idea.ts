@@ -26,6 +26,21 @@ const ideaSchema = new mongoose.Schema({
     required: { type: Boolean, default: true },
     hash: String,
   },
+  // Template Support
+  templateId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Template',
+  },
+  sections: {
+    type: Map,
+    of: String, // Maps section ID to section content
+    default: new Map(),
+  },
+  completionScore: {
+    type: Number,
+    default: 0, // 0-100 based on sections filled
+  },
+  lastAutoSaveAt: Date,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

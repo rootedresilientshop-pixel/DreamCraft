@@ -17,6 +17,8 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState('');
+  const [ndaStatus, setNdaStatus] = useState<any>(null);
+  const [collaborationId, setCollaborationId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchConversations();
@@ -42,6 +44,7 @@ export default function MessagesPage() {
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages(selectedConversation);
+      fetchNDAStatus(selectedConversation);
     }
   }, [selectedConversation]);
 
@@ -68,6 +71,28 @@ export default function MessagesPage() {
     } catch (err) {
       console.error('Failed to fetch messages:', err);
       setError('Failed to load messages');
+    }
+  };
+
+  const fetchNDAStatus = async (conversationUserId: string) => {
+    try {
+      // Get collaborations to find the collaboration ID with this user
+      const collabRes = await api.getInvitations();
+      if (collabRes.success && collabRes.data) {
+        const collab = collabRes.data.find((c: any) =>
+          (c.collaboratorId._id === conversationUserId || c.creatorId._id === conversationUserId)
+        );
+
+        if (collab) {
+          setCollaborationId(collab._id);
+          const ndaRes = await api.getNDAStatus(collab._id);
+          if (ndaRes.success && ndaRes.data) {
+            setNdaStatus(ndaRes.data);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch NDA status:', err);
     }
   };
 
@@ -142,6 +167,40 @@ export default function MessagesPage() {
             </div>
           ) : (
             <>
+              {/* NDA Warning Banner */}
+              {ndaStatus && !ndaStatus.bothAccepted && (
+                <div style={{
+                  backgroundColor: '#fff3cd',
+                  borderBottom: '1px solid #ffc107',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}>
+                  <div style={{ color: '#856404', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>⚠️</span>
+                    <span>
+                      <strong>NDA Required:</strong> An NDA must be accepted by both parties before continuing conversation
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => navigate(`/ideas/${messages[0]?.ideaId || ''}`)}
+                    style={{
+                      background: '#ffc107',
+                      color: '#000',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Accept NDA
+                  </button>
+                </div>
+              )}
+
               {/* Messages */}
               <div style={styles.messagesList}>
                 {messages.length === 0 ? (

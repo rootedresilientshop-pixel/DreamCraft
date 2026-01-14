@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
+import { saveToken, dispatchAuthChanged } from '../utils/authStorage';
 
 interface LocationState {
   email?: string;
@@ -13,6 +14,11 @@ export default function RoleSelectionPage() {
   const state = location.state as LocationState;
   const [selectedRole, setSelectedRole] = useState<'creator' | 'collaborator' | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleBack = () => {
+    navigate('/login', { replace: true });
+  };
 
   const email = state?.email || '';
   const password = state?.password || '';
@@ -20,11 +26,22 @@ export default function RoleSelectionPage() {
   const handleRoleSelect = async (role: 'creator' | 'collaborator') => {
     setSelectedRole(role);
     setLoading(true);
+    setError('');
 
     try {
       const res = await api.register(email, password, role);
 
-      if (res.success) {
+      if (res.success || res.token) {
+        // Save the token from registration so profile updates are authenticated
+        if (res.token) {
+          saveToken(res.token);
+          // Store user data if available
+          if (res.user) {
+            localStorage.setItem('userData', JSON.stringify(res.user));
+          }
+          dispatchAuthChanged();
+        }
+
         if (role === 'collaborator') {
           // Collaborators go to profile wizard to complete their profile
           navigate('/profile-wizard', {
@@ -39,12 +56,12 @@ export default function RoleSelectionPage() {
           });
         }
       } else {
-        alert(res.error || 'Registration failed');
+        setError(res.error || 'Registration failed');
         setLoading(false);
         setSelectedRole(null);
       }
     } catch (err: any) {
-      alert(err.message || 'Error occurred');
+      setError(err.message || 'Error occurred');
       setLoading(false);
       setSelectedRole(null);
     }
@@ -64,6 +81,52 @@ export default function RoleSelectionPage() {
         }}
       >
         <div style={{ maxWidth: '500px', width: '100%' }}>
+          {/* Back Button */}
+          <button
+            onClick={handleBack}
+            disabled={loading}
+            style={{
+              marginBottom: '20px',
+              padding: '8px 16px',
+              backgroundColor: 'transparent',
+              border: '1px solid #666',
+              borderRadius: '6px',
+              color: '#ccc',
+              fontSize: '14px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1,
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#00cc66';
+                (e.currentTarget as HTMLButtonElement).style.color = '#00cc66';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#666';
+                (e.currentTarget as HTMLButtonElement).style.color = '#ccc';
+              }
+            }}
+          >
+            ← Back
+          </button>
+
+          {error && (
+            <div style={{
+              backgroundColor: '#ff6b6b20',
+              border: '1px solid #ff6b6b',
+              borderRadius: '6px',
+              padding: '12px 16px',
+              color: '#ff6b6b',
+              fontSize: '14px',
+              marginBottom: '20px',
+            }}>
+              {error}
+            </div>
+          )}
+
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <h1
               style={{

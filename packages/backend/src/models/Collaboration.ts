@@ -37,6 +37,21 @@ const collaborationSchema = new mongoose.Schema({
     default: Date.now,
   },
   respondedAt: Date,
+  // NDA Tracking
+  ndaAcceptedByCreator: {
+    type: Boolean,
+    default: false,
+  },
+  ndaAcceptedByCollaborator: {
+    type: Boolean,
+    default: false,
+  },
+  ndaAcceptedByCreatorAt: Date,
+  ndaAcceptedByCollaboratorAt: Date,
+  ndaText: {
+    type: String,
+    default: 'Standard NDA for idea collaboration - Both parties agree not to disclose proprietary information without written consent.',
+  },
 });
 
 // Indexes for efficient querying

@@ -28,6 +28,7 @@ import notificationRoutes from './routes/notifications';
 import messageRoutes from './routes/messages';
 import userRoutes from './routes/users';
 import favoriteRoutes from './routes/favorites';
+import templateRoutes from './routes/templates';
 import connectDB from './db';
 import { requestLogger } from './middleware/logger';
 import { createRateLimiter } from './middleware/rateLimiter';
@@ -44,13 +45,24 @@ const httpServer = http.createServer(app);
 
 // Security & Logging Middleware
 const getDefaultOrigins = () => {
-  return [
+  const development = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:3002',
     'http://localhost:5173',
-    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5173'
+  ];
+
+  const production = [
     'https://dreamcraft-khaki.vercel.app',
     'https://www.dreamcraft-khaki.vercel.app',
     'https://dreamcraft-git-main-gardner-seeses-projects.vercel.app'
   ];
+
+  return process.env.NODE_ENV === 'production' ? production : [...development, ...production];
 };
 
 const allowedOrigins = process.env.CORS_ORIGINS
@@ -70,7 +82,7 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
@@ -117,7 +129,7 @@ app.use(requestLogger);
 app.use(createRateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 100 }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
@@ -131,6 +143,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/templates', templateRoutes);
 app.use('/api/transactions', (req, res) => {
   res.status(501).json({ error: 'Transactions routes not implemented' });
 });
@@ -150,15 +163,39 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Export io for use in other modules
 export { io };
 
+// Validate required environment variables
+const validateEnvironment = () => {
+  const required = ['JWT_SECRET', 'MONGODB_URI'];
+  const missing = required.filter(key => !process.env[key]);
+
+  if (missing.length > 0) {
+    console.error('❌ Missing required environment variables:', missing.join(', '));
+    console.error('Please set these variables in your .env file and restart the server');
+    process.exit(1);
+  }
+
+  if (process.env.JWT_SECRET === 'your_jwt_secret_key_here_change_in_production') {
+    console.warn('⚠️  WARNING: Using default JWT_SECRET. This is insecure in production!');
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❌ Default JWT_SECRET not allowed in production');
+      process.exit(1);
+    }
+  }
+
+  console.log('✅ Environment validation passed');
+};
+
 // Connect to DB and Start server
 const startServer = async () => {
+  validateEnvironment();
   await connectDB();
   httpServer.listen(PORT, () => {
-    console.log(`DreamCraft Backend with WebSocket running on port ${PORT}`);
+    console.log(`✅ DreamCraft Backend with WebSocket running on port ${PORT}`);
+    console.log(`📡 CORS enabled for: ${allowedOrigins.join(', ')}`);
   });
 };
 
 startServer().catch((err) => {
-  console.error('Server error:', err);
+  console.error('❌ Server error:', err);
   process.exit(1);
 });

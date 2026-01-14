@@ -63,6 +63,7 @@ export default function CollaboratorProfileWizardPage() {
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleSkillToggle = (skill: string) => {
     const newSkills = formData.skills.includes(skill)
@@ -155,11 +156,31 @@ export default function CollaboratorProfileWizardPage() {
     }
   };
 
+  const handleBackToRoleSelection = () => {
+    navigate('/role-selection', { replace: true });
+  };
+
+  const handleSkipWizard = () => {
+    navigate('/', { replace: true });
+  };
+
   const handleComplete = async () => {
     setLoading(true);
+    setSubmitError('');
     try {
+      // Debug: Check if token exists
+      const token = localStorage.getItem('userToken');
+      console.log('Token exists:', !!token);
+      console.log('Token value:', token ? `${token.substring(0, 50)}...` : 'NONE');
+
       // Update profile
-      await api.updateProfile({
+      console.log('Updating profile with data:', {
+        firstName: formData.firstName,
+        skills: formData.skills,
+        primarySkill: formData.primarySkill,
+      });
+
+      const profileRes = await api.updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
         bio: formData.bio,
@@ -168,9 +189,12 @@ export default function CollaboratorProfileWizardPage() {
         location: formData.location,
         profileCompleted: true,
       });
+      console.log('Profile updated successfully:', profileRes);
 
       // Mark wizard as completed
-      await api.completeOnboarding({ type: 'collaborator-wizard' });
+      console.log('Completing onboarding...');
+      const onboardingRes = await api.completeOnboarding({ type: 'collaborator-wizard' });
+      console.log('Onboarding completed successfully:', onboardingRes);
 
       // Redirect to login
       navigate('/login', {
@@ -178,7 +202,10 @@ export default function CollaboratorProfileWizardPage() {
         replace: true,
       });
     } catch (error: any) {
-      alert(error.message || 'Failed to save profile. Please try again.');
+      console.error('Full error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error);
+      setSubmitError(error.message || 'Failed to save profile. Please try again.');
       setLoading(false);
     }
   };
@@ -528,9 +555,64 @@ export default function CollaboratorProfileWizardPage() {
             </div>
           )}
 
+          {submitError && (
+            <div style={{
+              backgroundColor: '#ff6b6b20',
+              border: '1px solid #ff6b6b',
+              borderRadius: '6px',
+              padding: '12px',
+              color: '#ff6b6b',
+              fontSize: '14px',
+              marginTop: '20px',
+            }}>
+              {submitError}
+            </div>
+          )}
+
           {/* Buttons */}
           <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
-            {currentStep !== 'skills' && (
+            {currentStep === 'skills' ? (
+              <>
+                <button
+                  onClick={handleBackToRoleSelection}
+                  disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #444',
+                    backgroundColor: '#1a1a2e',
+                    color: '#ccc',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    opacity: loading ? 0.5 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={handleSkipWizard}
+                  disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #666',
+                    backgroundColor: 'transparent',
+                    color: '#999',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    opacity: loading ? 0.5 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  Skip for Now
+                </button>
+              </>
+            ) : (
               <button
                 onClick={handleBackStep}
                 disabled={loading}

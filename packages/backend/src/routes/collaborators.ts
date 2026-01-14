@@ -47,7 +47,7 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({ success: true, data: users });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to list collaborators' });
+    res.status(500).json({ success: false, error: 'Failed to list collaborators' });
   }
 });
 
@@ -56,11 +56,11 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
     const user = await User.findById(userId).select('-password').lean();
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
     res.json({ success: true, data: user });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to get profile' });
+    res.status(500).json({ success: false, error: 'Failed to get profile' });
   }
 });
 
@@ -150,9 +150,21 @@ router.get('/invitations', authenticateToken, async (req: Request, res: Response
 
     let query: any;
     if (type === 'received') {
-      query = { collaboratorId: userId };
+      // Received invitations: either the user is the collaborator OR the user is the creator and invitation came from collaborator
+      query = {
+        $or: [
+          { collaboratorId: userId, invitedBy: 'creator' }, // Creator invited this user as collaborator
+          { creatorId: userId, invitedBy: 'collaborator' }, // Collaborator invited this user (creator)
+        ],
+      };
     } else if (type === 'sent') {
-      query = { creatorId: userId, invitedBy: 'creator' };
+      // Sent invitations: either the user is the creator sending to collaborator OR collaborator sending to creator
+      query = {
+        $or: [
+          { creatorId: userId, invitedBy: 'creator' }, // Creator sent invitation
+          { collaboratorId: userId, invitedBy: 'collaborator' }, // Collaborator sent invitation
+        ],
+      };
     } else {
       query = {
         $or: [{ collaboratorId: userId }, { creatorId: userId }],
@@ -182,8 +194,11 @@ router.patch('/invitations/:id/accept', authenticateToken, async (req: Request, 
       return res.status(404).json({ success: false, error: 'Invitation not found' });
     }
 
-    // Only collaborator can accept
-    if (collaboration.collaboratorId.toString() !== userId) {
+    // Both collaborator and creator can accept invitations they received
+    const isCollaborator = collaboration.collaboratorId.toString() === userId;
+    const isCreator = collaboration.creatorId.toString() === userId;
+
+    if (!isCollaborator && !isCreator) {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
@@ -200,17 +215,32 @@ router.patch('/invitations/:id/accept', authenticateToken, async (req: Request, 
       status: 'in-collaboration',
     });
 
-    // Notify creator
+    // Notify the other party
     const idea = await Idea.findById(collaboration.ideaId);
     const collaborator = await User.findById(collaboration.collaboratorId);
-    await sendNotification({
-      userId: collaboration.creatorId.toString(),
-      type: 'success',
-      title: 'Collaboration Accepted',
-      message: `${collaborator?.username} accepted your collaboration invitation for "${idea?.title}"!`,
-      actionUrl: `/ideas/${collaboration.ideaId}`,
-      metadata: { ideaId: collaboration.ideaId.toString() },
-    });
+    const creator = await User.findById(collaboration.creatorId);
+
+    if (isCollaborator) {
+      // Collaborator accepted, notify creator
+      await sendNotification({
+        userId: collaboration.creatorId.toString(),
+        type: 'success',
+        title: 'Collaboration Accepted',
+        message: `${collaborator?.username} accepted your collaboration invitation for "${idea?.title}"!`,
+        actionUrl: `/ideas/${collaboration.ideaId}`,
+        metadata: { ideaId: collaboration.ideaId.toString() },
+      });
+    } else {
+      // Creator accepted, notify collaborator
+      await sendNotification({
+        userId: collaboration.collaboratorId.toString(),
+        type: 'success',
+        title: 'Collaboration Accepted',
+        message: `${creator?.username} accepted your collaboration request for "${idea?.title}"!`,
+        actionUrl: `/ideas/${collaboration.ideaId}`,
+        metadata: { ideaId: collaboration.ideaId.toString() },
+      });
+    }
 
     res.json({ success: true, data: collaboration });
   } catch (err: any) {
@@ -229,8 +259,11 @@ router.patch('/invitations/:id/reject', authenticateToken, async (req: Request, 
       return res.status(404).json({ success: false, error: 'Invitation not found' });
     }
 
-    // Only collaborator can reject
-    if (collaboration.collaboratorId.toString() !== userId) {
+    // Both collaborator and creator can reject invitations they received
+    const isCollaborator = collaboration.collaboratorId.toString() === userId;
+    const isCreator = collaboration.creatorId.toString() === userId;
+
+    if (!isCollaborator && !isCreator) {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
@@ -265,6 +298,81 @@ router.get('/my-collaborations', authenticateToken, async (req: Request, res: Re
     res.json({ success: true, data: collaborations });
   } catch (err: any) {
     console.error('Get collaborations error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Accept NDA for collaboration
+router.patch('/invitations/:id/accept-nda', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const collaboration = await Collaboration.findById(req.params.id);
+
+    if (!collaboration) {
+      return res.status(404).json({ success: false, error: 'Collaboration not found' });
+    }
+
+    // Check if user is collaborator or creator
+    const isCollaborator = collaboration.collaboratorId.toString() === userId;
+    const isCreator = collaboration.creatorId.toString() === userId;
+
+    if (!isCollaborator && !isCreator) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    // Update NDA acceptance for the appropriate party
+    if (isCollaborator) {
+      collaboration.ndaAcceptedByCollaborator = true;
+      collaboration.ndaAcceptedByCollaboratorAt = new Date();
+    } else {
+      collaboration.ndaAcceptedByCreator = true;
+      collaboration.ndaAcceptedByCreatorAt = new Date();
+    }
+
+    await collaboration.save();
+
+    res.json({
+      success: true,
+      data: {
+        ndaAcceptedByCreator: collaboration.ndaAcceptedByCreator,
+        ndaAcceptedByCollaborator: collaboration.ndaAcceptedByCollaborator,
+      },
+    });
+  } catch (err: any) {
+    console.error('Accept NDA error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get NDA status for a collaboration
+router.get('/invitations/:id/nda-status', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const collaboration = await Collaboration.findById(req.params.id);
+
+    if (!collaboration) {
+      return res.status(404).json({ success: false, error: 'Collaboration not found' });
+    }
+
+    // Check if user is part of this collaboration
+    const isCollaborator = collaboration.collaboratorId.toString() === userId;
+    const isCreator = collaboration.creatorId.toString() === userId;
+
+    if (!isCollaborator && !isCreator) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ndaAcceptedByCreator: collaboration.ndaAcceptedByCreator,
+        ndaAcceptedByCollaborator: collaboration.ndaAcceptedByCollaborator,
+        ndaText: collaboration.ndaText,
+        bothAccepted: collaboration.ndaAcceptedByCreator && collaboration.ndaAcceptedByCollaborator,
+      },
+    });
+  } catch (err: any) {
+    console.error('Get NDA status error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });

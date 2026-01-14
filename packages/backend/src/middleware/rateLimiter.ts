@@ -20,7 +20,17 @@ export const createRateLimiter = (options: RateLimitOptions) => {
   const { windowMs, maxRequests, message = 'Too many requests, please try again later.' } = options;
 
   return (req: Request, res: Response, next: NextFunction) => {
+    // Skip rate limiting for OPTIONS (CORS preflight) requests
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+
+    // Skip rate limiting in development (localhost)
     const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+    if (clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === 'localhost' || process.env.NODE_ENV !== 'production') {
+      return next();
+    }
+
     const now = Date.now();
     const entry = rateLimitStore.get(clientIp);
 

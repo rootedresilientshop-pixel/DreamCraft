@@ -78,12 +78,26 @@ export default function CollaboratorsPage() {
               disabled={loading}
             >
               <option value="">All skills</option>
-              <option value="Frontend">Frontend</option>
-              <option value="Backend">Backend</option>
-              <option value="Design">Design</option>
-              <option value="Product">Product</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Sales">Sales</option>
+              <option value="Frontend Development">Frontend Development</option>
+              <option value="Backend Development">Backend Development</option>
+              <option value="Full Stack Development">Full Stack Development</option>
+              <option value="Mobile Development">Mobile Development</option>
+              <option value="UI/UX Design">UI/UX Design</option>
+              <option value="Product Design">Product Design</option>
+              <option value="Product Management">Product Management</option>
+              <option value="Project Management">Project Management</option>
+              <option value="Digital Marketing">Digital Marketing</option>
+              <option value="Content Marketing">Content Marketing</option>
+              <option value="Sales & Business Development">Sales & Business Development</option>
+              <option value="Customer Success">Customer Success</option>
+              <option value="Data Science">Data Science</option>
+              <option value="DevOps & Infrastructure">DevOps & Infrastructure</option>
+              <option value="Quality Assurance">Quality Assurance</option>
+              <option value="Copywriting">Copywriting</option>
+              <option value="Video Production">Video Production</option>
+              <option value="Graphic Design">Graphic Design</option>
+              <option value="Legal & Compliance">Legal & Compliance</option>
+              <option value="Finance & Accounting">Finance & Accounting</option>
             </select>
           </div>
 

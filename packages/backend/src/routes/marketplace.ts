@@ -18,7 +18,7 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({ success: true, data: ideas });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to list marketplace ideas' });
+    res.status(500).json({ success: false, error: 'Failed to list marketplace ideas' });
   }
 });
 
@@ -26,11 +26,11 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const idea = await Idea.findById(req.params.id).lean();
-    if (!idea || idea.visibility !== 'public') return res.status(404).json({ error: 'Idea not found' });
+    if (!idea || idea.visibility !== 'public') return res.status(404).json({ success: false, error: 'Idea not found' });
     res.json({ success: true, data: idea });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to get idea' });
+    res.status(500).json({ success: false, error: 'Failed to get idea' });
   }
 });
 
