@@ -3,10 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
 
-// Force redeploy - trigger Render autodeploy
-import { Server, Socket } from 'socket.io';
-import jwt from 'jsonwebtoken';
-
 // Extend Socket interface to include userId
 declare global {
   namespace Express {
@@ -16,9 +12,6 @@ declare global {
   }
 }
 
-interface AuthSocket extends Socket {
-  userId?: string;
-}
 import authRoutes from './routes/auth';
 import ideasRoutes from './routes/ideas';
 import collaboratorsRoutes from './routes/collaborators';
@@ -32,6 +25,7 @@ import templateRoutes from './routes/templates';
 import connectDB from './db';
 import { requestLogger } from './middleware/logger';
 import { createRateLimiter } from './middleware/rateLimiter';
+import { initializeSocket } from './services/socketService';
 
 console.log('Starting DreamCraft backend...');
 
@@ -87,38 +81,7 @@ const corsOptions = {
 };
 
 // Initialize Socket.io
-const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true
-  }
-});
-
-// Socket.io authentication middleware
-io.use((socket: any, next) => {
-  const token = socket.handshake.auth.token;
-  if (!token) {
-    return next(new Error('Authentication error'));
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as any;
-    socket.userId = decoded.userId;
-    next();
-  } catch (err) {
-    next(new Error('Authentication failed'));
-  }
-});
-
-// Socket.io connection handling
-io.on('connection', (socket: AuthSocket) => {
-  console.log('User connected:', socket.userId);
-  socket.join(`user:${socket.userId}`);
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.userId);
-  });
-});
+initializeSocket(httpServer, allowedOrigins);
 
 app.use(cors(corsOptions));
 
@@ -159,9 +122,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   }
   res.status(500).json({ error: 'Internal server error' });
 });
-
-// Export io for use in other modules
-export { io };
 
 // Validate required environment variables
 const validateEnvironment = () => {

@@ -4,7 +4,7 @@ import Message from '../models/Message.js';
 import User from '../models/User.js';
 import Idea from '../models/Idea.js';
 import { sendNotification } from '../services/notificationService.js';
-import { io } from '../server.js';
+import { getIO } from '../services/socketService.js';
 
 const router = express.Router();
 
@@ -47,6 +47,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
     await message.populate('fromUserId', 'username profile');
 
+    const io = getIO();
     if (threadType === 'dm') {
       io.to(`user:${toUserId}`).emit('message', {
         id: message._id.toString(),

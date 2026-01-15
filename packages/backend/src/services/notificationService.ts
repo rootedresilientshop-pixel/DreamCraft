@@ -1,5 +1,5 @@
 import Notification from '../models/Notification.js';
-import { io } from '../server.js';
+import { getIO } from './socketService.js';
 
 export interface NotificationPayload {
   userId: string;
@@ -18,7 +18,8 @@ export const sendNotification = async (payload: NotificationPayload) => {
   try {
     const notification = await Notification.create(payload);
 
-    if (io) {
+    try {
+      const io = getIO();
       io.to(`user:${payload.userId}`).emit('notification', {
         id: notification._id.toString(),
         type: notification.type,
@@ -28,6 +29,9 @@ export const sendNotification = async (payload: NotificationPayload) => {
         timestamp: notification.createdAt,
         read: false
       });
+    } catch (ioError) {
+      // Socket.io not initialized yet, notification still saved
+      console.debug('Socket.io not available for notification:', (ioError as Error).message);
     }
 
     return notification;
