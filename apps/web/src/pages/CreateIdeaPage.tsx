@@ -30,10 +30,9 @@ export default function CreateIdeaPage({ onSuccess }: any) {
 
   const loadTemplates = async () => {
     try {
-      const response = await fetch('/api/templates');
-      const data = await response.json();
-      if (data.success) {
-        setTemplates(data.data);
+      const res = await api.getTemplates();
+      if (res.success) {
+        setTemplates(res.data);
       }
     } catch (err) {
       console.error('Failed to load templates:', err);
@@ -121,8 +120,8 @@ export default function CreateIdeaPage({ onSuccess }: any) {
           visibility: 'private',
         });
 
-        // If no validation or after 3 seconds, redirect
-        if (!showValidation) {
+        // Only redirect if validation is not showing (validation modal will handle its own navigation)
+        if (!validation) {
           setTimeout(() => {
             if (onSuccess) {
               onSuccess(createRes.data);
@@ -333,33 +332,39 @@ export default function CreateIdeaPage({ onSuccess }: any) {
             }}>
               <h3 style={{ color: '#ddd', fontSize: '16px', marginTop: 0 }}>💡 AI Suggestions</h3>
 
-              {suggestions.titleSuggestions?.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
-                  <strong style={{ color: '#aaa' }}>Title Ideas:</strong>
-                  <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                    {suggestions.titleSuggestions.map((s: string, i: number) => (
-                      <li key={i} style={{ color: '#ccc', marginBottom: '4px' }}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {!suggestions.suggestions?.length && !suggestions.riskFactors?.length ? (
+                <p style={{ color: '#999', marginTop: '8px' }}>✨ Feature coming soon - AI suggestions will be available in a future update</p>
+              ) : (
+                <>
+                  {suggestions.suggestions?.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong style={{ color: '#aaa' }}>Improvement Ideas:</strong>
+                      <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                        {suggestions.suggestions.map((s: string, i: number) => (
+                          <li key={i} style={{ color: '#ccc', marginBottom: '4px' }}>{s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-              {suggestions.descriptionSuggestions?.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
-                  <strong style={{ color: '#aaa' }}>Add to Description:</strong>
-                  <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                    {suggestions.descriptionSuggestions.map((s: string, i: number) => (
-                      <li key={i} style={{ color: '#ccc', marginBottom: '4px' }}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                  {suggestions.riskFactors?.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong style={{ color: '#aaa' }}>Risk Factors to Address:</strong>
+                      <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                        {suggestions.riskFactors.map((r: string, i: number) => (
+                          <li key={i} style={{ color: '#ffaa99', marginBottom: '4px' }}>{r}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-              {suggestions.categorySuggestion && (
-                <div>
-                  <strong style={{ color: '#aaa' }}>Suggested Category:</strong>
-                  <span style={{ color: '#6a0dad', marginLeft: '8px' }}>{suggestions.categorySuggestion}</span>
-                </div>
+                  {suggestions.preliminaryScore !== undefined && (
+                    <div style={{ backgroundColor: '#2a2a4d', padding: '12px', borderRadius: '4px', textAlign: 'center' }}>
+                      <div style={{ color: '#999', fontSize: '12px', marginBottom: '4px' }}>Preliminary Score</div>
+                      <div style={{ color: '#0099ff', fontSize: '20px', fontWeight: 'bold' }}>{suggestions.preliminaryScore}/100</div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

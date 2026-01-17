@@ -24,6 +24,13 @@ export default function IdeaDetailPage() {
   const [showNDAModal, setShowNDAModal] = useState(false);
   const [collaborationId, setCollaborationId] = useState<string | null>(null);
   const [ndaStatus, setNdaStatus] = useState<any>(null);
+  const [showCollaborationForm, setShowCollaborationForm] = useState(false);
+  const [collaborationTerms, setCollaborationTerms] = useState({
+    timeCommitment: '',
+    equityPercentage: '',
+    successDefinition: '',
+    timelineToMVP: '',
+  });
 
   useEffect(() => {
     fetchIdea();
@@ -89,7 +96,7 @@ export default function IdeaDetailPage() {
     }
   };
 
-  const handleCollaborate = async () => {
+  const handleCollaborate = () => {
     if (!id || !idea || !currentUserId) return;
 
     // If user is the creator, they shouldn't collaborate with themselves
@@ -98,17 +105,29 @@ export default function IdeaDetailPage() {
       return;
     }
 
+    // Show collaboration terms form
+    setShowCollaborationForm(true);
+  };
+
+  const handleSubmitCollaborationTerms = async () => {
+    if (!id || !currentUserId) return;
+
     setProposingCollaboration(true);
     try {
       const res = await api.inviteCollaborator(
         currentUserId,
         id,
         'other',
-        'I\'m interested in collaborating on this idea'
+        'I\'m interested in collaborating on this idea',
+        collaborationTerms.timeCommitment ? parseInt(collaborationTerms.timeCommitment) : undefined,
+        collaborationTerms.equityPercentage ? parseInt(collaborationTerms.equityPercentage) : undefined,
+        collaborationTerms.successDefinition || undefined,
+        collaborationTerms.timelineToMVP || undefined
       );
 
       if (res.success) {
         setCollaborationId(res.data._id);
+        setShowCollaborationForm(false);
         setShowNDAModal(true);
         setNdaStatus({
           ndaAcceptedByCreator: false,
@@ -328,7 +347,7 @@ export default function IdeaDetailPage() {
               <div style={styles.metricCard}>
                 <p style={styles.metricLabel}>AI Score</p>
                 <p style={styles.metricValue}>
-                  {idea.valuation.aiScore ? `${(idea.valuation.aiScore * 100).toFixed(0)}%` : 'N/A'}
+                  {idea.valuation.aiScore ? `${idea.valuation.aiScore.toFixed(0)}%` : 'N/A'}
                 </p>
               </div>
               <div style={styles.metricCard}>
@@ -346,7 +365,7 @@ export default function IdeaDetailPage() {
               <div style={styles.metricCard}>
                 <p style={styles.metricLabel}>Confidence</p>
                 <p style={styles.metricValue}>
-                  {idea.valuation.confidence ? `${(idea.valuation.confidence * 100).toFixed(0)}%` : 'N/A'}
+                  {idea.valuation.confidence ? `${idea.valuation.confidence.toFixed(0)}%` : 'N/A'}
                 </p>
               </div>
             </div>
@@ -545,6 +564,178 @@ export default function IdeaDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Collaboration Terms Form Modal */}
+      {showCollaborationForm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: '#111',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '600px',
+            width: '90%',
+            border: '1px solid #333',
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}>
+            <h2 style={{ color: '#fff', marginTop: 0 }}>📋 Collaboration Terms</h2>
+            <p style={{ color: '#999', marginBottom: '24px' }}>
+              Let's establish clear expectations for this collaboration. Fill in the details that matter most to you.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Time Commitment */}
+              <div>
+                <label style={{ color: '#ddd', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                  Time Commitment (hours/week)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="168"
+                  placeholder="e.g., 20"
+                  value={collaborationTerms.timeCommitment}
+                  onChange={(e) => setCollaborationTerms({ ...collaborationTerms, timeCommitment: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #333',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <p style={{ color: '#666', fontSize: '12px', margin: '4px 0 0 0' }}>Expected hours per week you can dedicate</p>
+              </div>
+
+              {/* Equity Percentage */}
+              <div>
+                <label style={{ color: '#ddd', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                  Equity Percentage (%)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="e.g., 30"
+                  value={collaborationTerms.equityPercentage}
+                  onChange={(e) => setCollaborationTerms({ ...collaborationTerms, equityPercentage: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #333',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <p style={{ color: '#666', fontSize: '12px', margin: '4px 0 0 0' }}>Proposed equity stake for this collaborator</p>
+              </div>
+
+              {/* Success Definition */}
+              <div>
+                <label style={{ color: '#ddd', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                  Success Definition
+                </label>
+                <textarea
+                  placeholder="e.g., Launch MVP with core features, 100 users, first revenue"
+                  value={collaborationTerms.successDefinition}
+                  onChange={(e) => setCollaborationTerms({ ...collaborationTerms, successDefinition: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #333',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontFamily: 'inherit',
+                    minHeight: '80px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <p style={{ color: '#666', fontSize: '12px', margin: '4px 0 0 0' }}>What does MVP success look like?</p>
+              </div>
+
+              {/* Timeline to MVP */}
+              <div>
+                <label style={{ color: '#ddd', fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                  Timeline to MVP
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., 8 weeks, 3 months"
+                  value={collaborationTerms.timelineToMVP}
+                  onChange={(e) => setCollaborationTerms({ ...collaborationTerms, timelineToMVP: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #333',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <p style={{ color: '#666', fontSize: '12px', margin: '4px 0 0 0' }}>Expected timeline to launch MVP</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+              <button
+                onClick={() => setShowCollaborationForm(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: '#333',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitCollaborationTerms}
+                disabled={proposingCollaboration}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: '#00cc66',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: proposingCollaboration ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  opacity: proposingCollaboration ? 0.7 : 1,
+                }}
+              >
+                {proposingCollaboration ? '⏳ Submitting...' : '✓ Propose Collaboration'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* NDA Modal */}
       {showNDAModal && ndaStatus && (

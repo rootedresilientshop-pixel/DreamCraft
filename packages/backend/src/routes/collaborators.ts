@@ -68,7 +68,7 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
 router.post('/invite', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { collaboratorId, ideaId, role, message } = req.body;
+    const { collaboratorId, ideaId, role, message, timeCommitment, equityPercentage, successDefinition, timelineToMVP } = req.body;
 
     // Validate input
     if (!collaboratorId || !ideaId) {
@@ -103,7 +103,7 @@ router.post('/invite', authenticateToken, async (req: Request, res: Response) =>
       });
     }
 
-    // Create collaboration invitation
+    // Create collaboration invitation with terms
     const collaboration = await Collaboration.create({
       ideaId,
       creatorId: idea.creatorId,
@@ -111,6 +111,10 @@ router.post('/invite', authenticateToken, async (req: Request, res: Response) =>
       status: 'pending',
       role: role || 'other',
       message,
+      timeCommitment: timeCommitment || null,
+      equityPercentage: equityPercentage || null,
+      successDefinition,
+      timelineToMVP,
       invitedBy: isCreator ? 'creator' : 'collaborator',
     });
 

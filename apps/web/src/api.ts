@@ -135,12 +135,25 @@ export default {
     return res.data;
   },
   // Collaboration invitations
-  async inviteCollaborator(collaboratorId: string, ideaId: string, role?: string, message?: string) {
+  async inviteCollaborator(
+    collaboratorId: string,
+    ideaId: string,
+    role?: string,
+    message?: string,
+    timeCommitment?: number,
+    equityPercentage?: number,
+    successDefinition?: string,
+    timelineToMVP?: string
+  ) {
     const res = await instance.post("/collaborators/invite", {
       collaboratorId,
       ideaId,
       role,
       message,
+      timeCommitment,
+      equityPercentage,
+      successDefinition,
+      timelineToMVP,
     });
     return res.data;
   },
@@ -229,6 +242,11 @@ export default {
   },
   async getAISuggestions(partialIdea: { title: string; description: string; category: string }) {
     const res = await instance.post("/ideas/ai-suggestions", partialIdea);
+    return res.data;
+  },
+  // Templates
+  async getTemplates() {
+    const res = await instance.get("/templates");
     return res.data;
   },
   // Sample data creation for testing

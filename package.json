@@ -11,10 +11,10 @@
     "start:mobile:clear": "cd apps/mobile && npm run start:clear",
     "start:mobile": "cd apps/mobile && npm start",
     "db:clear": "node clear-db.js",
-    "db:clear-and-samples": "node clear-db.js && node create-samples.js",
     "templates:seed": "node create-templates.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "mongoose": "^9.1.1"
   }
 }

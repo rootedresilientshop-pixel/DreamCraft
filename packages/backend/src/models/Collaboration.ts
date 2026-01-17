@@ -32,6 +32,17 @@ const collaborationSchema = new mongoose.Schema({
     enum: ['creator', 'collaborator'],
     required: true,
   },
+  // Collaboration Terms (guardrails to prevent disputes)
+  timeCommitment: {
+    type: Number, // hours per week
+    description: 'Expected hours per week',
+  },
+  equityPercentage: {
+    type: Number, // 0-100
+    description: 'Agreed equity percentage for collaborator',
+  },
+  successDefinition: String, // What does MVP success look like?
+  timelineToMVP: String, // e.g., "8 weeks", "3 months"
   createdAt: {
     type: Date,
     default: Date.now,
