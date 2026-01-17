@@ -162,16 +162,9 @@ export default function TemplateForm({
 
     template.sections.forEach((section) => {
       const data = sectionData[section.id];
-      const wordCount = data.content.trim().split(/\s+/).filter(w => w.length > 0).length;
 
       if (section.required && !data.content.trim()) {
         newErrors[section.id] = `${section.title} is required`;
-        isValid = false;
-      } else if (
-        section.wordCountTarget &&
-        wordCount < section.wordCountTarget * 0.5
-      ) {
-        newErrors[section.id] = `${section.title} should be ~${section.wordCountTarget} words (you have ${wordCount})`;
         isValid = false;
       } else {
         newErrors[section.id] = null;

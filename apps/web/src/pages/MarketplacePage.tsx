@@ -51,6 +51,20 @@ export default function MarketplacePage() {
 
   return (
     <div style={{ padding: '20px', color: '#fff' }}>
+      <button
+        onClick={() => navigate('/dashboard')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#0099ff',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: '600',
+          marginBottom: '16px',
+        }}
+      >
+        ← Back to Dashboard
+      </button>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '10px', flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ margin: 0 }}>Marketplace</h1>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function CollaboratorsPage() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSkill, setSearchSkill] = useState('');
   const [results, setResults] = useState<any[]>([]);
@@ -46,6 +48,20 @@ export default function CollaboratorsPage() {
 
   return (
     <div style={styles.container}>
+      <button
+        onClick={() => navigate('/dashboard')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#0099ff',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: '600',
+          marginBottom: '20px',
+        }}
+      >
+        ← Back to Dashboard
+      </button>
       <div style={styles.header}>
         <h1 style={styles.title}>Find Collaborators</h1>
         <p style={styles.subtitle}>Search for talented collaborators to join your ideas</p>

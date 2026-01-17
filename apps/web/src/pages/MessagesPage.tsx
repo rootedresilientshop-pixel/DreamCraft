@@ -128,6 +128,22 @@ export default function MessagesPage() {
       <div style={styles.mainContent}>
         {/* Conversations Sidebar */}
         <div style={styles.sidebar}>
+          <button
+            onClick={() => navigate('/dashboard')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#0099ff',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              width: '100%',
+              textAlign: 'left',
+            }}
+          >
+            ← Back to Dashboard
+          </button>
           <h2 style={styles.sidebarTitle}>💬 Messages</h2>
           <div style={styles.conversationsList}>
             {conversations.length === 0 ? (

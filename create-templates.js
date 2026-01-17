@@ -66,7 +66,6 @@ const templates = [
         placeholder: 'Describe the specific problem your target users face...',
         hints: ['Be specific', 'Focus on frequency of problem', 'Quantify if possible'],
         required: true,
-        wordCountTarget: 150,
       },
       {
         id: 'solution',
@@ -75,7 +74,6 @@ const templates = [
         placeholder: 'Explain how your product solves the problem uniquely...',
         hints: ['Highlight differentiators', 'Mention key features', 'Explain the workflow'],
         required: true,
-        wordCountTarget: 200,
       },
       {
         id: 'target_market',
@@ -84,7 +82,6 @@ const templates = [
         placeholder: 'Describe your target user profile, company size, industry...',
         hints: ['Be specific about company type', 'Define user roles', 'Estimate TAM'],
         required: true,
-        wordCountTarget: 150,
       },
       {
         id: 'business_model',
@@ -93,7 +90,6 @@ const templates = [
         placeholder: 'Subscription price, pricing tiers, or revenue model...',
         hints: ['Monthly or annual pricing', 'Freemium strategy', 'Upsell opportunities'],
         required: true,
-        wordCountTarget: 100,
       },
       {
         id: 'competition',
@@ -102,7 +98,6 @@ const templates = [
         placeholder: 'List competitors and explain your competitive advantage...',
         hints: ['Name direct competitors', 'List indirect alternatives', 'Your differentiation'],
         required: false,
-        wordCountTarget: 150,
       },
     ],
   },
@@ -120,7 +115,6 @@ const templates = [
         placeholder: 'Describe the main action users take in your app...',
         hints: ['Be specific', 'Think about daily/weekly usage', 'Define user journey'],
         required: true,
-        wordCountTarget: 150,
       },
       {
         id: 'unique_features',
@@ -129,7 +123,6 @@ const templates = [
         placeholder: 'List 3-5 differentiating features...',
         hints: ['Focus on user experience', 'Mention tech innovations', 'Social/community aspects'],
         required: true,
-        wordCountTarget: 150,
       },
       {
         id: 'monetization',
@@ -138,7 +131,6 @@ const templates = [
         placeholder: 'Free with ads, premium tier, in-app purchases...',
         hints: ['Free or paid', 'Ad strategy', 'IAP or subscriptions'],
         required: false,
-        wordCountTarget: 100,
       },
       {
         id: 'target_demographics',
@@ -147,7 +139,6 @@ const templates = [
         placeholder: 'Age range, interests, tech-savviness...',
         hints: ['Define age range', 'Lifestyle/interests', 'Pain points they have'],
         required: true,
-        wordCountTarget: 150,
       },
     ],
   },
@@ -165,7 +156,6 @@ const templates = [
         placeholder: 'Describe the clinical problem and patient population...',
         hints: ['Include prevalence/statistics', 'Define patient journey', 'Current limitations'],
         required: true,
-        wordCountTarget: 150,
       },
       {
         id: 'clinical_approach',
@@ -174,7 +164,6 @@ const templates = [
         placeholder: 'Explain the clinical mechanism or treatment approach...',
         hints: ['Evidence-based', 'Mention studies/trials', 'Safety considerations'],
         required: true,
-        wordCountTarget: 200,
       },
       {
         id: 'regulatory_path',
@@ -183,7 +172,6 @@ const templates = [
         placeholder: 'FDA approval strategy, insurance coverage, certifications...',
         hints: ['Identify regulatory class', 'Timeline estimate', 'Key compliance steps'],
         required: false,
-        wordCountTarget: 150,
       },
       {
         id: 'market_opportunity',
@@ -192,7 +180,6 @@ const templates = [
         placeholder: 'Patient population size, market growth rate, pricing...',
         hints: ['Patient numbers', 'Market size in dollars', 'Growth projections'],
         required: true,
-        wordCountTarget: 150,
       },
     ],
   },

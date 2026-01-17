@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -104,6 +106,20 @@ export default function ProfilePage() {
 
   return (
     <div style={styles.container}>
+      <button
+        onClick={() => navigate('/dashboard')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#0099ff',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: '600',
+          marginBottom: '20px',
+        }}
+      >
+        ← Back to Dashboard
+      </button>
       <div style={styles.card}>
         {/* Header */}
         <div style={styles.header}>

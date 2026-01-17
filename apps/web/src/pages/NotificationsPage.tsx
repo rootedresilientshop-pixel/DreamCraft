@@ -60,7 +60,7 @@ export default function NotificationsPage() {
     <div style={styles.container}>
       <div style={styles.header}>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/dashboard')}
           style={{
             background: 'none',
             border: 'none',
@@ -70,7 +70,7 @@ export default function NotificationsPage() {
             marginBottom: '20px',
           }}
         >
-          ← Back to Marketplace
+          ← Back to Dashboard
         </button>
       </div>
 
