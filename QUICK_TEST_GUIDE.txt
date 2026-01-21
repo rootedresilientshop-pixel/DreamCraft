@@ -1,0 +1,119 @@
+╔════════════════════════════════════════════════════════════════════╗
+║         VentureLab Phase 1 & 2 - Quick Testing Guide              ║
+║                    Commit: d41592d                                 ║
+╚════════════════════════════════════════════════════════════════════╝
+
+🎯 START HERE: Testing the Fixes & New Features
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PHASE 1: USER FEEDBACK BUGFIXES (6 issues)
+
+  1. VALUATION PERCENTAGES (6500% → 65%)
+     ✓ Open an idea with AI valuation
+     ✓ Check if percentages show correctly (should be 65%, not 6500%)
+     ✓ Files: IdeaDetailPage.tsx lines 331, 349
+
+  2. AUTO-REDIRECT BUG
+     ✓ Create a new idea
+     ✓ Click validation button → modal appears
+     ✓ Modal should STAY VISIBLE (not auto-redirect)
+     ✓ File: CreateIdeaPage.tsx
+
+  3. AI SUGGESTIONS EMPTY
+     ✓ During idea creation, click "Get AI Suggestions"
+     ✓ Should show suggestions or "Coming Soon" message
+     ✓ Should NOT show empty blank space
+     ✓ File: CreateIdeaPage.tsx
+
+  4. TEMPLATES NOT LOADING
+     ✓ Create new idea → templates should appear
+     ✓ Click a template → should open template form
+     ✓ File: CreateIdeaPage.tsx + api.ts
+
+  5. SAMPLE DATA SCRIPT REMOVED
+     ✓ Try running: npm run db:clear-and-samples
+     ✓ Should FAIL (script doesn't exist)
+     ✓ File: package.json (removed)
+
+  6. "COMING SOON" LABELS
+     ✓ If AI suggestions are empty, should show a message
+     ✓ File: CreateIdeaPage.tsx
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PHASE 2: COLLABORATION GUARDRAILS (NEW FEATURE)
+
+  7. COLLABORATION TERMS FORM
+     ✓ Find an idea you didn't create
+     ✓ Click "Collaborate" button
+     ✓ A modal should appear with 4 fields:
+       - Time Commitment (hours/week)
+       - Equity Percentage (0-100%)
+       - Success Definition
+       - Timeline to MVP
+     ✓ Fill in some fields (or leave blank - all optional)
+     ✓ Click "Propose Collaboration"
+     ✓ NDA modal should appear next
+     ✓ Files: IdeaDetailPage.tsx, api.ts, collaborators.ts
+
+  8. DATABASE VERIFICATION
+     ✓ After proposing collaboration, check MongoDB:
+       db.collaborations.findOne({})
+     ✓ New fields should be present (if you filled them):
+       {
+         timeCommitment: 20,
+         equityPercentage: 30,
+         successDefinition: "...",
+         timelineToMVP: "8 weeks"
+       }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EDGE CASES TO TEST:
+
+  □ Leave all terms blank → should work fine
+  □ Fill only equity → should save with others as null
+  □ Enter 0 hours → should work
+  □ Enter 100% equity → should work
+  □ Enter 101% equity → browser validation prevents submit
+  □ Enter 169 hours → browser validation prevents submit
+  □ Cancel form → should return to idea page
+  □ Decline NDA → should cancel collaboration
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LOGS TO CHECK:
+
+  Browser Console (F12):
+    □ No red errors
+    □ No network failures
+    □ No TypeScript errors
+
+  Backend Logs:
+    □ No 500 errors
+    □ No database connection issues
+    □ Collaboration endpoint accepting new fields
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FILES CHANGED:
+  Backend: 2 files
+    • packages/backend/src/models/Collaboration.ts
+    • packages/backend/src/routes/collaborators.ts
+
+  Frontend: 3 files
+    • apps/web/src/api.ts
+    • apps/web/src/pages/CreateIdeaPage.tsx
+    • apps/web/src/pages/IdeaDetailPage.tsx
+
+  Config: 1 file
+    • package.json
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BUILD STATUS: ✅ Both frontend & backend compile successfully
+
+READY TO TEST? Start with Phase 1 issue #1, work through all 8 tests.
+
+Questions? Check DEPLOYMENT_READY.md for full documentation.

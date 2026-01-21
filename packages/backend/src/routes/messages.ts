@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
-import { authenticateToken } from '../middleware/auth.js';
-import Message from '../models/Message.js';
-import User from '../models/User.js';
-import Idea from '../models/Idea.js';
-import { sendNotification } from '../services/notificationService.js';
-import { getIO } from '../services/socketService.js';
+import { authenticateToken } from '../middleware/auth';
+import Message from '../models/Message';
+import User from '../models/User';
+import Idea from '../models/Idea';
+import { sendNotification } from '../services/notificationService';
+import { getIO } from '../services/socketService';
 
 const router = express.Router();
 

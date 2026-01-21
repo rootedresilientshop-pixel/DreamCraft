@@ -6,12 +6,12 @@
     "node": ">=20.19.4"
   },
   "scripts": {
-    "dev": "nodemon --exec node --loader ts-node/esm src/server.ts",
+    "dev": "nodemon --exec node -r ts-node/register src/server.ts",
     "start": "node dist/server.js",
-    "start:ts": "node --loader ts-node/esm src/server.ts",
+    "start:ts": "node -r ts-node/register src/server.ts",
     "build": "tsc",
-    "migrate:onboarding": "node --loader ts-node/esm src/migrations/add-onboarding-fields.ts",
-    "clear:db": "node --loader ts-node/esm src/migrations/clear-all-data.ts"
+    "migrate:onboarding": "node -r ts-node/register src/migrations/add-onboarding-fields.ts",
+    "clear:db": "node -r ts-node/register src/migrations/clear-all-data.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

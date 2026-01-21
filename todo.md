@@ -1,197 +1,129 @@
-# Phase 3 Implementation & Testing Plan
+# VentureLab Feedback Fixes - Implementation Plan
 
-## Current Goal
-Implement dynamic template-guided forms (Phase 3), comprehensive testing, and production readiness (Phase 4 prep).
+## Goal
+Fix 7 user-reported issues across the VentureLab codebase using minimal, targeted changes.
 
-**Status**: Phase 2 Complete, Phase 3 Ready to Build
-**Branch**: main
-**Latest Commit**: e4258f8 (Build resume findings)
+## Issues to Fix
 
----
+### Issue 1: Valuation Percentages (6500% → 65%)
+**Problem**: Double multiplication of scores in frontend
+**Root Cause**: Backend returns 0-100, frontend multiplies by 100 again
+**Files**: apps/web/src/pages/IdeaDetailPage.tsx:331, 349
+**Fix**: Remove the × 100 multiplication in frontend
 
-## Phase 3 Implementation Plan
+- [ ] Fix percentage display in IdeaDetailPage.tsx
 
-### Step 1: Create FormSection Component ✅ COMPLETE
-- [x] Create `apps/web/src/components/FormSection.tsx`
-- [x] Render section title with required indicator
-- [x] Display description and hints
-- [x] Create input/textarea with word counter
-- [x] Add "Get Suggestion" button
-- [x] Show AI suggestions inline
+### Issue 2: Valuation Visibility (Auto-redirect bug)
+**Problem**: Modal redirects too quickly, user can't read results
+**Root Cause**: Race condition with setTimeout not awaiting state update
+**Files**: apps/web/src/pages/CreateIdeaPage.tsx:124-133
+**Fix**: Remove setTimeout or increase delay to let validation results display
 
-### Step 2: Create TemplateForm Component ✅ COMPLETE
-- [x] Create `apps/web/src/components/TemplateForm.tsx`
-- [x] Loop through template sections
-- [x] Render FormSection for each
-- [x] Manage state for all sections
-- [x] Handle validation per section
-- [x] Show validation progress
-- [x] Handle form submission
+- [ ] Fix redirect timing in CreateIdeaPage.tsx
 
-### Step 3: Update CreateIdeaPage ✅ COMPLETE
-- [x] Replace template selection/form logic with TemplateForm component
-- [x] Keep template selector UI
-- [x] Integrate validation modal
-- [x] Clean up existing code
+### Issue 3: Suggestions Not Appearing
+**Problem**: AI suggestions are returned but not displayed
+**Root Cause**: Data format mismatch between backend and frontend
+**Files**: packages/backend/src/routes/ideas.ts:282-285, apps/web/src/pages/IdeaDetailPage.tsx (suggestions rendering)
+**Fix**: Standardize data format or adjust frontend parsing
 
-### Step 4: API Integration ✅ COMPLETE
-- [x] Verify `/api/ideas/suggestions` endpoint works
-- [x] Test suggestion caching logic
-- [x] Handle AI API errors gracefully
+- [ ] Fix suggestions data format issue
 
-### Step 5: Styling & UX ✅ COMPLETE
-- [x] Consistent with existing design (dark theme)
-- [x] Responsive layout for sections
-- [x] Visual feedback for validation states
-- [x] Loading states for AI suggestions
+### Issue 4: Templates Missing from Create Idea
+**Problem**: Templates don't load in idea creation form
+**Root Cause**: Wrong API call using relative path instead of API client
+**Files**: apps/web/src/pages/CreateIdeaPage.tsx:33
+**Fix**: Replace fetch('/api/templates') with proper API client call
 
----
+- [ ] Fix templates API call in CreateIdeaPage.tsx
 
-## Testing Plan (Post-Implementation)
+### Issue 5: Collaboration Terms (NEW FEATURE - Phase 2)
+**Problem**: Collaborators agree without clarity on roles, time, equity, timeline
+**Approach**: Add required guardrail fields when collaboration starts (not payments yet)
+**Fields to add**: Role, Time Commitment (hrs/week), Equity Split %, Success Definition, Timeline to MVP
+**Files**: packages/backend/src/models/Collaboration.ts, apps/web/src/components/CollaborationForm.tsx
+**Note**: Future legal docs will consume this data structure
 
-### Unit Testing (Each Component)
-- [ ] FormSection renders correctly
-- [ ] Word counter updates accurately
-- [ ] Validation logic works per section
-- [ ] AI suggestion button works
-- [ ] TemplateForm collects data correctly
+- [ ] Add collaboration terms to backend schema
+- [ ] Update frontend form to include new fields
+- [ ] Update validation and API handling
 
-### Integration Testing
-- [ ] Template selection → Form generation flow
-- [ ] Multiple templates work correctly
-- [ ] Form submission with all sections
-- [ ] Validation errors display properly
-- [ ] AI suggestions integrate cleanly
+### Issue 6: Sample Ideas Feature Cleanup (BUGFIX)
+**Problem**: Sample data generation script exists but users should create ideas, not use pre-seeded samples
+**Root Cause**: db:clear-and-samples script left over - misconstrued feature
+**Files**: package.json (root)
+**Fix**: Remove db:clear-and-samples script entirely
 
-### User Role Testing
+- [ ] Remove sample data script from root package.json
 
-#### Creator Role Tests
-- [ ] Can select template when creating idea
-- [ ] Form guides through all required sections
-- [ ] Word counters help gauge completeness
-- [ ] AI suggestions improve content quality
-- [ ] Can submit idea with template structure
-- [ ] Idea is created with all section data
+### Issue 7: AI Feature Labels (BUGFIX)
+**Problem**: Broken AI suggestions show empty response - looks like bug instead of "coming soon"
+**Root Cause**: Missing "Feature Coming Soon" labels on incomplete AI features
+**Files**: apps/web/src/pages/IdeaDetailPage.tsx
+**Fix**: Add "Feature Coming Soon" message to suggestion blocks that return empty
 
-#### Collaborator Role Tests
-- [ ] Can view ideas created with templates
-- [ ] See all sections in idea details
-- [ ] Understanding of idea is improved by structure
-- [ ] Can evaluate fit for collaboration
+- [ ] Add "Feature Coming Soon" labels to broken AI features
 
-### End-to-End Testing Scenarios
-
-#### Scenario 1: Creator uses SaaS Product template
-- [ ] Creator registers and goes to Create Idea
-- [ ] Sees template grid with 4 templates
-- [ ] Clicks "SaaS Product" template
-- [ ] Modal shows 5 sections with descriptions
-- [ ] Clicks "Use This Template"
-- [ ] Form generates 5 fields (Problem, Solution, Target, Model, Competition)
-- [ ] Each field has description, hints, word target
-- [ ] Creator fills first 3 required sections (Problem, Solution, Target)
-- [ ] Creator gets stuck on Business Model
-- [ ] Clicks "Get Suggestion" for Business Model
-- [ ] AI suggestion appears: "We plan to charge per user monthly at..."
-- [ ] Creator clicks "Use This"
-- [ ] Suggestion inserts into field
-- [ ] Creator submits form
-- [ ] Idea created successfully with all sections
-
-#### Scenario 2: Collaborator views templated idea
-- [ ] Collaborator browses marketplace
-- [ ] Sees idea created with SaaS Product template
-- [ ] Title immediately makes sense
-- [ ] Can see structured description with all sections
-- [ ] Understands problem, solution, market, model clearly
-- [ ] Can evaluate if it's a good fit for their skills
-- [ ] Clicks "Propose Collaboration"
-
-### Testing Success Criteria
-- ✅ All 4 templates work with dynamic form generation
-- ✅ Word counters never go negative or show wrong count
-- ✅ Required fields block submission when empty
-- ✅ AI suggestions load within 3 seconds
-- ✅ Form validates all sections before submission
-- ✅ Ideas created with templates show full structure
-- ✅ Both Creator and Collaborator roles benefit from templates
-- ✅ Mobile can view (Phase 3 prep for Phase 4)
+## Execution Order
+1. **Phase 1 - Fixes** (Issues #1-4, #6-7): Critical bugs and cleanups ✅ COMPLETE
+   - ✅ Issue #1: Fixed percentage display (removed × 100 multiplication)
+   - ✅ Issue #2: Fixed auto-redirect race condition (check validation instead of showValidation)
+   - ✅ Issue #3: Fixed suggestions data format (adapted frontend to backend format)
+   - ✅ Issue #4: Fixed templates API call (use api.getTemplates() instead of fetch)
+   - ✅ Issue #6: Removed db:clear-and-samples script from package.json
+   - ✅ Issue #7: Added "Feature Coming Soon" fallback for empty AI suggestions
+2. **Phase 2 - New Feature** (Issue #5): Collaboration terms guardrails ✅ COMPLETE
+   - ✅ Added collaboration terms fields to Collaboration schema (timeCommitment, equityPercentage, successDefinition, timelineToMVP)
+   - ✅ Updated backend /collaborators/invite endpoint to accept and store terms
+   - ✅ Created collaboration terms form modal in IdeaDetailPage
+   - ✅ Updated frontend API client to pass new fields
 
 ---
 
-## Production Readiness Checklist (Phase 4 Prep)
-
-### Code Quality
-- [ ] No console.log/error in production code
-- [ ] All error handling uses standard format
-- [ ] TypeScript compiles without errors
-- [ ] Components are reusable
-- [ ] No hardcoded values (use env vars)
-
-### Performance
-- [ ] API calls don't block form submission
-- [ ] Word counter doesn't lag on large text
-- [ ] AI suggestions cached to avoid duplicate calls
-- [ ] Form loads templates within 1 second
-- [ ] Component renders efficiently
-
-### Security
-- [ ] No XSS vulnerabilities in user input
-- [ ] JWT tokens properly validated
-- [ ] CORS configured correctly for domains
-- [ ] Environment secrets not exposed
-- [ ] Input sanitization in place
-
-### Database
-- [ ] Templates seeded with default data
-- [ ] Indexes optimized for queries
-- [ ] No N+1 query problems
-- [ ] MongoDB connection pooling configured
-
-### Documentation
-- [ ] Phase 3 changes documented
-- [ ] Component props documented
-- [ ] API integration explained
-- [ ] Testing procedures updated
-- [ ] Deployment steps clear
-
-### Deployment Targets
-- [ ] Backend: Render.io configuration
-- [ ] Web: Vercel configuration
-- [ ] Mobile: EAS build configuration
-- [ ] Environment variables documented
-
----
-
-## Assumptions
-
-1. FormSection and TemplateForm components will be extracted to separate files for reusability
-2. No backend API changes needed - existing endpoints sufficient
-3. Word counting uses simple split(/\s+/) logic (acceptable approximation)
-4. AI suggestions use existing `/api/ideas/suggestions` endpoint
-5. Mobile app will use same components in Phase 4
-6. Testing will be done with 4 default templates
-7. Production deployment happens after Phase 3 testing passes
-
----
-
-## Review Section
+## Review
 
 ### Summary of Changes
-*To be filled in after Phase 3 implementation*
+**Phase 1 & 2 Complete** - All user feedback issues fixed + collaboration guardrails implemented
 
-### Files Created/Modified
-*To be filled in after implementation*
+#### Phase 1 (Bugfixes)
+- Fixed double-multiplication bug causing 6500% percentages → now displays 65% correctly
+- Fixed race condition in idea creation causing auto-redirect before validation results visible
+- Fixed AI suggestions data format mismatch (backend returns different structure than frontend expected)
+- Fixed templates API call using fetch instead of proper API client
+- Removed sample ideas generation script (db:clear-and-samples)
+- Added "Feature Coming Soon" labels to empty AI suggestion blocks
 
-### Testing Results
-*To be filled in after test execution*
+#### Phase 2 (New Feature - Collaboration Guardrails)
+- Added 4 new collaboration terms fields to database schema:
+  - **timeCommitment**: Hours per week expected from collaborator
+  - **equityPercentage**: Equity percentage being offered
+  - **successDefinition**: What MVP success looks like (free-form text)
+  - **timelineToMVP**: Expected timeline (e.g., "8 weeks", "3 months")
+- Created modal form that appears when user clicks "Collaborate"
+  - All fields optional (not forcing users to fill everything)
+  - Form validates input (hours 0-168, equity 0-100)
+  - Fields are saved to database when collaboration is proposed
+- Flow now: Click "Collaborate" → Fill terms (optional) → Accept NDA → Collaboration starts
+- Future legal documents can reference these agreed terms as foundation
 
-### Production Readiness Assessment
-*To be filled in after final testing*
+### Files Affected
+**Backend:**
+- `packages/backend/src/models/Collaboration.ts` - Added 4 new fields to schema
+- `packages/backend/src/routes/collaborators.ts` - Updated /invite endpoint to accept new fields
 
----
+**Frontend:**
+- `apps/web/src/pages/IdeaDetailPage.tsx` - Added collaboration terms form modal, updated handlers
+- `apps/web/src/api.ts` - Added getTemplates() method, updated inviteCollaborator() signature
+- `apps/web/src/pages/CreateIdeaPage.tsx` - Fixed templates loading, fixed suggestions rendering, added feature labels
+- `package.json` (root) - Removed db:clear-and-samples script
 
-**Plan Created**: January 14, 2026
-**Ready to Begin**: ✅ YES
-**Estimated Duration**: 4-6 hours (implementation + testing)
-**Next Action**: Begin Step 1 - Create FormSection Component
+### Follow-ups Needed
+1. **Database Migration**: Existing Collaboration documents won't have new fields (optional, not required)
+2. **Display Terms in Collaboration View**: Add a section showing agreed terms when viewing collaboration details
+3. **Terms Amendment**: Add ability for both parties to view/renegotiate terms after initial agreement
+4. **Legal Doc Integration**: When implementing actual legal documents, consume these stored terms as data
+
+### Concerns
+- **Optional Fields**: Terms are optional right now (good for MVP). If you want to make certain fields required later, just add validation in backend route.
+- **Display**: Currently terms are only stored, not displayed back to users. Should add a section showing agreed terms in collaboration details page.
+- **No Amendment Flow**: Once agreed, terms can't be changed via UI (only via database). Future feature could add renegotiation flow.

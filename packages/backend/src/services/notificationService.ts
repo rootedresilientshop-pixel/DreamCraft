@@ -1,5 +1,5 @@
-import Notification from '../models/Notification.js';
-import { getIO } from './socketService.js';
+import Notification from '../models/Notification';
+import { getIO } from './socketService';
 
 export interface NotificationPayload {
   userId: string;

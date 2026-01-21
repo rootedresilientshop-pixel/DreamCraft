@@ -1,0 +1,279 @@
+================================================================================
+                    VENTURELAB BETA LAUNCH FLOW
+================================================================================
+
+YOUR QUICK REFERENCE FOR THE NEXT 2 WEEKS
+
+================================================================================
+                              THIS WEEK
+================================================================================
+
+TOMORROW (FRIDAY):
+─────────────────────────────────────────────────────────────────────────────
+TASK:       Set up WordPress.com hub
+TIME:       2 hours
+COST:       $0
+FILE:       TOMORROW_WORDPRESS_CHECKLIST.md
+RESULT:     yourname.wordpress.com live with 4 project links
+
+   WordPress Hub
+   ├─ Home (with project cards)
+   ├─ Projects (main page)
+   ├─ DreamCraft Legacies (subpage)
+   ├─ DreamCraft Marketplace (subpage)
+   ├─ Mabel Books (subpage)
+   └─ Midlife Gamer Blog (subpage)
+
+   Ready by Friday evening ✓
+
+
+================================================================================
+                            NEXT WEEK
+================================================================================
+
+MONDAY-TUESDAY:
+─────────────────────────────────────────────────────────────────────────────
+TASK:       Run 8-test suite on VentureLab platform
+TIME:       1-2 hours
+FILE:       TESTING_READY.md
+RESULT:     Confirm all features work ✓ or document fixes needed
+
+   Test 1: Valuation percentages (65%, not 6500%)
+   Test 2: Validation modal stays visible
+   Test 3: AI suggestions display
+   Test 4: Templates load
+   Test 5: Sample script removed
+   Test 6: Coming Soon labels
+   Test 7: Collaboration terms form
+   Test 8: Database saves correctly
+
+   Expected: All pass ✓
+
+
+WEDNESDAY:
+─────────────────────────────────────────────────────────────────────────────
+TASK:       Deploy VentureLab platform to free tier
+TIME:       1-2 hours per component
+COST:       $0 (free tier)
+COMPONENTS:
+
+   1. MongoDB Atlas
+      └─ Create free cluster
+      └─ Get connection string
+
+   2. Backend (Node/Express)
+      └─ Push to GitHub
+      └─ Deploy to Railway/Render
+      └─ Get API URL
+
+   3. Frontend (React)
+      └─ Already on GitHub
+      └─ Deploy to Vercel
+      └─ Connect to backend API
+      └─ Get frontend URL
+
+   Result: VentureLab live at something-random.vercel.app
+
+
+THURSDAY:
+─────────────────────────────────────────────────────────────────────────────
+TASK:       Update WordPress with platform link
+TIME:       30 mins
+ACTION:     Edit "DreamCraft Marketplace" page
+CHANGE:     "Join Beta" button → points to deployed platform
+RESULT:     WordPress hub → links to VentureLab platform ✓
+
+
+FRIDAY:
+─────────────────────────────────────────────────────────────────────────────
+TASK:       Create Discord (when ready)
+TIME:       30 mins
+COST:       $0
+RESULT:     discord.gg/yourserver live
+
+   Optional - can delay if needed
+   Just need it before inviting beta testers
+
+
+================================================================================
+                         THE FULL ARCHITECTURE
+================================================================================
+
+┌──────────────────────────────────────┐
+│  WordPress Hub                       │
+│  yourname.wordpress.com              │
+│                                      │
+│  Home | Projects | Blog | Join Us    │
+│                                      │
+│  4 Project Cards:                    │
+│  • DreamCraft Legacies               │
+│  • DreamCraft Marketplace [→ Beta]   │ ←─┐
+│  • Mabel Books                       │   │
+│  • Midlife Gamer Blog                │   │
+└──────────────────────────────────────┘   │
+                                           │
+                    ┌──────────────────────┘
+                    ↓
+┌──────────────────────────────────────┐
+│  VentureLab Platform (Beta)          │
+│  something-random.vercel.app         │
+│                                      │
+│  Users:                              │
+│  • Sign up                           │
+│  • Create ideas                      │
+│  • Collaborate                       │
+│  • Propose partnerships              │
+└──────────────────────────────────────┘
+          ↑
+          │
+    ┌─────────────┐
+    │   Discord   │
+    │   (When     │
+    │    Ready)   │
+    └─────────────┘
+    • Announce link
+    • Invite testers
+    • Daily chat
+
+
+================================================================================
+                          DOMAINS (YOUR PLAN)
+================================================================================
+
+OPTION A: Use Free WordPress.com Subdomain (Recommended for Beta)
+─────────────────────────────────────────────────────────────────────────────
+   WordPress:  yourname.wordpress.com         (FREE)
+   Platform:   something-random.vercel.app    (FREE)
+
+   Pros:  Simple setup, $0 cost
+   Cons:  Looks less professional, but fine for beta
+   When:  NOW (week 1-2)
+
+
+OPTION B: Use Your Shopify Domain (Can Do This Now or Later)
+─────────────────────────────────────────────────────────────────────────────
+   WordPress:  yourdomain.com/blog            (Redirect)
+   Platform:   yourdomain.com/app             (Redirect)
+
+   Pros:  Professional domain, unified branding
+   Cons:  Need DNS setup, slightly more work
+   When:  Later (after beta proves concept)
+
+
+RECOMMENDATION: Use Option A for beta, migrate to Option B later
+                Once you know it works, point Shopify domain
+
+
+================================================================================
+                           COST BREAKDOWN
+================================================================================
+
+WordPress Hub:              $0  (Free WordPress.com)
+VentureLab Platform:        $0  (Vercel free tier)
+Backend:                    $0  (Railway/Render free tier)
+Database:                   $0  (MongoDB Atlas M0 always free)
+Discord:                    $0  (Free server)
+Subreddit:                  $0  (Free Reddit)
+Gumroad (Mabel Books):      $0  (Free, 10% per sale)
+Domain (later):             ~$12/year (Shopify or Namecheap)
+
+BETA LAUNCH TOTAL:          $0
+
+================================================================================
+                         WHAT HAPPENS AFTER BETA
+================================================================================
+
+WEEK 3+:
+└─ Gather feedback from beta testers
+└─ Fix any issues
+└─ Prepare for public launch
+└─ Start writing homepage story (later task)
+└─ Migrate to custom domain if needed
+└─ Scale infrastructure as needed
+
+================================================================================
+                        YOUR NEXT ACTION (TODAY)
+================================================================================
+
+1. Read EXECUTION_PLAN_BETA.md (this document for details)
+2. Read TOMORROW_WORDPRESS_CHECKLIST.md (for tomorrow's work)
+3. Tomorrow: Follow checklist, get WordPress hub live
+4. Next week: Test + deploy platform
+5. Then: Invite beta testers, gather feedback
+
+================================================================================
+                         FILES YOU'LL NEED
+================================================================================
+
+IMMEDIATE:
+└─ TOMORROW_WORDPRESS_CHECKLIST.md       ← Use tomorrow
+└─ EXECUTION_PLAN_BETA.md                 ← Full details
+
+NEXT WEEK:
+└─ TESTING_READY.md                       ← Test the platform
+└─ BETA_READINESS_CHECKLIST.md            ← Reference guide
+
+REFERENCE:
+└─ ARCHITECTURE_AND_STRATEGY.md           ← Long-term vision
+└─ BETA_PATH_FORWARD.txt                  ← Timeline
+
+================================================================================
+                           TIMELINE VISUAL
+================================================================================
+
+TODAY (Thurs):     Read this, prepare ───────────────┐
+                                                     │
+TOMORROW (Fri):    WordPress setup [2 hrs] ──────────┼──► WordPress live
+                                                     │
+MON-TUE:           Test platform [1-2 hrs] ─────────┤
+                                                     │
+WED:               Deploy to free tier [2 hrs] ─────┼──► Platform live
+                                                     │
+THU:               Update WordPress links [30 min] ──┤
+                                                     │
+FRI:               Create Discord [30 min] ─────────┴──► Full beta setup
+
+================================================================================
+                          SUCCESS CRITERIA
+================================================================================
+
+By END OF WEEK 1 (Friday):
+✓ WordPress hub live at yourname.wordpress.com
+✓ 4 projects visible with links
+✓ Mobile friendly
+✓ Can navigate all pages
+
+By END OF WEEK 2 (Wednesday):
+✓ All 8 tests pass
+✓ VentureLab platform deployed to vercel.app
+✓ Backend API running
+✓ Database connected
+✓ Frontend can connect to backend
+
+By END OF WEEK 2 (Thursday):
+✓ WordPress links to VentureLab platform
+✓ Discord created (optional, can delay)
+✓ Ready to invite first beta testers
+
+================================================================================
+                            NOTES
+================================================================================
+
+• This is the MINIMUM viable setup for beta
+• You can make it fancier later
+• Story/narrative happens AFTER beta confirms concept works
+• Each component is independent (if one breaks, others still work)
+• You spend $0 on this phase
+• Migration to custom domain is easy (just DNS changes)
+
+================================================================================
+                        READY TO START?
+================================================================================
+
+Tomorrow: WordPress.com setup (2 hours)
+Next week: Test + deploy platform
+Then: Beta testers, feedback, iterate
+
+You got this. 🚀
+
+================================================================================
