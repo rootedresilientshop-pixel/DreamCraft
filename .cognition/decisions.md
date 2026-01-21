@@ -1,6 +1,75 @@
 # Architectural Decisions - VentureLab
 
-**Last Updated**: 2026-01-12 | **Phase**: 2 - Templates Implementation | **Completion**: 92%
+**Last Updated**: 2026-01-21 | **Phase**: 3 - Closed Beta + Real-time | **Completion**: 100%
+
+---
+
+## Decision: Closed Beta Access Control via Invite Codes
+
+- **Chosen**: Invite code system with manual code generation and usage tracking
+- **Rejected**:
+  - Email whitelist (less flexible, harder to revoke access)
+  - Open registration with beta flag (no access control)
+  - Referral codes (requires existing users)
+- **Rationale**:
+  - Admin creates codes with configurable uses and expiration
+  - Easy to share specific codes with specific testers
+  - Can revoke or deactivate codes without affecting registered users
+  - Tracks who used which code for analytics
+  - Supports both single-use codes (default) and shared codes
+- **Date**: 2026-01-21
+- **Status**: Final & Implemented
+- **Files**:
+  - `packages/backend/src/models/InviteCode.ts` (new model)
+  - `packages/backend/src/routes/admin.ts` (management endpoints)
+  - `packages/backend/src/routes/auth.ts` (validation on registration)
+  - `apps/web/src/pages/LoginPage.tsx` (invite code input)
+  - `apps/web/src/pages/AdminDashboard.tsx` (creation UI)
+
+---
+
+## Decision: Feedback System with Public Board
+
+- **Chosen**: Centralized public feedback board with categorization, upvoting, and admin management
+- **Rejected**:
+  - Email-based feedback (doesn't prevent duplicates)
+  - Private feedback to admin only (duplicates go unreported)
+  - Separate feedback per idea (scattered, doesn't show patterns)
+- **Rationale**:
+  - Public board prevents duplicate submissions
+  - Testers see others' feedback and can upvote
+  - Admin can prioritize by community votes
+  - Categorization helps organize feedback by type/area
+  - Admin notes are private (not visible to users)
+- **Date**: 2026-01-21
+- **Status**: Final & Implemented
+- **Files**:
+  - `packages/backend/src/models/Feedback.ts` (new model)
+  - `packages/backend/src/routes/feedback.ts` (CRUD endpoints)
+  - `apps/web/src/pages/FeedbackBoardPage.tsx` (public listing)
+  - `apps/web/src/pages/FeedbackDetailPage.tsx` (detail + admin controls)
+  - `apps/web/src/components/FeedbackButton.tsx` (floating button)
+
+---
+
+## Decision: Real-time Updates via Socket.io
+
+- **Chosen**: Socket.io for real-time events (feedback updates, upvotes, notifications)
+- **Rejected**:
+  - Polling (high latency, wasted requests)
+  - Server-Sent Events (doesn't support bidirectional)
+  - WebRTC (overkill for notifications)
+- **Rationale**:
+  - Immediate feedback status updates
+  - Real-time upvote count increments
+  - Admin notifications when feedback submitted
+  - Fallback to HTTP if WebSocket unavailable
+  - Existing Socket.io setup can be extended
+- **Date**: 2026-01-21
+- **Status**: Implemented in Phase 6
+- **Files**:
+  - `packages/backend/src/services/socketService.ts` (extended)
+  - `apps/web/src/services/socketService.ts` (client events)
 
 ---
 

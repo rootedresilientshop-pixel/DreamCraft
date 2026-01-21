@@ -189,7 +189,8 @@ export default function IdeaDetailPage() {
     if (!id) return;
     setLoadingNda(true);
     try {
-      const response = await fetch(`/api/ideas/${id}/nda`, {
+      const apiBase = (import.meta.env as any).VITE_API_BASE || 'http://localhost:3002';
+      const response = await fetch(`${apiBase}/api/ideas/${id}/nda`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         }

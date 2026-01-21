@@ -21,8 +21,26 @@ export default function AdminDashboard() {
   const [creatingCode, setCreatingCode] = useState(false);
 
   useEffect(() => {
+    // Check if user is admin
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userData);
+      if (user.userType !== 'admin') {
+        navigate('/');
+        return;
+      }
+    } catch {
+      navigate('/login');
+      return;
+    }
+
     loadDashboardData();
-  }, []);
+  }, [navigate]);
 
   const loadDashboardData = async () => {
     setLoading(true);
