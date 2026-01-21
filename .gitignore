@@ -21,3 +21,7 @@ local.properties
 web-build/
 .env
 CREDENTIALS_PRODUCTION.md
+FIX_*.md
+VERIFY_*.md
+*RENDER*.md
+*DEPLOYMENT*.md
