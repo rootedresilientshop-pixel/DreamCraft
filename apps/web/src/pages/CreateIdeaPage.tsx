@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import TemplateForm from '../components/TemplateForm';
 
+// Environment: VITE_API_BASE endpoint configured
+
 export default function CreateIdeaPage({ onSuccess }: any) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
