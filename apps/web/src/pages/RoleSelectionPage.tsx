@@ -6,6 +6,7 @@ import { saveToken, dispatchAuthChanged } from '../utils/authStorage';
 interface LocationState {
   email?: string;
   password?: string;
+  inviteCode?: string;
 }
 
 export default function RoleSelectionPage() {
@@ -22,6 +23,7 @@ export default function RoleSelectionPage() {
 
   const email = state?.email || '';
   const password = state?.password || '';
+  const inviteCode = state?.inviteCode || '';
 
   const handleRoleSelect = async (role: 'creator' | 'collaborator') => {
     setSelectedRole(role);
@@ -29,7 +31,7 @@ export default function RoleSelectionPage() {
     setError('');
 
     try {
-      const res = await api.register(email, password, role);
+      const res = await api.register(email, password, role, inviteCode);
 
       if (res.success || res.token) {
         // Save the token from registration so profile updates are authenticated

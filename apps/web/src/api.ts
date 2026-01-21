@@ -31,13 +31,14 @@ instance.interceptors.response.use(
 );
 
 export default {
-  async register(email: string, password: string, userType?: string) {
+  async register(email: string, password: string, userType?: string, inviteCode?: string) {
     try {
       const res = await instance.post("/auth/register", {
         email,
         username: email.split("@")[0],
         password,
         userType: userType || "creator",
+        inviteCode: inviteCode || undefined,
       });
       return res.data;
     } catch (error: any) {
@@ -244,6 +245,11 @@ export default {
     const res = await instance.post("/ideas/ai-suggestions", partialIdea);
     return res.data;
   },
+  async getLeaderboard(limit?: number) {
+    const params = limit ? `?limit=${limit}` : '';
+    const res = await instance.get(`/ideas/leaderboard/top${params}`);
+    return res.data;
+  },
   // Templates
   async getTemplates() {
     const res = await instance.get("/templates");
@@ -257,5 +263,77 @@ export default {
     } catch (error: any) {
       throw new Error(error.response?.data?.error || "Failed to create sample ideas");
     }
+  },
+  // Admin API methods
+  async createInviteCode(maxUses?: number, expiresAt?: string, description?: string) {
+    const res = await instance.post("/admin/invite-codes", {
+      maxUses,
+      expiresAt,
+      description,
+    });
+    return res.data;
+  },
+  async listInviteCodes() {
+    const res = await instance.get("/admin/invite-codes");
+    return res.data;
+  },
+  async getInviteCode(id: string) {
+    const res = await instance.get(`/admin/invite-codes/${id}`);
+    return res.data;
+  },
+  async deactivateInviteCode(id: string) {
+    const res = await instance.patch(`/admin/invite-codes/${id}/deactivate`);
+    return res.data;
+  },
+  async getBetaUsers() {
+    const res = await instance.get("/admin/beta-users");
+    return res.data;
+  },
+  async getAdminStats() {
+    const res = await instance.get("/admin/stats");
+    return res.data;
+  },
+  // Feedback API methods
+  async createFeedback(data: {
+    category: string;
+    title: string;
+    description: string;
+    priority: string;
+    attachmentUrl?: string;
+  }) {
+    const res = await instance.post("/feedback", data);
+    return res.data;
+  },
+  async listFeedback(status?: string, category?: string, sort?: string) {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (category) params.append('category', category);
+    if (sort) params.append('sort', sort);
+    const res = await instance.get(`/feedback${params.toString() ? '?' + params : ''}`);
+    return res.data;
+  },
+  async getMyFeedback() {
+    const res = await instance.get("/feedback/user/my-feedback");
+    return res.data;
+  },
+  async getFeedback(id: string) {
+    const res = await instance.get(`/feedback/${id}`);
+    return res.data;
+  },
+  async upvoteFeedback(id: string) {
+    const res = await instance.post(`/feedback/${id}/upvote`);
+    return res.data;
+  },
+  async updateFeedback(id: string, data: any) {
+    const res = await instance.patch(`/feedback/${id}`, data);
+    return res.data;
+  },
+  async deleteFeedback(id: string) {
+    const res = await instance.delete(`/feedback/${id}`);
+    return res.data;
+  },
+  async getFeedbackStats() {
+    const res = await instance.get("/feedback/stats/summary");
+    return res.data;
   },
 };

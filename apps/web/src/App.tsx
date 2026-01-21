@@ -8,6 +8,10 @@ import CreateIdeaPage from './pages/CreateIdeaPage';
 import CollaboratorsPage from './pages/CollaboratorsPage';
 import ProfilePage from './pages/ProfilePage';
 import IdeaDetailPage from './pages/IdeaDetailPage';
+import IdeaLeaderboardPage from './pages/IdeaLeaderboardPage';
+import AdminDashboard from './pages/AdminDashboard';
+import FeedbackBoardPage from './pages/FeedbackBoardPage';
+import FeedbackDetailPage from './pages/FeedbackDetailPage';
 import CheckoutPage from './pages/CheckoutPage';
 import NotificationsPage from './pages/NotificationsPage';
 import LogoutPage from './pages/LogoutPage';
@@ -16,6 +20,7 @@ import DashboardPage from './pages/DashboardPage';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { SocketProvider } from './contexts/SocketContext';
 import { loadToken, removeToken, dispatchAuthChanged } from './utils/authStorage';
+import FeedbackButton from './components/FeedbackButton';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -100,7 +105,11 @@ function App() {
               <>
                 <Route path="/" element={<MarketplacePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                <Route path="/leaderboard" element={<IdeaLeaderboardPage />} />
+                <Route path="/feedback" element={<FeedbackBoardPage />} />
+                <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
                 <Route path="/checkout/:id" element={<CheckoutPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
@@ -116,6 +125,9 @@ function App() {
             {!isLoggedIn && <Route path="/*" element={<Navigate to="/login" replace />} />}
             {isLoggedIn && <Route path="/*" element={<Navigate to="/" replace />} />}
           </Routes>
+
+          {/* Floating Feedback Button */}
+          {isLoggedIn && <FeedbackButton />}
         </NotificationProvider>
       </SocketProvider>
     </Router>

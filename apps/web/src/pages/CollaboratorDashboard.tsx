@@ -114,22 +114,34 @@ export default function CollaboratorDashboard() {
           <div style={styles.section}>
             <h2 style={styles.sectionTitle}>Workspace Overview</h2>
             <div style={styles.statsGrid}>
-              <div style={styles.statCard}>
+              <button
+                onClick={() => setActiveTab('collaborations')}
+                style={{...styles.statCard, border: 'none', background: 'inherit', cursor: 'pointer', padding: 0}}
+              >
                 <div style={styles.statLabel}>Active Collaborations</div>
                 <div style={styles.statValue}>{stats.myCollaborationsCount || 0}</div>
-              </div>
-              <div style={styles.statCard}>
+              </button>
+              <button
+                onClick={() => setActiveTab('invitations')}
+                style={{...styles.statCard, border: 'none', background: 'inherit', cursor: 'pointer', padding: 0}}
+              >
                 <div style={styles.statLabel}>Pending Invitations</div>
                 <div style={styles.statValue}>{stats.pendingInvitationsCount || 0}</div>
-              </div>
-              <div style={styles.statCard}>
+              </button>
+              <button
+                onClick={() => navigate('/marketplace')}
+                style={{...styles.statCard, border: 'none', background: 'inherit', cursor: 'pointer', padding: 0}}
+              >
                 <div style={styles.statLabel}>Ideas Available</div>
                 <div style={styles.statValue}>{ideas.length || 0}</div>
-              </div>
-              <div style={styles.statCard}>
+              </button>
+              <button
+                onClick={() => setActiveTab('tasks')}
+                style={{...styles.statCard, border: 'none', background: 'inherit', cursor: 'pointer', padding: 0}}
+              >
                 <div style={styles.statLabel}>Portfolio Items</div>
                 <div style={styles.statValue}>{stats.myIdeasCount || 0}</div>
-              </div>
+              </button>
             </div>
 
             <div style={styles.actionSection}>

@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
     stripeSubscriptionId: String,
   },
   verified: { type: Boolean, default: false },
+  betaAccess: { type: Boolean, default: false },
+  inviteCodeUsed: {
+    code: String,
+    usedAt: Date,
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

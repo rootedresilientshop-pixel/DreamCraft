@@ -34,6 +34,26 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// Get leaderboard - top rated ideas
+router.get('/leaderboard/top', async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const ideas = await Idea.find({
+      visibility: 'public',
+      'valuation.aiScore': { $exists: true }
+    })
+    .sort({ 'valuation.aiScore': -1, createdAt: -1 })
+    .limit(limit)
+    .populate('creatorId', 'username profile.firstName profile.lastName profile.avatar')
+    .lean();
+
+    res.json({ success: true, data: ideas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Failed to fetch leaderboard' });
+  }
+});
+
 // Get user's ideas (authenticated)
 router.get('/my-ideas', authenticateToken, async (req: Request, res: Response) => {
   try {

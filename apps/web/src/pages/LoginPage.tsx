@@ -9,6 +9,7 @@ export default function LoginPage() {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(() => (location.state as any)?.message || '');
@@ -26,10 +27,15 @@ export default function LoginPage() {
     try {
       if (isRegister) {
         // -------------------- REGISTER --------------------
+        if (!inviteCode) {
+          setError('Invite code is required to register');
+          setLoading(false);
+          return;
+        }
         // Redirect to role selection page (don't call api.register yet)
         console.log('Navigating to role selection with:', { email });
         navigate('/role-selection', {
-          state: { email, password },
+          state: { email, password, inviteCode },
           replace: false,
         });
         return;
@@ -157,6 +163,32 @@ export default function LoginPage() {
             onFocus={(e) => (e.currentTarget.style.borderColor = '#ffd700')}
             onBlur={(e) => (e.currentTarget.style.borderColor = '#444')}
           />
+
+          {isRegister && (
+            <input
+              id="invite-code"
+              name="invite-code"
+              type="text"
+              placeholder="Invite Code (required)"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginBottom: '15px',
+                backgroundColor: '#0f1419',
+                border: '1px solid #444',
+                color: '#fff',
+                borderRadius: '6px',
+                boxSizing: 'border-box',
+                fontSize: '14px',
+                transition: 'border-color 0.3s'
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = '#ffd700')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = '#444')}
+            />
+          )}
 
           {error && (
             <div

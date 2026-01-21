@@ -22,6 +22,8 @@ import messageRoutes from './routes/messages';
 import userRoutes from './routes/users';
 import favoriteRoutes from './routes/favorites';
 import templateRoutes from './routes/templates';
+import adminRoutes from './routes/admin';
+import feedbackRoutes from './routes/feedback';
 import connectDB from './db';
 import { requestLogger } from './middleware/logger';
 import { createRateLimiter } from './middleware/rateLimiter';
@@ -107,6 +109,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/feedback', feedbackRoutes);
 app.use('/api/transactions', (req, res) => {
   res.status(501).json({ error: 'Transactions routes not implemented' });
 });

@@ -196,20 +196,19 @@ export default function IdeaDetailPage() {
       });
       if (response.ok) {
         const text = await response.text();
-        const blob = new Blob([text], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${idea.title || 'idea'}-nda.txt`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        // Show NDA in modal instead of downloading
+        setNdaStatus({
+          ndaText: text,
+          ndaAcceptedByCreator: false,
+          ndaAcceptedByCollaborator: false,
+          bothAccepted: false
+        });
+        setShowNDAModal(true);
       } else {
-        alert('Failed to download NDA');
+        alert('Failed to load NDA');
       }
     } catch (err: any) {
-      alert('Error downloading NDA: ' + err.message);
+      alert('Error loading NDA: ' + err.message);
     } finally {
       setLoadingNda(false);
     }
@@ -221,6 +220,8 @@ export default function IdeaDetailPage() {
       const res = await api.valuateIdea(id!);
       if (res.success && res.data) {
         setIdea((prev: any) => ({ ...prev, valuation: res.data.valuation }));
+        // Refetch the idea to ensure data persists
+        await fetchIdea();
       } else {
         alert(res.error || 'Failed to generate valuation');
       }

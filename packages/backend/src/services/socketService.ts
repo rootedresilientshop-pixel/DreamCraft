@@ -38,6 +38,12 @@ export const initializeSocket = (httpServer: HTTPServer, allowedOrigins: string[
   io.on('connection', (socket: any) => {
     console.log('User connected:', socket.userId);
     socket.join(`user:${socket.userId}`);
+    socket.join('feedback'); // All users join feedback room for real-time updates
+
+    // Notify online status
+    socket.on('user:online', () => {
+      io.to(`user:${socket.userId}`).emit('status:online', { userId: socket.userId });
+    });
 
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.userId);
@@ -52,4 +58,28 @@ export const getIO = (): any => {
     throw new Error('Socket.io not initialized. Call initializeSocket first.');
   }
   return io;
+};
+
+// Emit feedback created event
+export const emitFeedbackCreated = (feedback: any): void => {
+  const instance = getIO();
+  instance.to('feedback').emit('feedback:created', feedback);
+};
+
+// Emit feedback updated event
+export const emitFeedbackUpdated = (feedback: any): void => {
+  const instance = getIO();
+  instance.to('feedback').emit('feedback:updated', feedback);
+};
+
+// Emit feedback upvoted event
+export const emitFeedbackUpvoted = (feedbackId: string, upvotes: number): void => {
+  const instance = getIO();
+  instance.to('feedback').emit('feedback:upvoted', { feedbackId, upvotes });
+};
+
+// Emit notification event
+export const emitNotification = (userId: string, notification: any): void => {
+  const instance = getIO();
+  instance.to(`user:${userId}`).emit('notification:new', notification);
 };
