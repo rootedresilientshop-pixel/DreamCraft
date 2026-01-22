@@ -127,13 +127,8 @@ export default function IdeaDetailPage() {
       if (res.success) {
         setCollaborationId(res.data._id);
         setShowCollaborationForm(false);
-        setShowNDAModal(true);
-        setNdaStatus({
-          ndaAcceptedByCreator: false,
-          ndaAcceptedByCollaborator: false,
-          bothAccepted: false,
-          ndaText: res.data.ndaText || 'Standard NDA for idea collaboration - Both parties agree not to disclose proprietary information without written consent.'
-        });
+        // Show success message - NDA modal will appear when creator accepts
+        alert('✓ Collaboration proposal sent! Waiting for creator to accept.');
       } else {
         alert(res.error || 'Failed to propose collaboration');
       }
