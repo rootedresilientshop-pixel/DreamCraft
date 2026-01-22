@@ -10,8 +10,6 @@ export default function CreatorDashboard() {
   const [invitations, setInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [creatingsamples, setCreatingSamples] = useState(false);
-  const [sampleMessage, setSampleMessage] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -63,24 +61,6 @@ export default function CreatorDashboard() {
       }
     } catch (err: any) {
       setError(err.message || 'Failed to reject invitation');
-    }
-  };
-
-  const handleCreateSamples = async () => {
-    setCreatingSamples(true);
-    setSampleMessage('');
-    try {
-      const res = await api.createSampleIdeas();
-      setSampleMessage(`✓ Created ${res.data?.length || 4} sample ideas! Collaborators can now see them in the marketplace.`);
-      setTimeout(() => {
-        loadDashboardData();
-        setSampleMessage('');
-      }, 2000);
-    } catch (err: any) {
-      setSampleMessage('❌ Failed to create sample ideas: ' + (err.message || 'Unknown error'));
-      setTimeout(() => setSampleMessage(''), 3000);
-    } finally {
-      setCreatingSamples(false);
     }
   };
 
@@ -193,31 +173,7 @@ export default function CreatorDashboard() {
                 >
                   Browse Ideas
                 </button>
-                <button
-                  onClick={handleCreateSamples}
-                  disabled={creatingsamples}
-                  style={{
-                    ...styles.actionBtnSecondary,
-                    opacity: creatingsamples ? 0.6 : 1,
-                    cursor: creatingsamples ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  {creatingsamples ? '⏳ Creating...' : '📊 Create Sample Ideas'}
-                </button>
               </div>
-              {sampleMessage && (
-                <div style={{
-                  marginTop: '12px',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  backgroundColor: sampleMessage.includes('✓') ? '#1f3d2f' : '#3d1f1f',
-                  border: sampleMessage.includes('✓') ? '1px solid #3f7a54' : '1px solid #7a3f3f',
-                  color: sampleMessage.includes('✓') ? '#66ff99' : '#ff6666',
-                  fontSize: '14px',
-                }}>
-                  {sampleMessage}
-                </div>
-              )}
             </div>
           </div>
         )}
