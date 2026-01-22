@@ -25,7 +25,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     const apiBase = (import.meta.env as any).VITE_API_BASE || 'http://localhost:3002';
-    const newSocket = io(apiBase, {
+    // Socket.io needs the server root URL, not the /api endpoint
+    const socketUrl = apiBase.replace('/api', '');
+    const newSocket = io(socketUrl, {
       auth: { token },
       reconnection: true,
       reconnectionDelay: 1000,
