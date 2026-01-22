@@ -63,7 +63,7 @@ router.post('/invite-codes', checkAdmin, async (req: Request, res: Response) => 
 });
 
 // List all invite codes
-router.get('/invite-codes', checkAdmin, async (req: Request, res: Response) => {
+router.get('/invite-codes', checkAdmin, async (_req: Request, res: Response) => {
   try {
     const codes = await InviteCode.find()
       .populate('createdBy', 'username email')
@@ -124,11 +124,11 @@ router.patch('/invite-codes/:id/deactivate', checkAdmin, async (req: Request, re
 });
 
 // Get beta user statistics
-router.get('/beta-users', checkAdmin, async (req: Request, res: Response) => {
+router.get('/beta-users', checkAdmin, async (_req: Request, res: Response) => {
   try {
     const totalBetaUsers = await User.countDocuments({ betaAccess: true });
     const totalInviteCodes = await InviteCode.countDocuments();
-    const activeInviteCodes = await InviteCode.countDocuments({ active: true });
+    const activeInviteCodes = await InviteCode.countDocuments({ isActive: true });
     const totalRegistrations = await User.countDocuments();
 
     const recentUsers = await User.find({ betaAccess: true })
@@ -154,7 +154,7 @@ router.get('/beta-users', checkAdmin, async (req: Request, res: Response) => {
 });
 
 // Get overall platform statistics
-router.get('/stats', checkAdmin, async (req: Request, res: Response) => {
+router.get('/stats', checkAdmin, async (_req: Request, res: Response) => {
   try {
     const totalUsers = await User.countDocuments();
     const creators = await User.countDocuments({ userType: 'creator' });

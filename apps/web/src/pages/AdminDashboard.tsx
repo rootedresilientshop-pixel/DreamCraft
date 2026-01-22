@@ -284,12 +284,12 @@ export default function AdminDashboard() {
                       <span
                         style={{
                           ...styles.statusBadge,
-                          backgroundColor: code.active ? '#00cc66' : '#666',
+                          backgroundColor: code.isActive ? '#00cc66' : '#666',
                         }}
                       >
-                        {code.active ? 'Active' : 'Inactive'}
+                        {code.isActive ? 'Active' : 'Inactive'}
                       </span>
-                      {code.active && (
+                      {code.isActive && (
                         <button
                           onClick={() => handleDeactivateCode(code._id)}
                           style={styles.deactivateButton}
