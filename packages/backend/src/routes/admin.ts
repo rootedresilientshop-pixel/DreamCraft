@@ -31,12 +31,23 @@ router.post('/invite-codes', checkAdmin, async (req: Request, res: Response) => 
     const { maxUses, expiresAt, description } = req.body;
     const userId = (req as any).userId;
 
+    // Generate unique invite code (format: BETA-XXXXXX)
+    const generateCode = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = 'BETA-';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    };
+
     const inviteCode = new InviteCode({
+      code: generateCode(),
       createdBy: userId,
       maxUses: maxUses || -1,
       expiresAt: expiresAt ? new Date(expiresAt) : undefined,
-      description,
-      active: true,
+      notes: description,
+      isActive: true,
     });
 
     await inviteCode.save();
@@ -94,7 +105,7 @@ router.patch('/invite-codes/:id/deactivate', checkAdmin, async (req: Request, re
   try {
     const code = await InviteCode.findByIdAndUpdate(
       req.params.id,
-      { active: false },
+      { isActive: false },
       { new: true }
     );
 
