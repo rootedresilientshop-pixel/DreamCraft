@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
 import heroImage from '../assets/dreamcraft-hero.svg';
 import { saveToken, dispatchAuthChanged } from '../utils/authStorage';
+import DreamCraftLogo from '../components/DreamCraftLogo';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -99,19 +100,22 @@ export default function LoginPage() {
         }}
       >
         <div style={{ maxWidth: '400px', width: '100%' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <h1
-              style={{
-                color: '#ffd700',
-                marginBottom: '8px',
-                fontSize: '36px',
-                fontWeight: 'bold',
-                letterSpacing: '1px'
-              }}
-            >
-              DreamCraft
-            </h1>
-            <p style={{ color: '#ccc', fontSize: '16px' }}>Turn Your Ideas Into Reality</p>
+          <div style={{ textAlign: 'center', marginBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <DreamCraftLogo size={64} variant="icon" />
+            <div>
+              <h1
+                style={{
+                  color: '#ffd700',
+                  marginBottom: '8px',
+                  fontSize: '36px',
+                  fontWeight: 'bold',
+                  letterSpacing: '1px'
+                }}
+              >
+                DreamCraft
+              </h1>
+              <p style={{ color: '#ccc', fontSize: '16px' }}>Turn Your Ideas Into Reality</p>
+            </div>
           </div>
 
           <input

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import DashboardFooter from '../components/DashboardFooter';
 
 export default function CollaboratorDashboard() {
   const navigate = useNavigate();
@@ -347,6 +348,9 @@ export default function CollaboratorDashboard() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <DashboardFooter />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import api from '../api';
 import { getFavorites, addFavorite, removeFavorite, isFavorite } from '../utils/favorites';
 import NotificationBell from '../components/NotificationBell';
 import Footer from '../components/Footer';
+import DreamCraftLogo from '../components/DreamCraftLogo';
 
 export default function MarketplacePage() {
   const navigate = useNavigate();
@@ -66,9 +67,12 @@ export default function MarketplacePage() {
         ← Back to Dashboard
       </button>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '10px', flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ margin: 0 }}>Marketplace</h1>
-          <p style={{ color: '#999', margin: '5px 0 0 0' }}>Discover innovative ideas</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <DreamCraftLogo size={40} variant="icon" />
+          <div>
+            <h1 style={{ margin: 0 }}>Marketplace</h1>
+            <p style={{ color: '#999', margin: '5px 0 0 0' }}>Discover innovative ideas</p>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <NotificationBell />
@@ -87,6 +91,22 @@ export default function MarketplacePage() {
             }}
           >
             + New Idea
+          </Link>
+          <Link
+            to="/leaderboard"
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#ffaa00',
+              color: '#000',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              fontWeight: '600',
+              fontSize: '14px',
+            }}
+          >
+            🏆 Leaderboard
           </Link>
           <Link
             to="/collaborators"

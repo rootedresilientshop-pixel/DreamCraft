@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import DashboardFooter from '../components/DashboardFooter';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -419,6 +420,9 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <DashboardFooter />
     </div>
   );
 }

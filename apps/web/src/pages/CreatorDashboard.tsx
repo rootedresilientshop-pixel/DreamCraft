@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import DashboardFooter from '../components/DashboardFooter';
 
 export default function CreatorDashboard() {
   const navigate = useNavigate();
@@ -271,6 +272,9 @@ export default function CreatorDashboard() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <DashboardFooter />
     </div>
   );
 }
