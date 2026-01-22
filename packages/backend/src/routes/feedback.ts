@@ -70,12 +70,12 @@ router.get('/', async (req: Request, res: Response) => {
     if (status) query.status = status;
     if (category) query.category = category;
 
-    const sortOption = sort === 'upvotes' ? { upvotes: -1 } : { createdAt: -1 };
+    const sortOption = sort === 'upvotes' ? { upvoteCount: -1 } : { createdAt: -1 };
 
     const feedback = await Feedback.find(query)
       .populate('userId', 'username email avatar')
       .populate('assignedTo', 'username email')
-      .sort(sortOption)
+      .sort(sortOption as any)
       .limit(100);
 
     res.json({

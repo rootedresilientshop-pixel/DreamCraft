@@ -194,6 +194,8 @@ router.patch('/invitations/:id/accept', authenticateToken, async (req: Request, 
     const userId = (req as any).userId;
     const collaboration = await Collaboration.findById(req.params.id);
 
+    console.log('Accept invitation - ID:', req.params.id, 'User:', userId, 'Collaboration:', collaboration);
+
     if (!collaboration) {
       return res.status(404).json({ success: false, error: 'Invitation not found' });
     }
@@ -202,12 +204,14 @@ router.patch('/invitations/:id/accept', authenticateToken, async (req: Request, 
     const isCollaborator = collaboration.collaboratorId.toString() === userId;
     const isCreator = collaboration.creatorId.toString() === userId;
 
+    console.log('isCollaborator:', isCollaborator, 'isCreator:', isCreator, 'Status:', collaboration.status);
+
     if (!isCollaborator && !isCreator) {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
     if (collaboration.status !== 'pending') {
-      return res.status(400).json({ success: false, error: 'Invitation already responded to' });
+      return res.status(400).json({ success: false, error: `Invitation already responded to (status: ${collaboration.status})` });
     }
 
     collaboration.status = 'accepted';
