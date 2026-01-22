@@ -85,9 +85,8 @@ export default function IdeaDetailPage() {
       const res = await api.acceptNDA(collaborationId);
       if (res.success) {
         setNdaStatus(res.data);
-        if (res.data.bothAccepted) {
-          setShowNDAModal(false);
-        }
+        // Close modal after accepting (user can review final status)
+        setShowNDAModal(false);
       }
     } catch (err: any) {
       alert(err.message || 'Failed to accept NDA');
