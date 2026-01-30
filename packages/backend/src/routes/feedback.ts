@@ -107,6 +107,35 @@ router.get('/user/my-feedback', authenticateToken, async (req: Request, res: Res
   }
 });
 
+// Get feedback statistics (must be before /:id route)
+router.get('/stats/summary', async (req: Request, res: Response) => {
+  try {
+    const total = await Feedback.countDocuments();
+    const open = await Feedback.countDocuments({ status: 'open' });
+    const inProgress = await Feedback.countDocuments({ status: 'in-progress' });
+    const resolved = await Feedback.countDocuments({ status: 'resolved' });
+
+    const byCategory = await Feedback.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        total,
+        byStatus: { open, inProgress, resolved },
+        byCategory: byCategory.reduce((acc: any, item: any) => {
+          acc[item._id] = item.count;
+          return acc;
+        }, {}),
+      },
+    });
+  } catch (err) {
+    console.error('Error fetching feedback stats:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch statistics' });
+  }
+});
+
 // Get single feedback
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -253,35 +282,6 @@ router.delete('/:id', authenticateToken, async (req: Request, res: Response) => 
   } catch (err) {
     console.error('Error deleting feedback:', err);
     res.status(500).json({ success: false, error: 'Failed to delete feedback' });
-  }
-});
-
-// Get feedback statistics
-router.get('/stats/summary', async (req: Request, res: Response) => {
-  try {
-    const total = await Feedback.countDocuments();
-    const open = await Feedback.countDocuments({ status: 'open' });
-    const inProgress = await Feedback.countDocuments({ status: 'in-progress' });
-    const resolved = await Feedback.countDocuments({ status: 'resolved' });
-
-    const byCategory = await Feedback.aggregate([
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        total,
-        byStatus: { open, inProgress, resolved },
-        byCategory: byCategory.reduce((acc: any, item: any) => {
-          acc[item._id] = item.count;
-          return acc;
-        }, {}),
-      },
-    });
-  } catch (err) {
-    console.error('Error fetching feedback stats:', err);
-    res.status(500).json({ success: false, error: 'Failed to fetch statistics' });
   }
 });
 
