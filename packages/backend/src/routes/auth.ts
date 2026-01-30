@@ -174,4 +174,71 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// Bootstrap endpoint: Create first admin user (protected by ADMIN_SETUP_TOKEN)
+router.post("/bootstrap-admin", async (req: Request, res: Response) => {
+  try {
+    const { email, password, setupToken } = req.body;
+
+    // Check setup token
+    const validToken = process.env.ADMIN_SETUP_TOKEN;
+    if (!validToken || setupToken !== validToken) {
+      return res.status(403).json({ success: false, error: "Invalid setup token" });
+    }
+
+    // Validate inputs
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: "Email and password are required" });
+    }
+
+    // Check if admin already exists
+    const existingAdmin = await User.findOne({ userType: "admin" });
+    if (existingAdmin) {
+      return res.status(400).json({ success: false, error: "Admin user already exists" });
+    }
+
+    const username = email.split("@")[0];
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      email,
+      username,
+      password: hashedPassword,
+      userType: "admin",
+      verified: true,
+      betaAccess: true,
+      profile: {
+        firstName: "Admin",
+        lastName: "User",
+        profileCompleted: true,
+      },
+    });
+
+    await user.save();
+
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      return res.status(500).json({ success: false, error: "Server configuration error: JWT_SECRET missing" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "7d",
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Admin user created successfully",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        userType: user.userType,
+      },
+    });
+  } catch (error) {
+    console.error("Bootstrap admin error:", error);
+    res.status(500).json({ success: false, error: "Failed to create admin user" });
+  }
+});
+
 export default router;
