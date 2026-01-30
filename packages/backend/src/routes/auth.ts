@@ -38,14 +38,14 @@ router.post("/register", async (req: Request, res: Response) => {
         .json({ success: false, error: "Username must be between 3 and 25 characters" });
     }
 
-    // Validate invite code
-    let betaAccess = false;
+    // Validate invite code (optional for open testing phase)
+    let betaAccess = true; // All users in testing phase get beta access
     let inviteCodeRecord = null;
 
     if (inviteCode) {
       inviteCodeRecord = await InviteCode.findOne({
         code: inviteCode.toUpperCase(),
-        active: true,
+        isActive: true,
       });
 
       if (!inviteCodeRecord) {
@@ -64,12 +64,8 @@ router.post("/register", async (req: Request, res: Response) => {
       ) {
         return res.status(400).json({ success: false, error: "Invite code has reached maximum uses" });
       }
-
-      betaAccess = true;
-    } else {
-      // Require invite code for registration
-      return res.status(400).json({ success: false, error: "Invite code is required to register" });
     }
+    // Invite code is optional - users can register without one during testing phase
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
@@ -83,10 +79,12 @@ router.post("/register", async (req: Request, res: Response) => {
       password: hashedPassword,
       userType: userType || "creator",
       betaAccess,
-      inviteCodeUsed: {
-        code: inviteCode.toUpperCase(),
-        usedAt: new Date(),
-      },
+      ...(inviteCode && {
+        inviteCodeUsed: {
+          code: inviteCode.toUpperCase(),
+          usedAt: new Date(),
+        },
+      }),
     });
 
     await user.save();

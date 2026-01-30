@@ -28,15 +28,11 @@ export default function LoginPage() {
     try {
       if (isRegister) {
         // -------------------- REGISTER --------------------
-        if (!inviteCode) {
-          setError('Invite code is required to register');
-          setLoading(false);
-          return;
-        }
+        // Invite code is now optional for open testing phase
         // Redirect to role selection page (don't call api.register yet)
-        console.log('Navigating to role selection with:', { email });
+        console.log('Navigating to role selection with:', { email, hasInviteCode: !!inviteCode });
         navigate('/role-selection', {
-          state: { email, password, inviteCode },
+          state: { email, password, inviteCode: inviteCode || undefined },
           replace: false,
         });
         return;
@@ -173,7 +169,7 @@ export default function LoginPage() {
               id="invite-code"
               name="invite-code"
               type="text"
-              placeholder="Invite Code (required)"
+              placeholder="Invite Code (optional)"
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
