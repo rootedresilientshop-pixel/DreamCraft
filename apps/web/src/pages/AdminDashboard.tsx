@@ -48,11 +48,26 @@ export default function AdminDashboard() {
     setError('');
     try {
       const [statsRes, betaRes, codesRes, feedbackRes, feedbackStatsRes] = await Promise.all([
-        api.getAdminStats(),
-        api.getBetaUsers(),
-        api.listInviteCodes(),
-        api.listFeedback(),
-        api.getFeedbackStats(),
+        api.getAdminStats().catch(err => {
+          console.error('Error loading stats:', err.response?.data || err.message);
+          return { success: false, error: err.response?.data?.error || 'Failed to load stats' };
+        }),
+        api.getBetaUsers().catch(err => {
+          console.error('Error loading beta users:', err.response?.data || err.message);
+          return { success: false, error: err.response?.data?.error || 'Failed to load beta users' };
+        }),
+        api.listInviteCodes().catch(err => {
+          console.error('Error loading invite codes:', err.response?.data || err.message);
+          return { success: false, error: err.response?.data?.error || 'Failed to load invite codes' };
+        }),
+        api.listFeedback().catch(err => {
+          console.error('Error loading feedback:', err.response?.data || err.message);
+          return { success: false, error: err.response?.data?.error || 'Failed to load feedback' };
+        }),
+        api.getFeedbackStats().catch(err => {
+          console.error('Error loading feedback stats:', err.response?.data || err.message);
+          return { success: false, error: err.response?.data?.error || 'Failed to load feedback stats' };
+        }),
       ]);
 
       if (statsRes.success) setStats(statsRes.data);
@@ -60,6 +75,14 @@ export default function AdminDashboard() {
       if (codesRes.success) setInviteCodes(codesRes.data);
       if (feedbackRes.success) setFeedbackList(feedbackRes.data);
       if (feedbackStatsRes.success) setFeedbackStats(feedbackStatsRes.data);
+
+      // Check if any failed
+      const failures = [statsRes, betaRes, codesRes, feedbackRes, feedbackStatsRes].filter(r => !r.success);
+      if (failures.length > 0) {
+        const errorMessages = failures.map(f => f.error).join(', ');
+        setError(`Failed to load some data: ${errorMessages}`);
+        console.error('Dashboard data load failures:', failures);
+      }
     } catch (err) {
       console.error('Failed to load admin dashboard:', err);
       setError('Failed to load dashboard data');
