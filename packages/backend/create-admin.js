@@ -46,12 +46,25 @@ const User = mongoose.model('User', userSchema);
 
 async function createAdmin() {
   try {
+    // Check if MONGODB_URI is provided
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ Error: MONGODB_URI environment variable not set');
+      console.log('\n📋 Usage:');
+      console.log('   MONGODB_URI="mongodb+srv://..." node create-admin.js');
+      console.log('\n📌 Get your MONGODB_URI from:');
+      console.log('   1. Render Dashboard → Your Backend Service → Environment');
+      console.log('   2. Copy the MONGODB_URI value');
+      console.log('   3. Run the command above with your actual URI');
+      process.exit(1);
+    }
+
+    console.log('🔗 Connecting to MongoDB...');
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
 
     const adminEmail = 'admin@dreamcraft.io';
     const adminUsername = 'admin';
