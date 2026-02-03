@@ -5,7 +5,7 @@ import DashboardFooter from '../components/DashboardFooter';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'invite-codes' | 'beta-users' | 'feedback'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'invite-codes' | 'beta-users' | 'feedback' | 'users'>('overview');
   const [stats, setStats] = useState<any>(null);
   const [betaStats, setBetaStats] = useState<any>(null);
   const [inviteCodes, setInviteCodes] = useState<any[]>([]);
@@ -20,6 +20,9 @@ export default function AdminDashboard() {
     description: '',
   });
   const [creatingCode, setCreatingCode] = useState(false);
+  const [deleteUserEmail, setDeleteUserEmail] = useState('');
+  const [deletingUser, setDeletingUser] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<any>(null);
 
   useEffect(() => {
     // Check if user is admin
@@ -131,6 +134,33 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!deleteUserEmail.trim()) {
+      alert('Please enter an email address');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to DELETE the user "${deleteUserEmail}"? This cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingUser(true);
+    try {
+      const res = await api.deleteUser(deleteUserEmail);
+      if (res.success) {
+        setDeleteSuccess(res.deletedUser);
+        setDeleteUserEmail('');
+        setTimeout(() => setDeleteSuccess(null), 5000);
+      } else {
+        alert(res.error || 'Failed to delete user');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error deleting user');
+    } finally {
+      setDeletingUser(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={styles.container}>
@@ -170,7 +200,7 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div style={styles.tabsContainer}>
           <div style={styles.tabs}>
-            {(['overview', 'invite-codes', 'beta-users', 'feedback'] as const).map((tab) => (
+            {(['overview', 'invite-codes', 'beta-users', 'feedback', 'users'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -183,6 +213,7 @@ export default function AdminDashboard() {
                 {tab === 'invite-codes' && '🔑 Invite Codes'}
                 {tab === 'beta-users' && '👥 Beta Users'}
                 {tab === 'feedback' && '💬 Feedback'}
+                {tab === 'users' && '🗑️ Delete Users'}
               </button>
             ))}
           </div>
@@ -440,6 +471,56 @@ export default function AdminDashboard() {
             >
               View All Feedback →
             </button>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div>
+            <h2 style={styles.sectionTitle}>🗑️ Delete User Account</h2>
+            <p style={{ color: '#999', marginBottom: '20px' }}>
+              Use this to reset user accounts for testers who forgot their passwords. The user can re-register with the same email.
+            </p>
+
+            {deleteSuccess && (
+              <div style={{ ...styles.successBox, marginBottom: '20px' }}>
+                <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>✅ User Deleted Successfully</p>
+                <p style={{ margin: '5px 0', fontSize: '14px' }}>Email: {deleteSuccess.email}</p>
+                <p style={{ margin: '5px 0', fontSize: '14px' }}>Username: {deleteSuccess.username}</p>
+                <p style={{ margin: '5px 0', fontSize: '14px' }}>User Type: {deleteSuccess.userType}</p>
+              </div>
+            )}
+
+            <div style={styles.deleteUserForm}>
+              <input
+                type="email"
+                placeholder="Enter user email to delete..."
+                value={deleteUserEmail}
+                onChange={(e) => setDeleteUserEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleDeleteUser()}
+                style={styles.deleteUserInput}
+              />
+              <button
+                onClick={handleDeleteUser}
+                disabled={deletingUser || !deleteUserEmail.trim()}
+                style={{
+                  ...styles.deleteUserButton,
+                  opacity: deletingUser || !deleteUserEmail.trim() ? 0.6 : 1,
+                  cursor: deletingUser || !deleteUserEmail.trim() ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {deletingUser ? '🔄 Deleting...' : '🗑️ Delete User'}
+              </button>
+            </div>
+
+            <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#1a1a2e', borderRadius: '8px', border: '1px solid #ff6b6b' }}>
+              <p style={{ color: '#ff6b6b', fontWeight: 'bold', margin: '0 0 10px 0' }}>⚠️ Warning</p>
+              <ul style={{ color: '#ccc', fontSize: '14px', marginLeft: '20px' }}>
+                <li>This action is permanent and cannot be undone</li>
+                <li>All user data will be deleted from the database</li>
+                <li>The user can re-register with the same email after deletion</li>
+                <li>Admin accounts cannot be deleted through this interface</li>
+              </ul>
+            </div>
           </div>
         )}
       </div>
@@ -750,5 +831,46 @@ const styles: any = {
     cursor: 'pointer',
     fontWeight: '600',
     fontSize: '14px',
+  },
+  sectionTitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: '16px',
+    margin: '0 0 16px 0',
+  },
+  deleteUserForm: {
+    display: 'flex',
+    gap: '12px',
+    marginBottom: '20px',
+  },
+  deleteUserInput: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#1a1a1a',
+    border: '1px solid #333',
+    borderRadius: '6px',
+    color: '#fff',
+    fontSize: '14px',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+  },
+  deleteUserButton: {
+    padding: '12px 24px',
+    backgroundColor: '#ff3333',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '14px',
+    whiteSpace: 'nowrap',
+  },
+  successBox: {
+    backgroundColor: '#003300',
+    border: '1px solid #00cc00',
+    borderRadius: '6px',
+    padding: '15px',
+    color: '#00cc00',
   },
 };
