@@ -189,4 +189,45 @@ router.get('/stats', checkAdmin, async (_req: Request, res: Response) => {
   }
 });
 
+// Delete user by email (admin only)
+router.delete('/users/:email', checkAdmin, async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email: decodeURIComponent(email) });
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    // Prevent deleting admin users
+    if (user.userType === 'admin') {
+      return res.status(403).json({ success: false, error: 'Cannot delete admin users' });
+    }
+
+    const userData = {
+      email: user.email,
+      username: user.username,
+      userType: user.userType,
+      createdAt: user.createdAt,
+    };
+
+    await User.deleteOne({ email: decodeURIComponent(email) });
+
+    console.log(`Admin deleted user: ${email}`);
+
+    res.json({
+      success: true,
+      message: `User ${email} has been deleted and can now re-register`,
+      deletedUser: userData,
+    });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete user' });
+  }
+});
+
 export default router;

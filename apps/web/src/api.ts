@@ -293,6 +293,10 @@ export default {
     const res = await instance.get("/admin/stats");
     return res.data;
   },
+  async deleteUser(email: string) {
+    const res = await instance.delete(`/admin/users/${encodeURIComponent(email)}`);
+    return res.data;
+  },
   // Feedback API methods
   async createFeedback(data: {
     category: string;
