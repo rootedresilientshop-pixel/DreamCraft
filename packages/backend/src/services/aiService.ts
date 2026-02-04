@@ -1,29 +1,9 @@
-import { OpenAI } from 'openai';
+import { getLLMProvider } from './llmProvider';
 
-let openai: OpenAI | null = null;
-
-const getOpenAIClient = () => {
-  if (!openai && process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  }
-  return openai;
-};
+const llm = getLLMProvider();
 
 export const generateIdeaValuation = async (idea: any) => {
   try {
-    const client = getOpenAIClient();
-    if (!client) {
-      return {
-        estimatedValue: 5000,
-        aiScore: 50,
-        marketSize: 'Unknown',
-        confidence: 0,
-        analysis: 'OpenAI API key not configured',
-      };
-    }
-
     const prompt = `
     Evaluate this business idea and provide a JSON response with the following fields:
     - estimatedValue: estimated market value in USD (number)
@@ -39,14 +19,8 @@ export const generateIdeaValuation = async (idea: any) => {
     Solution: ${idea.documentation.solutionOverview}
     `;
 
-    const response = await client.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-    });
-
-    const content = response.choices[0].message.content;
-    const jsonMatch = content?.match(/\{[\s\S]*\}/);
+    const response = await llm.generateCompletion(prompt, 0.7);
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
     const valuation = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
 
     return valuation;
@@ -88,16 +62,6 @@ export const generateNDAText = (creatorName: string, ideaTitle: string) => {
 
 export const validateAndScoreIdea = async (idea: any) => {
   try {
-    const client = getOpenAIClient();
-    if (!client) {
-      return {
-        score: 50,
-        strengths: ['Unable to analyze - API key not configured'],
-        weaknesses: ['Configure OPENAI_API_KEY environment variable'],
-        suggestions: ['Set up OpenAI integration to enable AI analysis'],
-      };
-    }
-
     const prompt = `Analyze this business idea and provide validation feedback in JSON format.
 
 Title: ${idea.title}
@@ -112,14 +76,8 @@ Return JSON with these fields:
   "suggestions": [<array of 3-5 specific, actionable improvements>]
 }`;
 
-    const response = await client.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-    });
-
-    const content = response.choices[0].message.content;
-    const jsonMatch = content?.match(/\{[\s\S]*\}/);
+    const response = await llm.generateCompletion(prompt, 0.7);
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
     const validation = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
 
     return {
@@ -141,15 +99,6 @@ Return JSON with these fields:
 
 export const generateAISuggestions = async (partialIdea: any) => {
   try {
-    const client = getOpenAIClient();
-    if (!client) {
-      return {
-        titleSuggestions: [],
-        descriptionSuggestions: [],
-        categorySuggestion: null,
-      };
-    }
-
     const prompt = `As a startup advisor, help improve this idea submission.
 
 Current Title: ${partialIdea.title || '(empty)'}
@@ -163,14 +112,8 @@ Provide suggestions in JSON format:
   "categorySuggestion": <best category from: Technology, Healthcare, Finance, Education, Entertainment, E-Commerce, Other, or null if current is good>
 }`;
 
-    const response = await client.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.8,
-    });
-
-    const content = response.choices[0].message.content;
-    const jsonMatch = content?.match(/\{[\s\S]*\}/);
+    const response = await llm.generateCompletion(prompt, 0.8);
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
     const suggestions = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
 
     return {

@@ -1,6 +1,10 @@
+import dotenv from 'dotenv';
+
+// Load environment variables BEFORE any other imports
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import http from 'http';
 
 // Extend Socket interface to include userId
@@ -24,14 +28,13 @@ import favoriteRoutes from './routes/favorites';
 import templateRoutes from './routes/templates';
 import adminRoutes from './routes/admin';
 import feedbackRoutes from './routes/feedback';
+import aiRoutes from './routes/ai';
 import connectDB from './db';
 import { requestLogger } from './middleware/logger';
 import { createRateLimiter } from './middleware/rateLimiter';
 import { initializeSocket } from './services/socketService';
 
 console.log('Starting DreamCraft backend...');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -111,6 +114,7 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/transactions', (req, res) => {
   res.status(501).json({ error: 'Transactions routes not implemented' });
 });
